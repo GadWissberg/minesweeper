@@ -152,3 +152,8 @@ Thumbs.db
 *~
 *.*#
 *#*#
+/.editorconfig
+/.gitattributes
+/gradle/wrapper/
+/gradlew
+/gradlew.bat

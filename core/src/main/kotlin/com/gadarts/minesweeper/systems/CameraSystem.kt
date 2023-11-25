@@ -3,9 +3,10 @@ package com.gadarts.minesweeper.systems
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.gadarts.minesweeper.MineSweeper
+import com.gadarts.minesweeper.systems.MapSystem.Companion.TEMP_GROUND_SIZE
 
 
 class CameraSystem : GameEntitySystem(), InputProcessor {
@@ -14,15 +15,16 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
 
     override fun createGlobalData(systemsGlobalData: SystemsGlobalData) {
         super.createGlobalData(systemsGlobalData)
-        val cam = OrthographicCamera(
-            MineSweeper.PORTRAIT_RESOLUTION_WIDTH.toFloat() / SCALE_FACTOR,
-            MineSweeper.PORTRAIT_RESOLUTION_HEIGHT.toFloat() / SCALE_FACTOR
+        val cam = PerspectiveCamera(
+            67F,
+            MineSweeper.PORTRAIT_RESOLUTION_WIDTH.toFloat(),
+            MineSweeper.PORTRAIT_RESOLUTION_HEIGHT.toFloat()
         )
         cam.near = NEAR
         cam.far = FAR
         cam.update()
-        cam.position.set(2f, 16f, 4f)
-        cam.lookAt(2f, 0f, 0f)
+        cam.position.set(TEMP_GROUND_SIZE / 2F, 16f, 10f)
+        cam.lookAt(TEMP_GROUND_SIZE / 2F, 0f, 0f)
         systemsGlobalData.camera = cam
         cameraInputController = CameraInputController(cam)
         Gdx.input.inputProcessor = cameraInputController
@@ -85,7 +87,6 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     }
 
     companion object {
-        private const val SCALE_FACTOR = 50
         private const val FAR = 100f
         private const val NEAR = 0.01f
     }

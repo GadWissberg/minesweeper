@@ -1,8 +1,8 @@
 package com.gadarts.minesweeper.systems
 
-import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.PerspectiveCamera
 
 class SystemsGlobalData {
 
-    lateinit var camera: OrthographicCamera
+    lateinit var camera: PerspectiveCamera
 }

@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 
 
@@ -36,10 +37,15 @@ class EntityBuilder {
         currentEntity = null
     }
 
-    fun addModelInstanceComponent(modelInstance: ModelInstance?): EntityBuilder {
+    fun addModelInstanceComponent(modelInstance: ModelInstance): EntityBuilder {
+        return addModelInstanceComponent(modelInstance, Vector3.Zero)
+    }
+
+    fun addModelInstanceComponent(modelInstance: ModelInstance, position: Vector3): EntityBuilder {
         if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         val component: ModelInstanceComponent =
             engine!!.createComponent(ModelInstanceComponent::class.java)
+        modelInstance.transform.setTranslation(position)
         component.init(modelInstance)
         currentEntity!!.add(component)
         component.modelInstance!!.userData = currentEntity
