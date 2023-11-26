@@ -45,7 +45,9 @@ class EntityBuilder {
         if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         val component: ModelInstanceComponent =
             engine!!.createComponent(ModelInstanceComponent::class.java)
-        modelInstance.transform.setTranslation(position)
+        if (!position.isZero) {
+            modelInstance.transform.setTranslation(position)
+        }
         component.init(modelInstance)
         currentEntity!!.add(component)
         component.modelInstance!!.userData = currentEntity

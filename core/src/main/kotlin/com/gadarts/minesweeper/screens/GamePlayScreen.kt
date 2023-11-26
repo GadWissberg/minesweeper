@@ -2,11 +2,12 @@ package com.gadarts.minesweeper.screens
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Screen
+import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.systems.Systems
 import com.gadarts.minesweeper.systems.SystemsGlobalData
 
 
-class GamePlayScreen : Screen {
+class GamePlayScreen(private val assetsManager: GameAssetManager) : Screen {
     private lateinit var engine: PooledEngine
 
     override fun show() {
@@ -20,7 +21,7 @@ class GamePlayScreen : Screen {
                     listener.systemInstance
                 )
             }
-            system.systemInstance.createGlobalData(systemsGlobalData)
+            system.systemInstance.createGlobalData(systemsGlobalData, assetsManager)
         }
         systems.forEach { it.systemInstance.onGlobalDataReady() }
     }

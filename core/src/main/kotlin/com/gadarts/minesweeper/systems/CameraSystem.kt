@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.gadarts.minesweeper.MineSweeper
+import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.systems.MapSystem.Companion.TEMP_GROUND_SIZE
 
 
@@ -13,8 +14,11 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
 
     private lateinit var cameraInputController: CameraInputController
 
-    override fun createGlobalData(systemsGlobalData: SystemsGlobalData) {
-        super.createGlobalData(systemsGlobalData)
+    override fun createGlobalData(
+        systemsGlobalData: SystemsGlobalData,
+        assetsManager: GameAssetManager
+    ) {
+        super.createGlobalData(systemsGlobalData, assetsManager)
         val cam = PerspectiveCamera(
             67F,
             MineSweeper.PORTRAIT_RESOLUTION_WIDTH.toFloat(),

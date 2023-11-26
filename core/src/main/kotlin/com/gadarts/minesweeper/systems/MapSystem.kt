@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
+import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.assets.ModelsDefinitions
 
 
 class MapSystem : GameEntitySystem() {
@@ -17,10 +19,23 @@ class MapSystem : GameEntitySystem() {
     private lateinit var lineGrid: Model
     private lateinit var tempGround: Model
 
-    override fun createGlobalData(systemsGlobalData: SystemsGlobalData) {
-        super.createGlobalData(systemsGlobalData)
+    override fun createGlobalData(
+        systemsGlobalData: SystemsGlobalData,
+        assetsManager: GameAssetManager
+    ) {
+        super.createGlobalData(systemsGlobalData, assetsManager)
         val modelBuilder = ModelBuilder()
         createTempGround(modelBuilder)
+        addGrid(modelBuilder)
+        val modelInstance = ModelInstance(assetsManager.getAssetByDefinition(ModelsDefinitions.PIG))
+        modelInstance.transform.setTranslation(
+            TEMP_GROUND_SIZE / 2F + 0.5F, 0F, 0.5F
+        ).rotate(Vector3.Y, -90F)
+        EntityBuilder.beginBuildingEntity(engine).addModelInstanceComponent(modelInstance)
+            .finishAndAddToEngine()
+    }
+
+    private fun addGrid(modelBuilder: ModelBuilder) {
         val halfSize = TEMP_GROUND_SIZE / 2F
         lineGrid = modelBuilder.createLineGrid(
             TEMP_GROUND_SIZE.toInt(),

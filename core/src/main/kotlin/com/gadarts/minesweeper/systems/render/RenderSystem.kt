@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.utils.ScreenUtils
+import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.systems.GameEntitySystem
@@ -21,8 +22,11 @@ class RenderSystem : GameEntitySystem() {
     private lateinit var modelBatch: ModelBatch
     private lateinit var modelEntities: ImmutableArray<Entity>
 
-    override fun createGlobalData(systemsGlobalData: SystemsGlobalData) {
-        super.createGlobalData(systemsGlobalData)
+    override fun createGlobalData(
+        systemsGlobalData: SystemsGlobalData,
+        assetsManager: GameAssetManager
+    ) {
+        super.createGlobalData(systemsGlobalData, assetsManager)
         axisModelHandler = AxisModelHandler()
         axisModelHandler.addAxis(engine)
         modelEntities = engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
