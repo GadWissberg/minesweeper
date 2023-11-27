@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.components.ModelInstanceComponent
+import com.gadarts.minesweeper.components.PlayerComponent
 
 
 class EntityBuilder {
@@ -19,13 +20,15 @@ class EntityBuilder {
         this.currentEntity = engine.createEntity()
     }
 
-    fun finishAndAddToEngine() {
+    fun finishAndAddToEngine(): Entity {
         if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         engine!!.addEntity(currentEntity)
+        val entity = currentEntity
         finish()
+        return entity!!
     }
 
-    fun finish() {
+    private fun finish() {
         if (currentEntity == null) throw java.lang.RuntimeException(
             MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST
         )
@@ -51,6 +54,13 @@ class EntityBuilder {
         component.init(modelInstance)
         currentEntity!!.add(component)
         component.modelInstance!!.userData = currentEntity
+        return instance
+    }
+
+    fun addPlayerComponent(): EntityBuilder {
+        if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
+        val component: PlayerComponent = engine!!.createComponent(PlayerComponent::class.java)
+        currentEntity!!.add(component)
         return instance
     }
 

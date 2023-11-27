@@ -5,6 +5,7 @@ import com.gadarts.minesweeper.systems.render.RenderSystem
 enum class Systems(val systemInstance: GameEntitySystem) {
     CAMERA(CameraSystem()),
     RENDER(RenderSystem()),
-    MAP(MapSystem());
+    MAP(MapSystem()),
+    PLAYER(PlayerSystem())
 
 }

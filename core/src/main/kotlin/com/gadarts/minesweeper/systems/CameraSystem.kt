@@ -5,6 +5,7 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
+import com.gadarts.minesweeper.GameDebugSettings
 import com.gadarts.minesweeper.MineSweeper
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.systems.MapSystem.Companion.TEMP_GROUND_SIZE
@@ -12,7 +13,7 @@ import com.gadarts.minesweeper.systems.MapSystem.Companion.TEMP_GROUND_SIZE
 
 class CameraSystem : GameEntitySystem(), InputProcessor {
 
-    private lateinit var cameraInputController: CameraInputController
+    private var cameraInputController: CameraInputController? = null
 
     override fun createGlobalData(
         systemsGlobalData: SystemsGlobalData,
@@ -30,13 +31,15 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         cam.position.set(TEMP_GROUND_SIZE / 2F, 16f, 10f)
         cam.lookAt(TEMP_GROUND_SIZE / 2F, 0f, 0f)
         systemsGlobalData.camera = cam
-        cameraInputController = CameraInputController(cam)
-        Gdx.input.inputProcessor = cameraInputController
+        if (GameDebugSettings.CAMERA_CONTROLLER_ENABLED) {
+            cameraInputController = CameraInputController(cam)
+            Gdx.input.inputProcessor = cameraInputController
+        }
     }
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
-        cameraInputController.update()
+        cameraInputController?.update()
         globalData.camera.update()
     }
 

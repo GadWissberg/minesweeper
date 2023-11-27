@@ -1,5 +1,6 @@
 package com.gadarts.minesweeper.systems
 
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.VertexAttributes
@@ -31,7 +32,9 @@ class MapSystem : GameEntitySystem() {
         modelInstance.transform.setTranslation(
             TEMP_GROUND_SIZE / 2F + 0.5F, 0F, 0.5F
         ).rotate(Vector3.Y, -90F)
-        EntityBuilder.beginBuildingEntity(engine).addModelInstanceComponent(modelInstance)
+        globalData.player = EntityBuilder.beginBuildingEntity(engine)
+            .addModelInstanceComponent(modelInstance)
+            .addPlayerComponent()
             .finishAndAddToEngine()
     }
 
