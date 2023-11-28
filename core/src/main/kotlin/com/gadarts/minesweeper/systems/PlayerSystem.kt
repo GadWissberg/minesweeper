@@ -3,6 +3,8 @@ package com.gadarts.minesweeper.systems
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.assets.GameAssetManager
@@ -10,8 +12,11 @@ import com.gadarts.minesweeper.components.ComponentsMappers
 
 class PlayerSystem : GameEntitySystem(), InputProcessor {
 
+    private var rotationDirection: Float = 0F
+    private var currentDirection: Directions = Directions.SOUTH
+    private var desiredDirection: Directions? = null
     private val previousTouchPoint: Vector2 = Vector2()
-    private val direction: Vector3 = Vector3()
+
     override fun createGlobalData(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager
@@ -47,37 +52,71 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         previousTouchPoint.set(screenX.toFloat(), screenY.toFloat())
-        direction.set(Vector3.Z)
         return true
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        return false
+        if (desiredDirection == null) return false
+
+        var diff = currentDirection.yaw - desiredDirection!!.yaw
+        if (diff < 0) {
+            diff += 360F
+        }
+        rotationDirection = if (diff > 180) {
+            ROTATION_STEP
+        } else {
+            -ROTATION_STEP
+        }
+        return true
     }
 
     override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         return false
     }
 
+    override fun update(deltaTime: Float) {
+        if (rotationDirection == 0F || desiredDirection == null) return
+        val modelInstanceComponent = ComponentsMappers.modelInstance.get(globalData.player)
+
+        val currentRotation = modelInstanceComponent
+            .modelInstance!!
+            .transform.getRotation(auxQuat.idt().nor())
+        var currentYaw = currentRotation.yaw
+        if (currentYaw < 0) {
+            currentYaw += 360
+        }
+        if (MathUtils.isEqual(currentYaw, desiredDirection!!.yaw, ROTATION_STEP)) {
+            rotationDirection = 0F
+            val position =
+                modelInstanceComponent.modelInstance!!.transform.getTranslation(auxVector3_1)
+            modelInstanceComponent.modelInstance!!.transform.setToRotation(
+                Vector3.Y,
+                desiredDirection!!.yaw
+            ).trn(position)
+            currentDirection = desiredDirection as Directions
+            desiredDirection = null
+        } else {
+            modelInstanceComponent.modelInstance!!.transform.rotate(
+                Vector3.Y,
+                rotationDirection
+            )
+        }
+
+
+    }
+
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
         val floatX = screenX.toFloat()
         val floatY = screenY.toFloat()
-        val subtractedVector = auxVector2_1.set(floatX, floatY).sub(previousTouchPoint)
+        val current = auxVector2_1.set(floatX, floatY)
+        if (current.epsilonEquals(previousTouchPoint, 0.1F)) return false
+
+        val subtractedVector = current.sub(previousTouchPoint).nor()
         val closestDirection =
             findClosestDirection(subtractedVector)
-        val position =
-            ComponentsMappers.modelInstance
-                .get(globalData.player)
-                .modelInstance!!
-                .transform
-                .getTranslation(auxVector3_2)
-        ComponentsMappers.modelInstance
-            .get(globalData.player)
-            .modelInstance!!
-            .transform
-            .setToRotation(auxVector3_1.set(0F, -1F, 0F), closestDirection.direction.angleDeg())
-            .trn(position)
-        previousTouchPoint.set(floatX, floatY)
+        desiredDirection = closestDirection
+
+        previousTouchPoint.set(screenX.toFloat(), screenY.toFloat())
         return true
     }
 
@@ -86,7 +125,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         var closestDistance = Float.MAX_VALUE
 
         for (direction in Directions.values()) {
-            val distance = subtractedVector.dst2(direction.direction)
+            val distance = subtractedVector.dst2(direction.direction.x, direction.direction.z)
             if (distance < closestDistance) {
                 closestDistance = distance
                 closestDirection = direction
@@ -104,21 +143,29 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         return false
     }
 
-    enum class Directions(val direction: Vector2) {
-        NORTH(Vector2(0F, -1F)),
-        NORTH_EAST(Vector2(1F, -1F)),
-        EAST(Vector2(1F, 0F)),
-        SOUTH_EAST(Vector2(1F, 1F)),
-        SOUTH(Vector2(0F, 1F)),
-        SOUTH_WEST(Vector2(-1F, 1F)),
-        WEST(Vector2(-1F, 0F)),
-        NORTH_WEST(Vector2(-1F, -1F));
+    private enum class Directions(val direction: Vector3) {
+
+
+        NORTH(Vector3(0F, 0F, -1F)),
+        EAST(Vector3(1F, 0F, 0F)),
+        SOUTH(Vector3(0F, 0F, 1F)),
+        WEST(Vector3(-1F, 0F, 0F));
+
+        val yaw: Float
+
+        init {
+            direction.nor()
+            var yaw = MathUtils.atan2(-direction.z, direction.x) * MathUtils.radiansToDegrees
+            yaw = (yaw + 360) % 360
+            this.yaw = yaw
+        }
     }
 
     companion object {
         private val auxVector2_1: Vector2 = Vector2()
         private val auxVector3_1: Vector3 = Vector3()
-        private val auxVector3_2: Vector3 = Vector3()
+        private val auxQuat: Quaternion = Quaternion()
+        private const val ROTATION_STEP = 5F
 
     }
 }
