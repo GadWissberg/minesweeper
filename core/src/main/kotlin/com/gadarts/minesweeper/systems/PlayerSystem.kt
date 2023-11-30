@@ -3,6 +3,7 @@ package com.gadarts.minesweeper.systems
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
@@ -10,8 +11,12 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
 
+
 class PlayerSystem : GameEntitySystem(), InputProcessor {
 
+    private var jumpProgress: Float = 0.0f
+    private var desiredLocation: Vector3 = Vector3()
+    private var originalLocation: Vector3 = Vector3()
     private var rotationDirection: Float = 0F
     private var currentDirection: Directions = Directions.SOUTH
     private var desiredDirection: Directions? = null
@@ -56,7 +61,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        if (desiredDirection == null) return false
+        if (!desiredLocation.isZero || desiredDirection == null) return false
 
         var diff = currentDirection.yaw - desiredDirection!!.yaw
         if (diff < 0) {
@@ -67,6 +72,18 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         } else {
             -ROTATION_STEP
         }
+
+        val originalLocation = ComponentsMappers.modelInstance
+            .get(globalData.player)
+            .modelInstance
+            .transform.getTranslation(
+                auxVector3_1
+            )
+        this.originalLocation.set(originalLocation)
+        desiredLocation.set(
+            originalLocation.add(desiredDirection!!.direction)
+        )
+        dispatcher.dispatchMessage(SystemEvents.PLAYER_MOVED.ordinal)
         return true
     }
 
@@ -75,41 +92,65 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun update(deltaTime: Float) {
+        rotate()
+        if (!desiredLocation.isZero && desiredDirection != null) {
+            val transform =
+                ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform
+            transform.setTranslation(
+                auxVector3_1.set(originalLocation)
+                    .slerp(desiredLocation, Interpolation.circle.apply(jumpProgress))
+            )
+            val currentPosition = transform.getTranslation(auxVector3_1)
+            if (jumpProgress <= 0.5F) {
+                currentPosition.y = Interpolation.bounceIn.apply(0F, JUMP_MAX_HEIGHT, jumpProgress)
+            } else {
+                currentPosition.y = Interpolation.bounceOut.apply(JUMP_MAX_HEIGHT, 0F, jumpProgress)
+            }
+            transform.setTranslation(
+                currentPosition
+            )
+            if (transform.getTranslation(
+                    auxVector3_1
+                ).epsilonEquals(desiredLocation, 0.01F)
+            ) {
+                desiredLocation.setZero()
+                jumpProgress = 0F
+            }
+            jumpProgress += deltaTime
+        }
+    }
+
+    private fun rotate() {
         if (rotationDirection == 0F || desiredDirection == null) return
         val modelInstanceComponent = ComponentsMappers.modelInstance.get(globalData.player)
-
-        val currentRotation = modelInstanceComponent
-            .modelInstance!!
+        var currentYaw = modelInstanceComponent
+            .modelInstance
             .transform.getRotation(auxQuat.idt().nor())
-        var currentYaw = currentRotation.yaw
-        if (currentYaw < 0) {
-            currentYaw += 360
-        }
+            .yaw
+        currentYaw = if (currentYaw < 0) currentYaw + 360 else currentYaw
         if (MathUtils.isEqual(currentYaw, desiredDirection!!.yaw, ROTATION_STEP)) {
             rotationDirection = 0F
             val position =
-                modelInstanceComponent.modelInstance!!.transform.getTranslation(auxVector3_1)
-            modelInstanceComponent.modelInstance!!.transform.setToRotation(
+                modelInstanceComponent.modelInstance.transform.getTranslation(auxVector3_1)
+            modelInstanceComponent.modelInstance.transform.setToRotation(
                 Vector3.Y,
                 desiredDirection!!.yaw
             ).trn(position)
             currentDirection = desiredDirection as Directions
-            desiredDirection = null
+            if (desiredLocation.isZero) {
+                desiredDirection = null
+            }
         } else {
-            modelInstanceComponent.modelInstance!!.transform.rotate(
+            modelInstanceComponent.modelInstance.transform.rotate(
                 Vector3.Y,
                 rotationDirection
             )
         }
-
-
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        val floatX = screenX.toFloat()
-        val floatY = screenY.toFloat()
-        val current = auxVector2_1.set(floatX, floatY)
-        if (current.epsilonEquals(previousTouchPoint, 0.1F)) return false
+        val current = auxVector2_1.set(screenX.toFloat(), screenY.toFloat())
+        if (current.epsilonEquals(previousTouchPoint, 0.1F) || !desiredLocation.isZero) return false
 
         val subtractedVector = current.sub(previousTouchPoint).nor()
         val closestDirection =
@@ -166,6 +207,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         private val auxVector3_1: Vector3 = Vector3()
         private val auxQuat: Quaternion = Quaternion()
         private const val ROTATION_STEP = 5F
+        private const val JUMP_MAX_HEIGHT = 2F
 
     }
 }

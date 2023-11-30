@@ -4,10 +4,10 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 
 
 class ModelInstanceComponent : GameComponent {
-    var modelInstance: ModelInstance? = null
+    lateinit var modelInstance: ModelInstance
         private set
 
-    fun init(modelInstance: ModelInstance?) {
+    fun init(modelInstance: ModelInstance) {
         this.modelInstance = modelInstance
     }
 

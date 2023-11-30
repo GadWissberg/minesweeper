@@ -11,7 +11,7 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
     private lateinit var assetsManger: GameAssetManager
     protected lateinit var globalData: SystemsGlobalData
         private set
-    private val dispatcher: MessageDispatcher = MessageDispatcher()
+    protected val dispatcher: MessageDispatcher = MessageDispatcher()
 
     open fun addListener(listener: GameEntitySystem) {
         listener.getEventsListenList().forEach { event ->
@@ -22,7 +22,7 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
         }
     }
 
-    private fun getEventsListenList(): List<SystemEvents> = emptyList()
+    protected open fun getEventsListenList(): List<SystemEvents> = emptyList()
     open fun createGlobalData(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager
