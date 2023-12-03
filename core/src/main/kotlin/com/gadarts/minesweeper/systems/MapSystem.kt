@@ -1,6 +1,5 @@
 package com.gadarts.minesweeper.systems
 
-import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.VertexAttributes
@@ -13,6 +12,7 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.ModelsDefinitions
+import com.gadarts.minesweeper.systems.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
 
 
 class MapSystem : GameEntitySystem() {
@@ -83,7 +83,6 @@ class MapSystem : GameEntitySystem() {
     }
 
     companion object {
-        const val TEMP_GROUND_SIZE = 10f
         private val values = arrayOf(
             arrayOf(0, 0, 0, 0, 2, 0, 0, 0, 0, 0),
             arrayOf(0, 1, 0, 0, 0, 0, 1, 0, 0, 0),

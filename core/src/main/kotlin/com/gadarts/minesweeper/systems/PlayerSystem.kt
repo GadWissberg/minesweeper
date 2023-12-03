@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
+import com.gadarts.minesweeper.systems.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
+import kotlin.math.min
 
 
 class PlayerSystem : GameEntitySystem(), InputProcessor {
@@ -93,30 +95,41 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
 
     override fun update(deltaTime: Float) {
         rotate()
+        updateMovement(deltaTime)
+    }
+
+    private fun updateMovement(deltaTime: Float) {
         if (!desiredLocation.isZero && desiredDirection != null) {
-            val transform =
-                ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform
-            transform.setTranslation(
-                auxVector3_1.set(originalLocation)
-                    .slerp(desiredLocation, Interpolation.circle.apply(jumpProgress))
-            )
-            val currentPosition = transform.getTranslation(auxVector3_1)
-            if (jumpProgress <= 0.5F) {
-                currentPosition.y = Interpolation.bounceIn.apply(0F, JUMP_MAX_HEIGHT, jumpProgress)
+            val x = desiredLocation.x.toInt()
+            val z = desiredLocation.z.toInt()
+            if (desiredLocation.x >= 0 && x < TEMP_GROUND_SIZE && desiredLocation.z >= 0 && z < TEMP_GROUND_SIZE) {
+                val transform =
+                    ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform
+                transform.setTranslation(
+                    auxVector3_1.set(originalLocation)
+                        .slerp(desiredLocation, Interpolation.circle.apply(jumpProgress))
+                )
+                val currentPosition = transform.getTranslation(auxVector3_1)
+                updateJumpHeight(currentPosition)
+                jumpProgress += min(deltaTime * 2F, 0.1F)
+                transform.setTranslation(currentPosition)
+                if (transform.getTranslation(auxVector3_1).epsilonEquals(desiredLocation, 0.01F)) {
+                    desiredLocation.setZero()
+                    jumpProgress = 0F
+                }
             } else {
-                currentPosition.y = Interpolation.bounceOut.apply(JUMP_MAX_HEIGHT, 0F, jumpProgress)
-            }
-            transform.setTranslation(
-                currentPosition
-            )
-            if (transform.getTranslation(
-                    auxVector3_1
-                ).epsilonEquals(desiredLocation, 0.01F)
-            ) {
                 desiredLocation.setZero()
-                jumpProgress = 0F
             }
-            jumpProgress += deltaTime
+        }
+    }
+
+    private fun updateJumpHeight(currentPosition: Vector3) {
+        if (jumpProgress <= 0.5F) {
+            currentPosition.y =
+                Interpolation.bounceIn.apply(0F, JUMP_MAX_HEIGHT, jumpProgress)
+        } else {
+            currentPosition.y =
+                Interpolation.bounceOut.apply(JUMP_MAX_HEIGHT, 0F, jumpProgress)
         }
     }
 
@@ -165,7 +178,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         var closestDirection = Directions.SOUTH
         var closestDistance = Float.MAX_VALUE
 
-        for (direction in Directions.values()) {
+        for (direction in Directions.entries) {
             val distance = subtractedVector.dst2(direction.direction.x, direction.direction.z)
             if (distance < closestDistance) {
                 closestDistance = distance
