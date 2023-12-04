@@ -3,6 +3,7 @@ package com.gadarts.minesweeper.assets
 enum class AssetsTypes(
     val assets: Array<out AssetDefinition<*>> = arrayOf()
 ) {
-    MODELS(ModelsDefinitions.values());
+    MODELS(ModelsDefinitions.entries.toTypedArray()),
+    TEXTURES(TexturesDefinitions.entries.toTypedArray());
 
 }
