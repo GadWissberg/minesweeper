@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture
 
 enum class TexturesDefinitions(fileNames: Int = 1) : AssetDefinition<Texture> {
 
+    TILE_UNREVEALED,
     TILE_0,
     TILE_1,
     TILE_2,

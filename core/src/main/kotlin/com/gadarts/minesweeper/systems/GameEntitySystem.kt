@@ -8,7 +8,7 @@ import com.gadarts.minesweeper.assets.GameAssetManager
 
 
 abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
-    private lateinit var assetsManger: GameAssetManager
+    protected lateinit var assetsManger: GameAssetManager
     protected lateinit var globalData: SystemsGlobalData
         private set
     protected val dispatcher: MessageDispatcher = MessageDispatcher()

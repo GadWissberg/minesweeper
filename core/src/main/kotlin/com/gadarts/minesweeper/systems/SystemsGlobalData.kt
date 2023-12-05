@@ -9,7 +9,7 @@ class SystemsGlobalData {
     lateinit var camera: PerspectiveCamera
 
     companion object {
-        const val TEMP_GROUND_SIZE = 10f
+        const val TEMP_GROUND_SIZE = 10
 
     }
 }

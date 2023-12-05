@@ -20,7 +20,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     private var originalCameraPosition: Vector3 = Vector3()
     private var cameraInputController: CameraInputController? = null
     override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.PLAYER_MOVED)
+        return listOf(SystemEvents.PLAYER_INITIATED_MOVE)
     }
 
     override fun createGlobalData(
@@ -83,7 +83,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
 
-        if (msg.message == SystemEvents.PLAYER_MOVED.ordinal) {
+        if (msg.message == SystemEvents.PLAYER_INITIATED_MOVE.ordinal) {
             originalCameraPosition.set(globalData.camera.position)
             cameraMovementProgress = 0F
         }

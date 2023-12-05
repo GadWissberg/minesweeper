@@ -1,5 +1,6 @@
 package com.gadarts.minesweeper.systems
 
 enum class SystemEvents {
-    PLAYER_MOVED
+    PLAYER_INITIATED_MOVE,
+    PLAYER_LANDED
 }

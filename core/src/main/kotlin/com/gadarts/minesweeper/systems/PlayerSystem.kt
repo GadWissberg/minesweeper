@@ -85,7 +85,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         desiredLocation.set(
             originalLocation.add(desiredDirection!!.direction)
         )
-        dispatcher.dispatchMessage(SystemEvents.PLAYER_MOVED.ordinal)
+        dispatcher.dispatchMessage(SystemEvents.PLAYER_INITIATED_MOVE.ordinal)
         return true
     }
 
@@ -130,6 +130,9 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         } else {
             currentPosition.y =
                 Interpolation.bounceOut.apply(JUMP_MAX_HEIGHT, 0F, jumpProgress)
+            if (jumpProgress >= 1F) {
+                dispatcher.dispatchMessage(SystemEvents.PLAYER_LANDED.ordinal)
+            }
         }
     }
 
