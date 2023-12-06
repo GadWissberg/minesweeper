@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.components.PlayerComponent
+import com.gadarts.minesweeper.components.TileComponent
 
 
 class EntityBuilder {
@@ -53,13 +54,20 @@ class EntityBuilder {
         }
         component.init(modelInstance)
         currentEntity!!.add(component)
-        component.modelInstance!!.userData = currentEntity
+        component.modelInstance.userData = currentEntity
         return instance
     }
 
     fun addPlayerComponent(): EntityBuilder {
         if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         val component: PlayerComponent = engine!!.createComponent(PlayerComponent::class.java)
+        currentEntity!!.add(component)
+        return instance
+    }
+
+    fun addTileComponent(): EntityBuilder {
+        if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
+        val component: TileComponent = engine!!.createComponent(TileComponent::class.java)
         currentEntity!!.add(component)
         return instance
     }

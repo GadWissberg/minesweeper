@@ -5,11 +5,23 @@ import com.badlogic.gdx.graphics.PerspectiveCamera
 
 class SystemsGlobalData {
 
-    lateinit var player: Entity
+    var player: Entity? = null
     lateinit var camera: PerspectiveCamera
 
     companion object {
         const val TEMP_GROUND_SIZE = 10
+        val values = arrayOf(
+            arrayOf(0, 0, 0, 0, 2, 0, 0, 0, 0, 0),
+            arrayOf(0, 1, 0, 0, 0, 1, 1, 0, 0, 0),
+            arrayOf(0, 0, 0, 1, 0, 0, 0, 0, 0, 0),
+            arrayOf(0, 0, 0, 0, 0, 1, 0, 1, 0, 0),
+            arrayOf(0, 0, 0, 1, 1, 0, 1, 0, 0, 0),
+            arrayOf(0, 0, 0, 0, 0, 1, 0, 0, 1, 0),
+            arrayOf(0, 0, 1, 0, 1, 0, 0, 0, 0, 0),
+            arrayOf(0, 0, 0, 0, 0, 0, 1, 0, 1, 0),
+            arrayOf(0, 0, 0, 1, 0, 0, 0, 0, 0, 0),
+            arrayOf(0, 1, 0, 0, 3, 0, 0, 0, 0, 0),
+        )
 
     }
 }

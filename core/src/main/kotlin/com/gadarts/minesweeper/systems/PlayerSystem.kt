@@ -3,12 +3,16 @@ package com.gadarts.minesweeper.systems
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
+import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.assets.ModelsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
 import kotlin.math.min
@@ -29,19 +33,58 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         assetsManager: GameAssetManager
     ) {
         super.createGlobalData(systemsGlobalData, assetsManager)
+        addPlayer()
         if (Gdx.input.inputProcessor == null) {
             Gdx.input.inputProcessor = this
         }
     }
 
-    override fun onGlobalDataReady() {
+    private fun addPlayer() {
+        val modelInstance = ModelInstance(assetsManger.getAssetByDefinition(ModelsDefinitions.PIG))
+        val blendingAttribute = BlendingAttribute()
+        blendingAttribute.opacity = 0.8F
+        modelInstance.materials.get(0).set(blendingAttribute)
+        globalData.player = EntityBuilder.beginBuildingEntity(engine)
+            .addModelInstanceComponent(modelInstance)
+            .addPlayerComponent()
+            .finishAndAddToEngine()
+        placePlayer()
+    }
 
+    override fun onGlobalDataReady() {
+    }
+
+    private fun placePlayer() {
+        for (row in SystemsGlobalData.values.indices) {
+            for (col in SystemsGlobalData.values[0].indices) {
+                if (SystemsGlobalData.values[row][col] == 2) {
+                    ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.setToTranslation(
+                        col + 0.5F, 0F, row + 0.5F
+                    ).rotate(Vector3.Y, -90F)
+                    return
+                }
+            }
+        }
     }
 
     override fun dispose() {
     }
 
     override fun handleMessage(msg: Telegram?): Boolean {
+        if (msg == null) return false
+
+        if (msg.message == SystemEvents.MAP_RESET.ordinal) {
+            jumpProgress = 0F
+            desiredDirection = Directions.SOUTH
+            originalLocation.setZero()
+            rotationDirection = 0F
+            currentDirection = Directions.SOUTH
+            desiredLocation.setZero()
+            engine.removeEntity(globalData.player)
+            globalData.player = null
+            Gdx.app.postRunnable { addPlayer() }
+        }
+
         return false
     }
 
@@ -93,6 +136,10 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         return false
     }
 
+    override fun getEventsListenList(): List<SystemEvents> {
+        return listOf(SystemEvents.MAP_RESET)
+    }
+
     override fun update(deltaTime: Float) {
         rotate()
         updateMovement(deltaTime)
@@ -105,6 +152,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             if (desiredLocation.x >= 0 && x < TEMP_GROUND_SIZE && desiredLocation.z >= 0 && z < TEMP_GROUND_SIZE) {
                 val transform =
                     ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform
+                Gdx.app.log("GAD", "GAD")
                 transform.setTranslation(
                     auxVector3_1.set(originalLocation)
                         .slerp(desiredLocation, Interpolation.circle.apply(jumpProgress))
@@ -146,6 +194,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         currentYaw = if (currentYaw < 0) currentYaw + 360 else currentYaw
         if (MathUtils.isEqual(currentYaw, desiredDirection!!.yaw, ROTATION_STEP)) {
             rotationDirection = 0F
+            Gdx.app.log("MONA", "MONA")
             val position =
                 modelInstanceComponent.modelInstance.transform.getTranslation(auxVector3_1)
             modelInstanceComponent.modelInstance.transform.setToRotation(

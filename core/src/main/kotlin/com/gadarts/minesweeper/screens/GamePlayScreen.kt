@@ -13,7 +13,7 @@ class GamePlayScreen(private val assetsManager: GameAssetManager) : Screen {
     override fun show() {
         engine = PooledEngine()
         val systemsGlobalData = SystemsGlobalData()
-        val systems = Systems.values()
+        val systems = Systems.entries.toTypedArray()
         systems.forEach { system ->
             engine.addSystem(system.systemInstance)
             systems.forEach { listener ->
