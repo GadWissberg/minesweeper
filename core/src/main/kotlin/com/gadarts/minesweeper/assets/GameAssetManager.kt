@@ -13,7 +13,7 @@ open class GameAssetManager : AssetManager() {
 
     fun loadAssets() {
         initializeCustomLoaders()
-        AssetsTypes.values().forEach { type ->
+        AssetsTypes.entries.forEach { type ->
             if (type.assets.isNotEmpty()) {
                 type.assets.forEach { asset ->
                     asset.getPaths().forEach { load(it, asset.getClazz()) }
