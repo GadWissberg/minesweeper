@@ -57,7 +57,7 @@ class PlayerMovementHandler {
                 )
                 val currentPosition = transform.getTranslation(auxVector3_1)
                 updateJumpHeight(currentPosition, dispatcher)
-                jumpProgress += min(deltaTime * 2F, 0.1F)
+                jumpProgress += min(deltaTime * 4F, 0.1F)
                 transform.setTranslation(currentPosition)
                 if (transform.getTranslation(auxVector3_1)
                         .epsilonEquals(desiredLocation, 0.01F)
@@ -117,10 +117,14 @@ class PlayerMovementHandler {
         screenY: Int,
         previousTouchPoint: Vector2,
         player: Entity,
-        dispatcher: MessageDispatcher
+        dispatcher: MessageDispatcher,
     ) {
         val current = auxVector2_1.set(screenX.toFloat(), screenY.toFloat())
-        if (current.epsilonEquals(previousTouchPoint, 0.1F) || !desiredLocation.isZero) return
+        if (current.epsilonEquals(
+                previousTouchPoint,
+                0.1F
+            ) || !desiredLocation.isZero
+        ) return
 
         val closestDirection = findClosestDirection(current.sub(previousTouchPoint).nor())
         desiredDirection = closestDirection
@@ -143,7 +147,13 @@ class PlayerMovementHandler {
         desiredLocation.set(
             originalLocation.add(desiredDirection!!.direction)
         )
-        dispatcher.dispatchMessage(SystemEvents.PLAYER_INITIATED_MOVE.ordinal)
+
+        if (SystemsGlobalData.values[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
+            desiredLocation.setZero()
+        } else {
+            dispatcher.dispatchMessage(SystemEvents.PLAYER_INITIATED_MOVE.ordinal)
+        }
+
     }
 
     fun update(deltaTime: Float, player: Entity, dispatcher: MessageDispatcher) {
@@ -174,7 +184,7 @@ class PlayerMovementHandler {
         private val auxVector3_1 = Vector3()
         private const val ROTATION_STEP = 5F
         private val auxQuat: Quaternion = Quaternion()
-        private const val JUMP_MAX_HEIGHT = 2F
+        private const val JUMP_MAX_HEIGHT = 3F
 
     }
 }

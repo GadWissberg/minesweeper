@@ -1,6 +1,7 @@
 package com.gadarts.minesweeper.android
 
 import android.os.Bundle
+import android.view.WindowManager
 
 import com.badlogic.gdx.backends.android.AndroidApplication
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration
@@ -11,6 +12,7 @@ class AndroidLauncher : AndroidApplication() {
         super.onCreate(savedInstanceState)
         val androidApplicationConfiguration = AndroidApplicationConfiguration()
         androidApplicationConfiguration.numSamples = 2
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         initialize(MineSweeper(), androidApplicationConfiguration.apply {
             useImmersiveMode = true
         })

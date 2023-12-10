@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.assets.ModelsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.TileComponent
@@ -47,6 +48,20 @@ class MapSystem : GameEntitySystem() {
                     .addTileComponent()
                     .finishAndAddToEngine()
                 tiles[row][col] = tileEntity
+                if (SystemsGlobalData.values[row][col] == 3) {
+                    (tileModelInstance.materials.get(0)
+                        .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                        assetsManger.getAssetByDefinition(TexturesDefinitions.TILE_DESTINATION)
+                }
+                if (SystemsGlobalData.values[row][col] == 4) {
+                    val modelInstance = ModelInstance(
+                        assetsManager.getAssetByDefinition(ModelsDefinitions.ROCK)
+                    )
+                    EntityBuilder.beginBuildingEntity(engine)
+                        .addModelInstanceComponent(
+                            modelInstance, Vector3(col + 0.5F, 0F, row + 0.5F)
+                        ).finishAndAddToEngine()
+                }
             }
         }
     }
@@ -106,7 +121,8 @@ class MapSystem : GameEntitySystem() {
             )
         val currentRow = position.z.toInt()
         val currentCol = position.x.toInt()
-        if (SystemsGlobalData.values[currentRow][currentCol] == 1) {
+        val currentValue = SystemsGlobalData.values[currentRow][currentCol]
+        if (currentValue == 1 || currentValue == 3) {
             resetMap()
         } else {
             var sum = 0
@@ -128,10 +144,14 @@ class MapSystem : GameEntitySystem() {
         val tilesEntities = engine.getEntitiesFor(Family.all(TileComponent::class.java).get())
         val unrevealedTexture =
             assetsManger.getAssetByDefinition(TexturesDefinitions.TILE_UNREVEALED)
+        val destinationTexture =
+            assetsManger.getAssetByDefinition(TexturesDefinitions.TILE_DESTINATION)
         for (tile in tilesEntities) {
-            (ComponentsMappers.modelInstance.get(tile).modelInstance.materials.get(0)
-                .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                unrevealedTexture
+            val textureDescription =
+                (ComponentsMappers.modelInstance.get(tile).modelInstance.materials.get(0)
+                    .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription
+            textureDescription.texture = if (textureDescription.texture != destinationTexture)
+                unrevealedTexture else destinationTexture
         }
         dispatcher.dispatchMessage(SystemEvents.MAP_RESET.ordinal)
     }

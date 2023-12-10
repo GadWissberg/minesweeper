@@ -134,7 +134,5 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
 
-    companion object {
-
-    }
+    companion object
 }
