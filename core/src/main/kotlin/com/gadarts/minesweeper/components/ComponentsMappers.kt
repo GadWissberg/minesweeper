@@ -6,4 +6,6 @@ import com.badlogic.ashley.core.ComponentMapper
 object ComponentsMappers {
     val modelInstance: ComponentMapper<ModelInstanceComponent> =
         ComponentMapper.getFor(ModelInstanceComponent::class.java)
+    val particleEffect: ComponentMapper<ParticleEffectComponent> =
+        ComponentMapper.getFor(ParticleEffectComponent::class.java)
 }

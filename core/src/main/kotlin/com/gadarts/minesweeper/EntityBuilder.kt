@@ -4,8 +4,10 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.components.ModelInstanceComponent
+import com.gadarts.minesweeper.components.ParticleEffectComponent
 import com.gadarts.minesweeper.components.PlayerComponent
 import com.gadarts.minesweeper.components.TileComponent
 
@@ -72,6 +74,21 @@ class EntityBuilder {
         return instance
     }
 
+    fun addParticleEffectComponent(
+        originalEffect: ParticleEffect,
+        position: Vector3
+    ): EntityBuilder {
+        if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
+        val effect: ParticleEffect = originalEffect.copy()
+        val particleEffectComponent = engine!!.createComponent(
+            ParticleEffectComponent::class.java
+        )
+        particleEffectComponent.init(effect)
+        effect.translate(position)
+        currentEntity!!.add(particleEffectComponent)
+        return instance
+    }
+
     companion object {
         private val instance = EntityBuilder()
         const val MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST = "Call beginBuildingEntity() first!"
@@ -80,6 +97,7 @@ class EntityBuilder {
             instance.init(engine as PooledEngine)
             return instance
         }
+
 
     }
 }

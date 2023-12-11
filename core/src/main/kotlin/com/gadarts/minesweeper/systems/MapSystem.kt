@@ -123,6 +123,7 @@ class MapSystem : GameEntitySystem() {
         val currentCol = position.x.toInt()
         val currentValue = SystemsGlobalData.values[currentRow][currentCol]
         if (currentValue == 1 || currentValue == 3) {
+            dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal)
             resetMap()
         } else {
             var sum = 0
