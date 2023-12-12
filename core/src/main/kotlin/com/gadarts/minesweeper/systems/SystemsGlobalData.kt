@@ -2,11 +2,13 @@ package com.gadarts.minesweeper.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.PerspectiveCamera
+import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 
 class SystemsGlobalData {
 
     var player: Entity? = null
     lateinit var camera: PerspectiveCamera
+    lateinit var particleSystem: ParticleSystem
 
     companion object {
         const val TEMP_GROUND_SIZE = 10

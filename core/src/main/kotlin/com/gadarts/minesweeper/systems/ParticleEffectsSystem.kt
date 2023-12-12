@@ -19,16 +19,14 @@ import com.gadarts.minesweeper.components.ParticleEffectComponent
 class ParticleEffectsSystem : GameEntitySystem() {
 
     private lateinit var particleEffectsEntities: ImmutableArray<Entity>
-    private lateinit var particleSystem: ParticleSystem
     private lateinit var billboardParticleBatch: BillboardParticleBatch
     private val particleEntitiesToRemove = ArrayList<Entity>()
-    private val particleEffectsToFollow = ArrayList<ParticleEffect>()
     override fun createGlobalData(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager
     ) {
         super.createGlobalData(systemsGlobalData, assetsManager)
-        particleSystem = ParticleSystem()
+        globalData.particleSystem = ParticleSystem()
         billboardParticleBatch = BillboardParticleBatch()
         assetsManager.loadParticleEffects(billboardParticleBatch)
         particleEffectsEntities = engine.getEntitiesFor(
@@ -43,26 +41,12 @@ class ParticleEffectsSystem : GameEntitySystem() {
         particleEntitiesToRemove.clear()
         addCompleteToRemove()
         removeParticleEffectsMarkedToBeRemoved()
-        removeFollowedEffectsThatComplete()
-    }
-
-    private fun removeFollowedEffectsThatComplete() {
-        particleEntitiesToRemove.clear()
-        var i = 0
-        while (i < particleEffectsToFollow.size) {
-            val effect: ParticleEffect = particleEffectsToFollow.removeAt(i)
-            if (effect.isComplete) {
-                particleSystem.remove(effect)
-                i--
-            }
-            i++
-        }
     }
 
     private fun removeParticleEffectsMarkedToBeRemoved() {
         for (entity in particleEntitiesToRemove) {
             if (ComponentsMappers.particleEffect.has(entity)) {
-                particleSystem.remove(
+                globalData.particleSystem.remove(
                     ComponentsMappers.particleEffect.get(entity).effect
                 )
             }
@@ -88,7 +72,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
                         ComponentsMappers.particleEffect.get(entity).effect
                     effect.init()
                     effect.start()
-                    particleSystem.add(effect)
+                    globalData.particleSystem.add(effect)
                 }
             }
 
@@ -103,7 +87,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
 
     override fun onGlobalDataReady() {
         billboardParticleBatch.setCamera(globalData.camera)
-        particleSystem.add(billboardParticleBatch)
+        globalData.particleSystem.add(billboardParticleBatch)
     }
 
     override fun dispose() {
@@ -115,10 +99,10 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     private fun updateSystem(deltaTime: Float) {
-        particleSystem.update(deltaTime)
-        particleSystem.begin()
-        particleSystem.draw()
-        particleSystem.end()
+        globalData.particleSystem.update(deltaTime)
+        globalData.particleSystem.begin()
+        globalData.particleSystem.draw()
+        globalData.particleSystem.end()
     }
 
     override fun handleMessage(msg: Telegram?): Boolean {
@@ -130,7 +114,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
                 ),
                 ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
                     auxVector1
-                )
+                ).add(0F, 0.1F, 0F)
             ).finishAndAddToEngine()
             return true
         }
