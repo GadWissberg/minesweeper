@@ -10,7 +10,9 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.Environment
 import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
+import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.ScreenUtils
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
@@ -21,6 +23,8 @@ import com.gadarts.minesweeper.systems.SystemsGlobalData
 
 class RenderSystem : GameEntitySystem() {
 
+    private lateinit var shadowBatch: ModelBatch
+    private lateinit var shadowLight: DirectionalShadowLight
     private lateinit var environment: Environment
     private lateinit var axisModelHandler: AxisModelHandler
     private lateinit var modelBatch: ModelBatch
@@ -43,14 +47,29 @@ class RenderSystem : GameEntitySystem() {
             )
         )
         val dirValue = 0.4f
-        environment.add(DirectionalLight().set(dirValue, dirValue, dirValue, -1f, -1f, -0.5f))
+        shadowLight = DirectionalShadowLight(
+            2056,
+            2056,
+            60f,
+            60f,
+            .1f,
+            150f
+        )
+        shadowLight.set(dirValue, dirValue, dirValue, 40.0f, -35f, -35f)
+        environment.add(shadowLight)
+        environment.shadowMap = shadowLight
+        shadowBatch = ModelBatch(DepthShaderProvider())
     }
 
     override fun onGlobalDataReady() {
     }
 
     override fun update(deltaTime: Float) {
-        super.update(deltaTime)
+        shadowLight.begin(Vector3.Zero, globalData.camera.direction)
+        shadowBatch.begin(shadowLight.camera)
+        renderModels(shadowBatch, false)
+        shadowBatch.end()
+        shadowLight.end()
         Gdx.gl.glViewport(0, 0, Gdx.graphics.width, Gdx.graphics.height)
         ScreenUtils.clear(Color.BLACK, true)
         Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
@@ -60,14 +79,21 @@ class RenderSystem : GameEntitySystem() {
                 or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
         modelBatch.begin(globalData.camera)
-        for (i in 0 until modelEntities.size()) {
-            modelBatch.render(
-                ComponentsMappers.modelInstance.get(modelEntities.get(i)).modelInstance,
-                environment
-            )
-        }
+        renderModels(modelBatch, true)
         modelBatch.render(globalData.particleSystem, environment)
         modelBatch.end()
+    }
+
+    private fun renderModels(modelBatch: ModelBatch, applyEnvironment: Boolean) {
+        for (i in 0 until modelEntities.size()) {
+            val modelInstance =
+                ComponentsMappers.modelInstance.get(modelEntities.get(i)).modelInstance
+            if (applyEnvironment) {
+                modelBatch.render(modelInstance, environment)
+            } else {
+                modelBatch.render(modelInstance)
+            }
+        }
     }
 
     override fun dispose() {
