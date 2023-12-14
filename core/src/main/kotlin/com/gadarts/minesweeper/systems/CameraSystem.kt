@@ -6,21 +6,27 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.minesweeper.GameDebugSettings
 import com.gadarts.minesweeper.MineSweeper
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
+import kotlin.math.absoluteValue
 
 
 class CameraSystem : GameEntitySystem(), InputProcessor {
 
+    private var nextShake: Long = 0L
+    private var shakeCameraOffset = Vector3()
     private var cameraMovementProgress = 0F
     private var originalCameraPosition: Vector3 = Vector3()
     private var cameraInputController: CameraInputController? = null
+
     override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.PLAYER_INITIATED_MOVE)
+        return listOf(SystemEvents.PLAYER_INITIATED_MOVE, SystemEvents.MINE_TRIGGERED)
     }
 
     override fun createGlobalData(
@@ -49,6 +55,41 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
+        if (!shakeCameraOffset.isZero && nextShake < TimeUtils.millis()) {
+            globalData.camera.position.add(shakeCameraOffset)
+            shakeCameraOffset.set(
+                calculateShakeCameraOffsetCoordinate(shakeCameraOffset.x),
+                calculateShakeCameraOffsetCoordinate(shakeCameraOffset.y),
+                calculateShakeCameraOffsetCoordinate(shakeCameraOffset.z)
+            )
+            nextShake = if (shakeCameraOffset.isZero) {
+                0L
+            } else {
+                TimeUtils.millis() + SHAKE_INTERVALS
+            }
+        } else {
+            moveCamera(deltaTime)
+        }
+        cameraInputController?.update()
+        globalData.camera.update()
+    }
+
+    private fun calculateShakeCameraOffsetCoordinate(coordinate: Float) =
+        if (coordinate.absoluteValue > SHAKE_REDUCE_STEP_SIZE) coordinate * -1F + reduceShakeStepSize(
+            coordinate
+        ) else 0F
+
+    private fun reduceShakeStepSize(currentValue: Float): Float {
+        return if (currentValue.absoluteValue > SHAKE_REDUCE_STEP_SIZE) {
+            if (currentValue > 0) {
+                SHAKE_REDUCE_STEP_SIZE
+            } else {
+                -SHAKE_REDUCE_STEP_SIZE
+            }
+        } else 0F
+    }
+
+    private fun moveCamera(deltaTime: Float) {
         if (!originalCameraPosition.isZero) {
             val playerPosition =
                 ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
@@ -70,8 +111,6 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
                 cameraMovementProgress += 0.4F * deltaTime
             }
         }
-        cameraInputController?.update()
-        globalData.camera.update()
     }
 
     override fun onGlobalDataReady() {
@@ -86,6 +125,13 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         if (msg.message == SystemEvents.PLAYER_INITIATED_MOVE.ordinal) {
             originalCameraPosition.set(globalData.camera.position)
             cameraMovementProgress = 0F
+        } else if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
+            shakeCameraOffset.set(
+                MathUtils.random(SHAKE_MAX_OFFSET),
+                MathUtils.random(SHAKE_MAX_OFFSET),
+                MathUtils.random(SHAKE_MAX_OFFSET)
+            )
+            nextShake = TimeUtils.millis() + SHAKE_INTERVALS
         }
         return false
     }
@@ -134,6 +180,9 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         private const val FAR = 100f
         private const val NEAR = 0.01f
         private val auxVector = Vector3()
+        private const val SHAKE_REDUCE_STEP_SIZE = 0.05F
+        private const val SHAKE_INTERVALS = 100L
+        private const val SHAKE_MAX_OFFSET = 0.3F
     }
 
 }
