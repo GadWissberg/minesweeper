@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.minesweeper.GameDebugSettings
 import com.gadarts.minesweeper.MineSweeper
+import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
@@ -31,9 +32,10 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
 
     override fun createGlobalData(
         systemsGlobalData: SystemsGlobalData,
-        assetsManager: GameAssetManager
+        assetsManager: GameAssetManager,
+        soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager)
+        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
         val cam = PerspectiveCamera(
             67F,
             MineSweeper.PORTRAIT_RESOLUTION_WIDTH.toFloat(),

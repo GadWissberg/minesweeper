@@ -118,14 +118,13 @@ class PlayerMovementHandler {
         previousTouchPoint: Vector2,
         player: Entity,
         dispatcher: MessageDispatcher,
-    ) {
+    ): Boolean {
         val current = auxVector2_1.set(screenX.toFloat(), screenY.toFloat())
         if (current.epsilonEquals(
                 previousTouchPoint,
                 0.1F
             ) || !desiredLocation.isZero
-        ) return
-
+        ) return false
         val closestDirection = findClosestDirection(current.sub(previousTouchPoint).nor())
         desiredDirection = closestDirection
         previousTouchPoint.set(screenX.toFloat(), screenY.toFloat())
@@ -136,7 +135,6 @@ class PlayerMovementHandler {
         } else {
             -ROTATION_STEP
         }
-
         val originalLocation = ComponentsMappers.modelInstance
             .get(player)
             .modelInstance
@@ -153,7 +151,7 @@ class PlayerMovementHandler {
         } else {
             dispatcher.dispatchMessage(SystemEvents.PLAYER_INITIATED_MOVE.ordinal)
         }
-
+        return true
     }
 
     fun update(deltaTime: Float, player: Entity, dispatcher: MessageDispatcher) {

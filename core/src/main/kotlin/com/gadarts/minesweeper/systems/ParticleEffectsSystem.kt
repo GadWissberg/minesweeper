@@ -10,8 +10,10 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
+import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.ParticleEffectsDefinitions
+import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ParticleEffectComponent
 
@@ -23,9 +25,10 @@ class ParticleEffectsSystem : GameEntitySystem() {
     private val particleEntitiesToRemove = ArrayList<Entity>()
     override fun createGlobalData(
         systemsGlobalData: SystemsGlobalData,
-        assetsManager: GameAssetManager
+        assetsManager: GameAssetManager,
+        soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager)
+        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
         globalData.particleSystem = ParticleSystem()
         billboardParticleBatch = BillboardParticleBatch()
         assetsManager.loadParticleEffects(billboardParticleBatch)
@@ -108,6 +111,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
         if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
+            soundPlayer.playSound(SoundsDefinitions.EXPLOSION)
             EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
                 assetsManger.getAssetByDefinition(
                     ParticleEffectsDefinitions.EXPLOSION

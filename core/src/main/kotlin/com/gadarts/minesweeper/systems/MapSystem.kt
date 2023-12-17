@@ -11,8 +11,10 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
+import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.ModelsDefinitions
+import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.TileComponent
@@ -31,9 +33,10 @@ class MapSystem : GameEntitySystem() {
 
     override fun createGlobalData(
         systemsGlobalData: SystemsGlobalData,
-        assetsManager: GameAssetManager
+        assetsManager: GameAssetManager,
+        soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager)
+        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
         val modelBuilder = ModelBuilder()
         createTileModel(modelBuilder, assetsManager)
         for (row in SystemsGlobalData.values.indices) {
@@ -123,6 +126,9 @@ class MapSystem : GameEntitySystem() {
         val currentCol = position.x.toInt()
         val currentValue = SystemsGlobalData.values[currentRow][currentCol]
         if (currentValue == 1 || currentValue == 3) {
+            if (currentValue == 3) {
+                soundPlayer.playSound(SoundsDefinitions.WIN)
+            }
             dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal)
             resetMap()
         } else {

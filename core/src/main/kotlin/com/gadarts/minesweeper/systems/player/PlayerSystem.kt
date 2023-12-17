@@ -3,13 +3,16 @@ package com.gadarts.minesweeper.systems.player
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
+import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.ModelsDefinitions
+import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.SystemEvents
@@ -18,18 +21,22 @@ import com.gadarts.minesweeper.systems.SystemsGlobalData
 
 class PlayerSystem : GameEntitySystem(), InputProcessor {
 
+    private lateinit var jumpSounds: MutableList<Sound>
     private val previousTouchPoint: Vector2 = Vector2()
     private val playerMovementHandler = PlayerMovementHandler()
 
     override fun createGlobalData(
         systemsGlobalData: SystemsGlobalData,
-        assetsManager: GameAssetManager
+        assetsManager: GameAssetManager,
+        soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager)
+        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
         addPlayer()
         if (Gdx.input.inputProcessor == null) {
             Gdx.input.inputProcessor = this
         }
+        jumpSounds = mutableListOf()
+        SoundsDefinitions.PIG_JUMP.getPaths().forEach { jumpSounds.add(assetsManager.get(it)) }
     }
 
     override fun onGlobalDataReady() {
@@ -71,14 +78,16 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         if (globalData.player == null) return false
 
-        playerMovementHandler.movePlayer(
+        val moved = playerMovementHandler.movePlayer(
             screenX,
             screenY,
             previousTouchPoint,
             globalData.player!!,
-            dispatcher
+            dispatcher,
         )
-
+        if (moved) {
+            soundPlayer.playSound(jumpSounds.random(), 0.5F)
+        }
         return true
     }
 

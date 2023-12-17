@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.ScreenUtils
+import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ModelInstanceComponent
@@ -32,9 +33,10 @@ class RenderSystem : GameEntitySystem() {
 
     override fun createGlobalData(
         systemsGlobalData: SystemsGlobalData,
-        assetsManager: GameAssetManager
+        assetsManager: GameAssetManager,
+        soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager)
+        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
         axisModelHandler = AxisModelHandler()
         axisModelHandler.addAxis(engine)
         modelEntities = engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
