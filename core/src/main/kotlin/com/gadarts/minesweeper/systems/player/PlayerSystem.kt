@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
@@ -21,7 +22,8 @@ import com.gadarts.minesweeper.systems.SystemsGlobalData
 
 class PlayerSystem : GameEntitySystem(), InputProcessor {
 
-    private lateinit var jumpSounds: MutableList<Sound>
+    private lateinit var regularJumpSound: Sound
+    private lateinit var characterJumpSounds: List<Sound>
     private val previousTouchPoint: Vector2 = Vector2()
     private val playerMovementHandler = PlayerMovementHandler()
 
@@ -35,8 +37,10 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         if (Gdx.input.inputProcessor == null) {
             Gdx.input.inputProcessor = this
         }
-        jumpSounds = mutableListOf()
-        SoundsDefinitions.PIG_JUMP.getPaths().forEach { jumpSounds.add(assetsManager.get(it)) }
+        characterJumpSounds = SoundsDefinitions.PIG_JUMP.getPaths()
+            .map { path -> assetsManager.get<Sound>(path) }
+            .toList()
+        regularJumpSound = assetsManager.getAssetByDefinition(SoundsDefinitions.JUMP)
     }
 
     override fun onGlobalDataReady() {
@@ -86,7 +90,12 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             dispatcher,
         )
         if (moved) {
-            soundPlayer.playSound(jumpSounds.random(), 0.5F)
+            val sound = if (MathUtils.random(5) == 0) {
+                characterJumpSounds.random()
+            } else {
+                regularJumpSound
+            }
+            soundPlayer.playSound(sound, 0.5F)
         }
         return true
     }
@@ -143,5 +152,4 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
 
-    companion object
 }

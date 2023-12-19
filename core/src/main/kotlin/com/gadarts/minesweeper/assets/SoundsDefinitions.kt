@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Sound
 enum class SoundsDefinitions(fileNames: Int = 1, val randomPitch: Boolean = true) :
     AssetDefinition<Sound> {
 
+    JUMP,
     PIG_JUMP(2, true),
     EXPLOSION(3, true),
     WIN(1, true);

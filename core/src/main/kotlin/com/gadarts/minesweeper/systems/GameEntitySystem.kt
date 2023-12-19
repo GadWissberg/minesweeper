@@ -15,6 +15,8 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
         private set
     protected val dispatcher: MessageDispatcher = MessageDispatcher()
 
+    abstract fun onGlobalDataReady()
+
     open fun addListener(listener: GameEntitySystem) {
         listener.getEventsListenList().forEach { event ->
             dispatcher.addListener(
@@ -23,8 +25,6 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
             )
         }
     }
-
-    protected open fun getEventsListenList(): List<SystemEvents> = emptyList()
     open fun createGlobalData(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
@@ -35,6 +35,6 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
         this.soundPlayer = soundPlayer
     }
 
-    abstract fun onGlobalDataReady()
+    protected open fun getEventsListenList(): List<SystemEvents> = emptyList()
 
 }

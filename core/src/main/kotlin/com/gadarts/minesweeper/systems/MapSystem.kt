@@ -37,16 +37,14 @@ class MapSystem : GameEntitySystem() {
         soundPlayer: SoundPlayer
     ) {
         super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
-        val modelBuilder = ModelBuilder()
-        createTileModel(modelBuilder, assetsManager)
+        createTileModel(ModelBuilder(), assetsManager)
         for (row in SystemsGlobalData.values.indices) {
-            val currentRow = row.toFloat()
             for (col in SystemsGlobalData.values[row].indices) {
                 val tileModelInstance = ModelInstance(tileModel)
                 val tileEntity = EntityBuilder.beginBuildingEntity(engine)
                     .addModelInstanceComponent(
                         tileModelInstance,
-                        auxVector.set(col.toFloat(), 0F, currentRow)
+                        auxVector.set(col.toFloat(), 0F, row.toFloat())
                     )
                     .addTileComponent()
                     .finishAndAddToEngine()

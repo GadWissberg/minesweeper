@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.minesweeper.GameDebugSettings
@@ -21,7 +22,7 @@ import kotlin.math.absoluteValue
 class CameraSystem : GameEntitySystem(), InputProcessor {
 
     private var nextShake: Long = 0L
-    private var shakeCameraOffset = Vector3()
+    private var shakeCameraOffset = Vector2()
     private var cameraMovementProgress = 0F
     private var originalCameraPosition: Vector3 = Vector3()
     private var cameraInputController: CameraInputController? = null
@@ -58,11 +59,22 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         if (!shakeCameraOffset.isZero && nextShake < TimeUtils.millis()) {
-            globalData.camera.position.add(shakeCameraOffset)
+            val right = Vector3(globalData.camera.direction).crs(globalData.camera.up).nor()
+            val xOffset =
+                shakeCameraOffset.x * right.x + shakeCameraOffset.y * globalData.camera.up.x
+            val yOffset =
+                shakeCameraOffset.x * right.y + shakeCameraOffset.y * globalData.camera.up.y
+            val zOffset =
+                shakeCameraOffset.x * right.z + shakeCameraOffset.y * globalData.camera.up.z
+
+            globalData.camera.position.add(
+                xOffset,
+                yOffset,
+                zOffset
+            )
             shakeCameraOffset.set(
                 calculateShakeCameraOffsetCoordinate(shakeCameraOffset.x),
                 calculateShakeCameraOffsetCoordinate(shakeCameraOffset.y),
-                calculateShakeCameraOffsetCoordinate(shakeCameraOffset.z)
             )
             nextShake = if (shakeCameraOffset.isZero) {
                 0L
@@ -131,7 +143,6 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
             shakeCameraOffset.set(
                 MathUtils.random(SHAKE_MAX_OFFSET),
                 MathUtils.random(SHAKE_MAX_OFFSET),
-                MathUtils.random(SHAKE_MAX_OFFSET)
             )
             nextShake = TimeUtils.millis() + SHAKE_INTERVALS
         }
