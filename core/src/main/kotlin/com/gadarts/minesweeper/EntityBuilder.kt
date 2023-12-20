@@ -5,9 +5,16 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy.CollisionFilterGroups
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT
+import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.components.ParticleEffectComponent
+import com.gadarts.minesweeper.components.PhysicsComponent
 import com.gadarts.minesweeper.components.PlayerComponent
 import com.gadarts.minesweeper.components.TileComponent
 
@@ -67,6 +74,7 @@ class EntityBuilder {
         return instance
     }
 
+
     fun addTileComponent(): EntityBuilder {
         if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         val component: TileComponent = engine!!.createComponent(TileComponent::class.java)
@@ -98,6 +106,29 @@ class EntityBuilder {
             return instance
         }
 
+        fun createPhysicsComponent(
+            boundingBox: BoundingBox,
+            transform: Matrix4,
+            engine: PooledEngine
+        ): PhysicsComponent {
+            val component: PhysicsComponent = engine.createComponent(PhysicsComponent::class.java)
+            val shape = btCompoundShape()
+            val colShape = btBoxShape(
+                Vector3(
+                    boundingBox.width / 2F,
+                    boundingBox.height / 2F,
+                    boundingBox.depth / 2F
+                )
+            )
+            shape.addChildShape(
+                Matrix4().translate(Vector3(0F, boundingBox.height / 2F, 0F)),
+                colShape
+            )
+            component.init(
+                shape, 20F, transform, CollisionFilterGroups.CharacterFilter, 1F
+            )
+            return component
+        }
 
     }
 }

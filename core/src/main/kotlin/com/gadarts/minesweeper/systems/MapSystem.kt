@@ -128,7 +128,6 @@ class MapSystem : GameEntitySystem() {
                 soundPlayer.playSound(SoundsDefinitions.WIN)
             }
             dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal)
-            resetMap()
         } else {
             var sum = 0
             for (row in max(currentRow - 1, 0)..min(currentRow + 1, tiles.size - 1)) {

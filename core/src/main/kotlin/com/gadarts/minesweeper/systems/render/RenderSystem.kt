@@ -14,10 +14,12 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.ScreenUtils
+import com.gadarts.minesweeper.GameDebugSettings
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ModelInstanceComponent
+import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.SystemsGlobalData
 
@@ -82,8 +84,15 @@ class RenderSystem : GameEntitySystem() {
         )
         modelBatch.begin(globalData.camera)
         renderModels(modelBatch, true)
+        renderCollisionShapes()
         modelBatch.render(globalData.particleSystem, environment)
         modelBatch.end()
+    }
+
+    private fun renderCollisionShapes() {
+        if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
+        val debugDrawingMethod: CollisionShapesDebugDrawing? = globalData.debugDrawingMethod
+        debugDrawingMethod?.drawCollisionShapes(globalData.camera)
     }
 
     private fun renderModels(modelBatch: ModelBatch, applyEnvironment: Boolean) {

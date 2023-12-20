@@ -9,11 +9,12 @@ import com.gadarts.minesweeper.systems.SystemsGlobalData
 
 
 class GamePlayScreen(private val assetsManager: GameAssetManager) : Screen {
+    private lateinit var systemsGlobalData: SystemsGlobalData
     private lateinit var engine: PooledEngine
 
     override fun show() {
         engine = PooledEngine()
-        val systemsGlobalData = SystemsGlobalData()
+        systemsGlobalData = SystemsGlobalData()
         val systems = Systems.entries.toTypedArray()
         val soundPlayer = SoundPlayer(assetsManager)
         systems.forEach { system ->
@@ -45,6 +46,7 @@ class GamePlayScreen(private val assetsManager: GameAssetManager) : Screen {
     }
 
     override fun dispose() {
+        systemsGlobalData.collisionWorld.dispose()
     }
 
 }
