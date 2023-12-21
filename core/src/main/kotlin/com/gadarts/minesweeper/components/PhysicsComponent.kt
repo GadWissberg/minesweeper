@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.utils.Disposable
 
+
 class PhysicsComponent : GameComponent, Disposable {
     private val localInertia = Vector3()
     private var motionState: MotionState? = null
@@ -21,7 +22,6 @@ class PhysicsComponent : GameComponent, Disposable {
         mass: Float,
         transform: Matrix4?,
         flag: Int,
-        angularFactor: Float,
     ) {
         if (transform != null) {
             motionState = MotionState()
@@ -29,7 +29,7 @@ class PhysicsComponent : GameComponent, Disposable {
             motionState!!.setWorldTransform(transform)
         }
         calculateLocalInertia(colShape, mass)
-        initializeBody(colShape, mass, transform, flag, angularFactor)
+        initializeBody(colShape, mass, transform, flag)
     }
 
     private fun initializeBody(
@@ -37,15 +37,15 @@ class PhysicsComponent : GameComponent, Disposable {
         mass: Float,
         transform: Matrix4?,
         flag: Int,
-        angularFactor: Float,
     ) {
         this.rigidBody = btRigidBody(mass, motionState, colShape, localInertia)
         if (transform != null) {
             this.rigidBody.worldTransform = transform
         }
         activateBody()
-        this.rigidBody.collisionFlags = flag
-        //        rigidBody.setAngularFactor(angularFactor)
+        this.rigidBody.collisionFlags = this.rigidBody.collisionFlags or flag
+        rigidBody.angularFactor = Vector3(1F, 1F, 1F)
+        rigidBody.friction = 1.5F
     }
 
     private fun activateBody() {

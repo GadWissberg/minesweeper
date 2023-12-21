@@ -8,11 +8,11 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.Bullet
 import com.badlogic.gdx.physics.bullet.DebugDrawer
 import com.badlogic.gdx.physics.bullet.collision.btAxisSweep3
-import com.badlogic.gdx.physics.bullet.collision.btBoxShape
-import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration
 import com.badlogic.gdx.physics.bullet.collision.btGhostPairCallback
+import com.badlogic.gdx.physics.bullet.collision.btStaticPlaneShape
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstructionInfo
@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
 import com.gadarts.minesweeper.systems.SystemsGlobalData
+
 
 class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposable, EntityListener {
 
@@ -39,14 +40,16 @@ class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposabl
     }
 
     private fun createGroundPhysicsBody(): btRigidBody {
-        val collisionShape = btBoxShape(auxVector.set(20f, 0.01f, 20f))
+        val ground = btStaticPlaneShape(auxVector.set(0F, 1F, 0F), 0F)
         val info = btRigidBodyConstructionInfo(
             0f,
             null,
-            collisionShape
+            ground
         )
         val btRigidBody = btRigidBody(info)
         info.dispose()
+        btRigidBody.collisionFlags =
+            btRigidBody.collisionFlags or btCollisionObject.CollisionFlags.CF_STATIC_OBJECT
         return btRigidBody
     }
 
@@ -83,7 +86,6 @@ class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposabl
         initializeCollisionWorld()
         initializeDebug()
         val btRigidBody = createGroundPhysicsBody()
-        btRigidBody.contactCallbackFlag = btBroadphaseProxy.CollisionFilterGroups.StaticFilter
         globalData.collisionWorld.addRigidBody(btRigidBody)
         globalData.debugDrawingMethod = object : CollisionShapesDebugDrawing {
             override fun drawCollisionShapes(camera: PerspectiveCamera) {

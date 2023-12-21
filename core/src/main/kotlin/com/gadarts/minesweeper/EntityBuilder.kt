@@ -9,7 +9,6 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
-import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy.CollisionFilterGroups
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.minesweeper.components.ModelInstanceComponent
@@ -125,7 +124,7 @@ class EntityBuilder {
                 colShape
             )
             component.init(
-                shape, 20F, transform, CollisionFilterGroups.CharacterFilter, 1F
+                shape, 10F, transform, CF_CHARACTER_OBJECT
             )
             return component
         }

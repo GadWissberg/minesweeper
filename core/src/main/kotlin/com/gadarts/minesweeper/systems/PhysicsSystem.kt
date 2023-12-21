@@ -2,6 +2,7 @@ package com.gadarts.minesweeper.systems
 
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.minesweeper.EntityBuilder
@@ -45,13 +46,26 @@ class PhysicsSystem : GameEntitySystem() {
 
         if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
             val physicsComponent = EntityBuilder.createPhysicsComponent(
-                auxBoundingBox,
+                ComponentsMappers.modelInstance.get(globalData.player).modelInstance.calculateBoundingBox(
+                    auxBoundingBox
+                ),
                 ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform,
                 engine as PooledEngine
             )
             globalData.player?.add(physicsComponent)
             globalData.collisionWorld.addRigidBody(physicsComponent.rigidBody)
-            physicsComponent.rigidBody.applyCentralImpulse(Vector3(1F, 1F, 1F).scl(50F))
+            physicsComponent.rigidBody.applyImpulse(
+                Vector3(
+                    MathUtils.random(-1F, 1F),
+                    MathUtils.random(0F, 1F),
+                    MathUtils.random(-1F, 1F)
+                ).scl(95F),
+                Vector3(
+                    MathUtils.random(-0.1F, 0.1F),
+                    0F,
+                    MathUtils.random(-0.1F, 0.1F)
+                )
+            )
         }
 
         return false

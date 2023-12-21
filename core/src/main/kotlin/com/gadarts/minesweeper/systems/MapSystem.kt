@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.Timer
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
@@ -128,6 +129,11 @@ class MapSystem : GameEntitySystem() {
                 soundPlayer.playSound(SoundsDefinitions.WIN)
             }
             dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal)
+            Timer.schedule(object : Timer.Task() {
+                override fun run() {
+                    resetMap()
+                }
+            }, 5F)
         } else {
             var sum = 0
             for (row in max(currentRow - 1, 0)..min(currentRow + 1, tiles.size - 1)) {

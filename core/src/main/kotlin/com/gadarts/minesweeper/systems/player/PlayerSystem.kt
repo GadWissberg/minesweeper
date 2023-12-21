@@ -7,10 +7,8 @@ import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
@@ -123,7 +121,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun update(deltaTime: Float) {
-        if (globalData.player == null) return
+        if (globalData.player == null || ComponentsMappers.physics.has(globalData.player)) return
         playerMovementHandler.update(deltaTime, globalData.player!!, dispatcher)
     }
 
@@ -138,6 +136,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             .addPlayerComponent()
             .finishAndAddToEngine()
         placePlayer()
+        dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
     }
 
     private fun placePlayer() {
