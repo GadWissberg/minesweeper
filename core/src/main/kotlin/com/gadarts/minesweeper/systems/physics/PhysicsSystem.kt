@@ -58,7 +58,7 @@ class PhysicsSystem : GameEntitySystem() {
             physicsComponent.rigidBody.applyImpulse(
                 Vector3(
                     MathUtils.random(-1F, 1F),
-                    MathUtils.random(0F, 1F),
+                    MathUtils.random(0.5F, 1F),
                     MathUtils.random(-1F, 1F)
                 ).scl(95F),
                 Vector3(
