@@ -125,15 +125,7 @@ class MapSystem : GameEntitySystem() {
         val currentCol = position.x.toInt()
         val currentValue = SystemsGlobalData.values[currentRow][currentCol]
         if (currentValue == 1 || currentValue == 3) {
-            if (currentValue == 3) {
-                soundPlayer.playSound(SoundsDefinitions.WIN)
-            }
-            dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal)
-            Timer.schedule(object : Timer.Task() {
-                override fun run() {
-                    resetMap()
-                }
-            }, 5F)
+            gameFinished(currentValue)
         } else {
             var sum = 0
             for (row in max(currentRow - 1, 0)..min(currentRow + 1, tiles.size - 1)) {
@@ -148,6 +140,18 @@ class MapSystem : GameEntitySystem() {
             ) as TextureAttribute).textureDescription.texture =
                 assetsManger.getAssetByDefinition(sumToTextureDefinition[sum])
         }
+    }
+
+    private fun gameFinished(currentValue: Int) {
+        if (currentValue == 3) {
+            soundPlayer.playSoundByDefinition(SoundsDefinitions.WIN)
+        }
+        dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal)
+        Timer.schedule(object : Timer.Task() {
+            override fun run() {
+                resetMap()
+            }
+        }, 5F)
     }
 
     private fun resetMap() {

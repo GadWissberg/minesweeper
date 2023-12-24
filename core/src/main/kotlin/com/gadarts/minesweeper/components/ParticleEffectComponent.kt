@@ -2,15 +2,20 @@ package com.gadarts.minesweeper.components
 
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 
-class ParticleEffectComponent : GameComponent {
+abstract class BaseParticleEffectComponent : GameComponent {
+
     lateinit var effect: ParticleEffect
         private set
 
     override fun reset() {
     }
 
-    fun init(effect: ParticleEffect) {
+    open fun init(effect: ParticleEffect) {
         this.effect = effect
     }
 
 }
+class FollowerParticleEffectComponent : BaseParticleEffectComponent()
+
+class IndependentParticleEffectComponent : BaseParticleEffectComponent()
+

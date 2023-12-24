@@ -11,8 +11,10 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
+import com.gadarts.minesweeper.components.BaseParticleEffectComponent
+import com.gadarts.minesweeper.components.FollowerParticleEffectComponent
+import com.gadarts.minesweeper.components.IndependentParticleEffectComponent
 import com.gadarts.minesweeper.components.ModelInstanceComponent
-import com.gadarts.minesweeper.components.ParticleEffectComponent
 import com.gadarts.minesweeper.components.PhysicsComponent
 import com.gadarts.minesweeper.components.PlayerComponent
 import com.gadarts.minesweeper.components.TileComponent
@@ -86,15 +88,14 @@ class EntityBuilder {
         position: Vector3
     ): EntityBuilder {
         if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
-        val effect: ParticleEffect = originalEffect.copy()
-        val particleEffectComponent = engine!!.createComponent(
-            ParticleEffectComponent::class.java
+        val particleEffectComponent = createIndependentParticleEffectComponent(
+            originalEffect, position,
+            engine!!
         )
-        particleEffectComponent.init(effect)
-        effect.translate(position)
         currentEntity!!.add(particleEffectComponent)
         return instance
     }
+
 
     companion object {
         private val instance = EntityBuilder()
@@ -127,6 +128,32 @@ class EntityBuilder {
                 shape, 10F, transform, CF_CHARACTER_OBJECT
             )
             return component
+        }
+
+        fun createIndependentParticleEffectComponent(
+            originalEffect: ParticleEffect,
+            position: Vector3,
+            engine: PooledEngine
+        ): BaseParticleEffectComponent {
+            val effect: ParticleEffect = originalEffect.copy()
+            val particleEffectComponent = engine.createComponent(
+                IndependentParticleEffectComponent::class.java
+            )
+            particleEffectComponent.init(effect)
+            effect.translate(position)
+            return particleEffectComponent
+        }
+
+        fun createFollowerParticleEffectComponent(
+            originalEffect: ParticleEffect,
+            engine: PooledEngine
+        ): BaseParticleEffectComponent {
+            val effect: ParticleEffect = originalEffect.copy()
+            val particleEffectComponent = engine.createComponent(
+                FollowerParticleEffectComponent::class.java
+            )
+            particleEffectComponent.init(effect)
+            return particleEffectComponent
         }
 
     }

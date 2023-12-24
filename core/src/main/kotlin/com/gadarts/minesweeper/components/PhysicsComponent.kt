@@ -10,7 +10,8 @@ import com.badlogic.gdx.utils.Disposable
 
 class PhysicsComponent : GameComponent, Disposable {
     private val localInertia = Vector3()
-    private var motionState: MotionState? = null
+    var motionState: MotionState? = null
+        private set
     lateinit var rigidBody: btRigidBody
 
     override fun reset() {

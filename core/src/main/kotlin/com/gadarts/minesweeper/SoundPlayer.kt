@@ -16,11 +16,7 @@ class SoundPlayer(private val assetManager: GameAssetManager) {
         sfxEnabled = GameDebugSettings.SFX_ENABLED
     }
 
-    fun playSound(soundDef: SoundsDefinitions) {
-        playSound(soundDef, 1f)
-    }
-
-    fun playSound(def: SoundsDefinitions, volume: Float) {
+    fun playSoundByDefinition(def: SoundsDefinitions) {
         if (!sfxEnabled) return
         val pitch: Float =
             1 + (if (def.randomPitch) (if (randomBoolean()) 1 else -1) else 0) * random(
@@ -28,7 +24,7 @@ class SoundPlayer(private val assetManager: GameAssetManager) {
                 PITCH_OFFSET
             )
         val sound = assetManager.get<Sound>(getRandomSound(def))
-        playSound(sound, volume, pitch)
+        playSound(sound, 1F, pitch)
     }
 
     fun playSound(sound: Sound, volume: Float = 1F) {
@@ -40,7 +36,7 @@ class SoundPlayer(private val assetManager: GameAssetManager) {
         )
     }
 
-    fun playSound(sound: Sound, volume: Float, pitch: Float) {
+    private fun playSound(sound: Sound, volume: Float, pitch: Float) {
         sound.play(volume, pitch, 0F)
     }
 

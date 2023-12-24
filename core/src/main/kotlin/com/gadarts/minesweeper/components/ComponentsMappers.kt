@@ -6,8 +6,10 @@ import com.badlogic.ashley.core.ComponentMapper
 object ComponentsMappers {
     val modelInstance: ComponentMapper<ModelInstanceComponent> =
         ComponentMapper.getFor(ModelInstanceComponent::class.java)
-    val particleEffect: ComponentMapper<ParticleEffectComponent> =
-        ComponentMapper.getFor(ParticleEffectComponent::class.java)
+    val independentParticleEffect: ComponentMapper<IndependentParticleEffectComponent> =
+        ComponentMapper.getFor(IndependentParticleEffectComponent::class.java)
+    val followersParticleEffect: ComponentMapper<FollowerParticleEffectComponent> =
+        ComponentMapper.getFor(FollowerParticleEffectComponent::class.java)
     val physics: ComponentMapper<PhysicsComponent> =
         ComponentMapper.getFor(PhysicsComponent::class.java)
 }

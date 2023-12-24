@@ -1,5 +1,6 @@
 package com.gadarts.minesweeper.systems
 
+import com.gadarts.minesweeper.systems.physics.PhysicsSystem
 import com.gadarts.minesweeper.systems.player.PlayerSystem
 import com.gadarts.minesweeper.systems.render.RenderSystem
 
