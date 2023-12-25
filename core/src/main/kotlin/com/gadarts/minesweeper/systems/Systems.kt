@@ -10,6 +10,7 @@ enum class Systems(val systemInstance: GameEntitySystem) {
     MAP(MapSystem()),
     PHYSICS(PhysicsSystem()),
     PLAYER(PlayerSystem()),
-    PARTICLE_EFFECTS(ParticleEffectsSystem())
+    PARTICLE_EFFECTS(ParticleEffectsSystem()),
+    HUD(HudSystem())
 
 }

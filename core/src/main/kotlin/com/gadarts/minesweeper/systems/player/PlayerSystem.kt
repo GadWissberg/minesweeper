@@ -5,7 +5,6 @@ import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g3d.ModelInstance
-import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
@@ -44,6 +43,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun onGlobalDataReady() {
+        dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
     }
 
     override fun dispose() {
@@ -56,7 +56,10 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
             playerMovementHandler.reset()
             engine.removeEntity(globalData.player)
             globalData.player = null
-            Gdx.app.postRunnable { addPlayer() }
+            Gdx.app.postRunnable {
+                addPlayer()
+                dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
+            }
         }
 
         return false
@@ -128,15 +131,11 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
 
     private fun addPlayer() {
         val modelInstance = ModelInstance(assetsManger.getAssetByDefinition(ModelsDefinitions.PIG))
-        val blendingAttribute = BlendingAttribute()
-        blendingAttribute.opacity = 0.8F
-        modelInstance.materials.get(0).set(blendingAttribute)
         globalData.player = EntityBuilder.beginBuildingEntity(engine)
             .addModelInstanceComponent(modelInstance)
             .addPlayerComponent()
             .finishAndAddToEngine()
         placePlayer()
-        dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
     }
 
     private fun placePlayer() {

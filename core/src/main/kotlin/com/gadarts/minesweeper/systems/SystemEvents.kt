@@ -5,6 +5,8 @@ enum class SystemEvents {
     PLAYER_INITIATED_MOVE,
     PLAYER_LANDED,
     MINE_TRIGGERED,
+    CURRENT_TILE_VALUE_CALCULATED,
     MAP_RESET;
+
 
 }

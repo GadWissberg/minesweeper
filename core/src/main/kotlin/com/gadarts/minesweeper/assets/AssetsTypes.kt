@@ -5,6 +5,7 @@ enum class AssetsTypes(
 ) {
     MODELS(ModelsDefinitions.entries.toTypedArray()),
     TEXTURES(TexturesDefinitions.entries.toTypedArray()),
-    SOUNDS(SoundsDefinitions.entries.toTypedArray());
+    SOUNDS(SoundsDefinitions.entries.toTypedArray()),
+    FONTS(FontsDefinitions.entries.toTypedArray());
 
 }

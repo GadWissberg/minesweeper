@@ -20,7 +20,17 @@ open class GameAssetManager : AssetManager() {
         AssetsTypes.entries.forEach { type ->
             if (type.assets.isNotEmpty()) {
                 type.assets.forEach { asset ->
-                    asset.getPaths().forEach { load(it, asset.getClazz()) }
+                    asset.getPaths().forEach { path ->
+                        if (asset.getParameters() != null) {
+                            load(
+                                path,
+                                BitmapFont::class.java,
+                                (asset.getParameters() as FreetypeFontLoader.FreeTypeFontLoaderParameter)
+                            )
+                        } else {
+                            load(path, asset.getClazz())
+                        }
+                    }
                 }
             }
         }

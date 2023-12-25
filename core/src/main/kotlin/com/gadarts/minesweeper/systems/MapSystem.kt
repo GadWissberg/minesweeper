@@ -70,7 +70,7 @@ class MapSystem : GameEntitySystem() {
 
 
     override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.PLAYER_LANDED)
+        return listOf(SystemEvents.PLAYER_LANDED, SystemEvents.PLAYER_BEGIN)
     }
 
     private fun createTileModel(
@@ -111,6 +111,18 @@ class MapSystem : GameEntitySystem() {
         if (msg.message == SystemEvents.PLAYER_LANDED.ordinal) {
             handlePlayerLanded()
             return true
+        } else if (msg.message == SystemEvents.PLAYER_BEGIN.ordinal) {
+            val position =
+                ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
+                    auxVector
+                )
+            val currentRow = position.z.toInt()
+            val currentCol = position.x.toInt()
+            sumMinesAround(
+                currentRow,
+                currentCol
+            )
+            return true
         }
 
         return false
@@ -127,19 +139,29 @@ class MapSystem : GameEntitySystem() {
         if (currentValue == 1 || currentValue == 3) {
             gameFinished(currentValue)
         } else {
-            var sum = 0
-            for (row in max(currentRow - 1, 0)..min(currentRow + 1, tiles.size - 1)) {
-                for (col in max(currentCol - 1, 0)..min(currentCol + 1, tiles[0].size - 1)) {
-                    if (SystemsGlobalData.values[row][col] == 1 && (row != currentRow || col != currentCol)) {
-                        sum += 1
-                    }
-                }
-            }
             (ComponentsMappers.modelInstance.get(tiles[currentRow][currentCol]).modelInstance.materials[0].get(
                 TextureAttribute.Diffuse
             ) as TextureAttribute).textureDescription.texture =
-                assetsManger.getAssetByDefinition(sumToTextureDefinition[sum])
+                assetsManger.getAssetByDefinition(
+                    sumToTextureDefinition[sumMinesAround(
+                        currentRow,
+                        currentCol
+                    )]
+                )
         }
+    }
+
+    private fun sumMinesAround(currentRow: Int, currentCol: Int): Int {
+        var sum = 0
+        for (row in max(currentRow - 1, 0)..min(currentRow + 1, tiles.size - 1)) {
+            for (col in max(currentCol - 1, 0)..min(currentCol + 1, tiles[0].size - 1)) {
+                if (SystemsGlobalData.values[row][col] == 1 && (row != currentRow || col != currentCol)) {
+                    sum += 1
+                }
+            }
+        }
+        dispatcher.dispatchMessage(SystemEvents.CURRENT_TILE_VALUE_CALCULATED.ordinal, sum)
+        return sum
     }
 
     private fun gameFinished(currentValue: Int) {
