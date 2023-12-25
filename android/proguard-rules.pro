@@ -54,7 +54,7 @@
 -keep public class com.badlogic.gdx.graphics.g2d.BitmapFont { *; }
 # You will probably need this line in most cases
 -keep public class com.badlogic.gdx.graphics.Color { *; }
-
+-keep public class com.badlogic.gdx.** {*;}
 # These two lines are used with mapping files; see https://developer.android.com/build/shrink-code#retracing
 -keepattributes LineNumberTable,SourceFile
 -renamesourcefileattribute SourceFile
