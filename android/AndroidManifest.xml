@@ -12,7 +12,7 @@
         android:fullBackupContent="true"
         android:icon="@drawable/ic_launcher"
         android:isGame="true"
-        android:label="@string/app_name"
+        android:label="MineWay"
         android:theme="@style/GdxTheme"
         tools:ignore="UnusedAttribute">
 

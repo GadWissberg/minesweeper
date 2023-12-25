@@ -33,7 +33,7 @@ configure(subprojects - project(':android')) {
 }
 
 subprojects {
-  version = '1.0.0'
+  version = '0.1.0'
   ext.appName = 'minesweeper'
   repositories {
     mavenCentral()
