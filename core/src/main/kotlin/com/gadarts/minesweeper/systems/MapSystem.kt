@@ -54,8 +54,7 @@ class MapSystem : GameEntitySystem() {
                     (tileModelInstance.materials.get(0)
                         .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
                         assetsManger.getAssetByDefinition(TexturesDefinitions.TILE_DESTINATION)
-                }
-                if (SystemsGlobalData.values[row][col] == 4) {
+                } else if (SystemsGlobalData.values[row][col] == 4) {
                     val modelInstance = ModelInstance(
                         assetsManager.getAssetByDefinition(ModelsDefinitions.ROCK)
                     )

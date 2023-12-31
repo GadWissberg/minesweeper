@@ -12,6 +12,7 @@ import com.badlogic.gdx.physics.bullet.collision.btBoxShape
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT
 import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.minesweeper.components.BaseParticleEffectComponent
+import com.gadarts.minesweeper.components.CrateComponent
 import com.gadarts.minesweeper.components.FollowerParticleEffectComponent
 import com.gadarts.minesweeper.components.IndependentParticleEffectComponent
 import com.gadarts.minesweeper.components.ModelInstanceComponent
@@ -65,6 +66,14 @@ class EntityBuilder {
         component.init(modelInstance)
         currentEntity!!.add(component)
         component.modelInstance.userData = currentEntity
+        return instance
+    }
+
+    fun addCrateComponent(): EntityBuilder {
+        if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
+        val component: CrateComponent =
+            engine!!.createComponent(CrateComponent::class.java)
+        currentEntity!!.add(component)
         return instance
     }
 

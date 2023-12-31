@@ -11,6 +11,7 @@ enum class Systems(val systemInstance: GameEntitySystem) {
     PHYSICS(PhysicsSystem()),
     PLAYER(PlayerSystem()),
     PARTICLE_EFFECTS(ParticleEffectsSystem()),
-    HUD(HudSystem())
+    HUD(HudSystem()),
+    BONUS(BonusSystem())
 
 }

@@ -2,6 +2,7 @@ package com.gadarts.minesweeper.systems
 
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.ai.msg.MessageDispatcher
+import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.minesweeper.SoundPlayer
@@ -16,7 +17,9 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
     protected val dispatcher: MessageDispatcher = MessageDispatcher()
 
     abstract fun onGlobalDataReady()
-
+    override fun handleMessage(msg: Telegram?): Boolean {
+        return false
+    }
     open fun addListener(listener: GameEntitySystem) {
         listener.getEventsListenList().forEach { event ->
             dispatcher.addListener(
