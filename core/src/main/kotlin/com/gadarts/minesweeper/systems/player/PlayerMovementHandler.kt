@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.SystemEvents
-import com.gadarts.minesweeper.systems.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 import kotlin.math.min
 
 class PlayerMovementHandler {
@@ -146,7 +146,7 @@ class PlayerMovementHandler {
             originalLocation.add(desiredDirection!!.direction)
         )
 
-        if (SystemsGlobalData.values[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
+        if (SystemsGlobalData.testMapValues[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
             desiredLocation.setZero()
         } else {
             dispatcher.dispatchMessage(SystemEvents.PLAYER_INITIATED_MOVE.ordinal)

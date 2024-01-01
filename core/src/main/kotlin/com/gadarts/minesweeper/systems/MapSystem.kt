@@ -19,7 +19,8 @@ import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.TileComponent
-import com.gadarts.minesweeper.systems.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
 import kotlin.math.max
 import kotlin.math.min
 
@@ -39,8 +40,8 @@ class MapSystem : GameEntitySystem() {
     ) {
         super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
         createTileModel(ModelBuilder(), assetsManager)
-        for (row in SystemsGlobalData.values.indices) {
-            for (col in SystemsGlobalData.values[row].indices) {
+        for (row in SystemsGlobalData.testMapValues.indices) {
+            for (col in SystemsGlobalData.testMapValues[row].indices) {
                 val tileModelInstance = ModelInstance(tileModel)
                 val tileEntity = EntityBuilder.beginBuildingEntity(engine)
                     .addModelInstanceComponent(
@@ -50,11 +51,11 @@ class MapSystem : GameEntitySystem() {
                     .addTileComponent()
                     .finishAndAddToEngine()
                 tiles[row][col] = tileEntity
-                if (SystemsGlobalData.values[row][col] == 3) {
+                if (SystemsGlobalData.testMapValues[row][col] == 3) {
                     (tileModelInstance.materials.get(0)
                         .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
                         assetsManger.getAssetByDefinition(TexturesDefinitions.TILE_DESTINATION)
-                } else if (SystemsGlobalData.values[row][col] == 4) {
+                } else if (SystemsGlobalData.testMapValues[row][col] == 4) {
                     val modelInstance = ModelInstance(
                         assetsManager.getAssetByDefinition(ModelsDefinitions.ROCK)
                     )
@@ -134,7 +135,7 @@ class MapSystem : GameEntitySystem() {
             )
         val currentRow = position.z.toInt()
         val currentCol = position.x.toInt()
-        val currentValue = SystemsGlobalData.values[currentRow][currentCol]
+        val currentValue = SystemsGlobalData.testMapValues[currentRow][currentCol]
         if (currentValue == 1 || currentValue == 3) {
             gameFinished(currentValue)
         } else {
@@ -154,7 +155,7 @@ class MapSystem : GameEntitySystem() {
         var sum = 0
         for (row in max(currentRow - 1, 0)..min(currentRow + 1, tiles.size - 1)) {
             for (col in max(currentCol - 1, 0)..min(currentCol + 1, tiles[0].size - 1)) {
-                if (SystemsGlobalData.values[row][col] == 1 && (row != currentRow || col != currentCol)) {
+                if (SystemsGlobalData.testMapValues[row][col] == 1 && (row != currentRow || col != currentCol)) {
                     sum += 1
                 }
             }

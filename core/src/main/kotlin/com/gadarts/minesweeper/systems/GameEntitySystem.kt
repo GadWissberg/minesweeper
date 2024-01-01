@@ -7,6 +7,7 @@ import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 
 abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {

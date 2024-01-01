@@ -20,6 +20,7 @@ import com.gadarts.minesweeper.components.BaseParticleEffectComponent
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.FollowerParticleEffectComponent
 import com.gadarts.minesweeper.components.IndependentParticleEffectComponent
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 
 class ParticleEffectsSystem : GameEntitySystem() {

@@ -16,7 +16,7 @@ import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.SystemEvents
-import com.gadarts.minesweeper.systems.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 
 class PlayerSystem : GameEntitySystem(), InputProcessor {
@@ -139,9 +139,9 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     private fun placePlayer() {
-        for (row in SystemsGlobalData.values.indices) {
-            for (col in SystemsGlobalData.values[0].indices) {
-                if (SystemsGlobalData.values[row][col] == 2) {
+        for (row in SystemsGlobalData.testMapValues.indices) {
+            for (col in SystemsGlobalData.testMapValues[0].indices) {
+                if (SystemsGlobalData.testMapValues[row][col] == 2) {
                     ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.setToTranslation(
                         col + 0.5F, 0F, row + 0.5F
                     ).rotate(Vector3.Y, -90F)

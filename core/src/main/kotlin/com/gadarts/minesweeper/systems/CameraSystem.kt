@@ -15,7 +15,8 @@ import com.gadarts.minesweeper.MineSweeper
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
-import com.gadarts.minesweeper.systems.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
 import kotlin.math.absoluteValue
 
 

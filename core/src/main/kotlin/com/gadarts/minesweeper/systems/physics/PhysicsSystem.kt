@@ -11,7 +11,7 @@ import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.SystemEvents
-import com.gadarts.minesweeper.systems.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 class PhysicsSystem : GameEntitySystem() {
     private lateinit var bulletEngineHandler: BulletEngineHandler

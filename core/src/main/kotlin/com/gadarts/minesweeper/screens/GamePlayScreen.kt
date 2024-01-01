@@ -5,7 +5,7 @@ import com.badlogic.gdx.Screen
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.systems.Systems
-import com.gadarts.minesweeper.systems.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 
 class GamePlayScreen(private val assetsManager: GameAssetManager) : Screen {

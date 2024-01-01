@@ -21,7 +21,7 @@ import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
-import com.gadarts.minesweeper.systems.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 
 class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposable, EntityListener {

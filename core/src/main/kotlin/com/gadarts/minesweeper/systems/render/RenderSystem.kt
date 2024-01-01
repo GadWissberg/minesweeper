@@ -21,7 +21,7 @@ import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
 import com.gadarts.minesweeper.systems.GameEntitySystem
-import com.gadarts.minesweeper.systems.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 
 class RenderSystem : GameEntitySystem() {

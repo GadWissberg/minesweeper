@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.FontsDefinitions
 import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 
 class HudSystem : GameEntitySystem() {
