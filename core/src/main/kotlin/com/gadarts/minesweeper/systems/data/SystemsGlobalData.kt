@@ -21,6 +21,7 @@ class SystemsGlobalData : Disposable {
     var player: Entity? = null
     lateinit var camera: PerspectiveCamera
     lateinit var particleSystem: ParticleSystem
+    var coins = 0
 
     override fun dispose() {
         collisionWorld.dispose()
