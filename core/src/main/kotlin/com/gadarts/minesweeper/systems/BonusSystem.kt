@@ -14,6 +14,7 @@ import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.ModelsDefinitions
 import com.gadarts.minesweeper.assets.ParticleEffectsDefinitions
+import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.CrateComponent
 import com.gadarts.minesweeper.systems.data.SystemsGlobalData
@@ -73,6 +74,7 @@ class BonusSystem : GameEntitySystem() {
                     assetsManger.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),
                     position
                 ).finishAndAddToEngine()
+                soundPlayer.playSoundByDefinition(SoundsDefinitions.BONUS)
             }
         }
 
