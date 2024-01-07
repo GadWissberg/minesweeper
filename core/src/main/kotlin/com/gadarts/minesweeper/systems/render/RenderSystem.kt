@@ -33,12 +33,12 @@ class RenderSystem : GameEntitySystem() {
     private lateinit var modelBatch: ModelBatch
     private lateinit var modelEntities: ImmutableArray<Entity>
 
-    override fun createGlobalData(
+    override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
         axisModelHandler = AxisModelHandler()
         axisModelHandler.addAxis(engine)
         modelEntities = engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
@@ -65,7 +65,7 @@ class RenderSystem : GameEntitySystem() {
         shadowBatch = ModelBatch(DepthShaderProvider())
     }
 
-    override fun onGlobalDataReady() {
+    override fun onSystemReady() {
     }
 
     override fun update(deltaTime: Float) {
@@ -109,6 +109,7 @@ class RenderSystem : GameEntitySystem() {
 
     override fun dispose() {
         axisModelHandler.dispose()
+        modelBatch.dispose()
     }
 
     override fun handleMessage(msg: Telegram?): Boolean {

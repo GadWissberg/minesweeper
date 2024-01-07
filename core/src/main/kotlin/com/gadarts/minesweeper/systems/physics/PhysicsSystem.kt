@@ -16,12 +16,12 @@ import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 class PhysicsSystem : GameEntitySystem() {
     private lateinit var bulletEngineHandler: BulletEngineHandler
 
-    override fun createGlobalData(
+    override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
         bulletEngineHandler = BulletEngineHandler(globalData)
         bulletEngineHandler.initialize(engine)
     }
@@ -30,7 +30,7 @@ class PhysicsSystem : GameEntitySystem() {
         return listOf(SystemEvents.MINE_TRIGGERED)
     }
 
-    override fun onGlobalDataReady() {
+    override fun onSystemReady() {
 
     }
 

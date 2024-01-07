@@ -36,12 +36,12 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         )
     }
 
-    override fun createGlobalData(
+    override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
         val cam = PerspectiveCamera(
             67F,
             MineSweeper.PORTRAIT_RESOLUTION_WIDTH.toFloat(),
@@ -132,7 +132,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         }
     }
 
-    override fun onGlobalDataReady() {
+    override fun onSystemReady() {
     }
 
     override fun dispose() {

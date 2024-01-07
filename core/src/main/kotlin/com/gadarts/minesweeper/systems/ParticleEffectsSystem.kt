@@ -29,12 +29,12 @@ class ParticleEffectsSystem : GameEntitySystem() {
     private lateinit var billboardParticleBatch: BillboardParticleBatch
     private val particleEntitiesToRemove = ArrayList<Entity>()
 
-    override fun createGlobalData(
+    override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
         globalData.particleSystem = ParticleSystem()
         billboardParticleBatch = BillboardParticleBatch()
         assetsManager.loadParticleEffects(billboardParticleBatch)
@@ -51,7 +51,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
         return listOf(SystemEvents.MINE_TRIGGERED)
     }
 
-    override fun onGlobalDataReady() {
+    override fun onSystemReady() {
         billboardParticleBatch.setCamera(globalData.camera)
         globalData.particleSystem.add(billboardParticleBatch)
     }

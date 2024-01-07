@@ -26,12 +26,12 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     private val previousTouchPoint: Vector2 = Vector2()
     private val playerMovementHandler = PlayerMovementHandler()
 
-    override fun createGlobalData(
+    override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
         addPlayer()
         if (Gdx.input.inputProcessor == null) {
             Gdx.input.inputProcessor = this
@@ -42,7 +42,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         regularJumpSound = assetsManager.getAssetByDefinition(SoundsDefinitions.JUMP)
     }
 
-    override fun onGlobalDataReady() {
+    override fun onSystemReady() {
         dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
     }
 

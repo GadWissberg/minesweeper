@@ -33,12 +33,12 @@ class MapSystem : GameEntitySystem() {
     }
     private lateinit var lineGrid: Model
 
-    override fun createGlobalData(
+    override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
         createTileModel(ModelBuilder(), assetsManager)
         for (row in SystemsGlobalData.testMapValues.indices) {
             for (col in SystemsGlobalData.testMapValues[row].indices) {
@@ -97,7 +97,7 @@ class MapSystem : GameEntitySystem() {
         )
     }
 
-    override fun onGlobalDataReady() {
+    override fun onSystemReady() {
     }
 
     override fun dispose() {

@@ -24,9 +24,9 @@ class GamePlayScreen(private val assetsManager: GameAssetManager) : Screen {
                     listener.systemInstance
                 )
             }
-            system.systemInstance.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
+            system.systemInstance.initialize(systemsGlobalData, assetsManager, soundPlayer)
         }
-        systems.forEach { it.systemInstance.onGlobalDataReady() }
+        systems.forEach { it.systemInstance.onSystemReady() }
     }
 
     override fun render(delta: Float) {

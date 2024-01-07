@@ -22,12 +22,12 @@ import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 class BonusSystem : GameEntitySystem() {
     private lateinit var crates: ImmutableArray<Entity>
 
-    override fun createGlobalData(
+    override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer
     ) {
-        super.createGlobalData(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
         crates = engine.getEntitiesFor(Family.all(CrateComponent::class.java).get())
         addCrates(assetsManager)
     }
@@ -81,7 +81,7 @@ class BonusSystem : GameEntitySystem() {
         return false
     }
 
-    override fun onGlobalDataReady() {
+    override fun onSystemReady() {
     }
 
     override fun dispose() {

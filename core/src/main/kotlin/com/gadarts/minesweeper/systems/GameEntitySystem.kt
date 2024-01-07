@@ -17,7 +17,7 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
         private set
     protected val dispatcher: MessageDispatcher = MessageDispatcher()
 
-    abstract fun onGlobalDataReady()
+    abstract fun onSystemReady()
     override fun handleMessage(msg: Telegram?): Boolean {
         return false
     }
@@ -29,7 +29,7 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
             )
         }
     }
-    open fun createGlobalData(
+    open fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer
