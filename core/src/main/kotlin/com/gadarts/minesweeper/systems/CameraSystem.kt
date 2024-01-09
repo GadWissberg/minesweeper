@@ -50,8 +50,6 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         cam.near = NEAR
         cam.far = FAR
         cam.update()
-        cam.position.set(TEMP_GROUND_SIZE / 2F, 16f, 10f)
-        cam.lookAt(TEMP_GROUND_SIZE / 2F, 0f, 0f)
         originalCameraPosition.set(cam.position)
         systemsGlobalData.camera = cam
         if (GameDebugSettings.CAMERA_CONTROLLER_ENABLED) {
@@ -121,7 +119,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
             )
             globalData.camera.position.z = Interpolation.exp5.apply(
                 originalCameraPosition.z,
-                playerPosition.z + 8F,
+                playerPosition.z + CAMERA_OFFSET_FROM_PLAYER,
                 cameraMovementProgress
             )
             if (cameraMovementProgress >= 1F) {
@@ -133,6 +131,16 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun onSystemReady() {
+        val playerPosition =
+            ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
+                auxVector
+            )
+        globalData.camera.position.set(
+            playerPosition.x,
+            18f,
+            playerPosition.z + CAMERA_OFFSET_FROM_PLAYER
+        )
+        globalData.camera.lookAt(playerPosition)
     }
 
     override fun dispose() {
@@ -195,6 +203,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     }
 
     companion object {
+        private const val CAMERA_OFFSET_FROM_PLAYER = 4F
         private const val FAR = 100f
         private const val NEAR = 0.01f
         private val auxVector = Vector3()

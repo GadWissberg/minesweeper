@@ -146,10 +146,16 @@ class PlayerMovementHandler {
             originalLocation.add(desiredDirection!!.direction)
         )
 
-        if (SystemsGlobalData.testMapValues[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
-            desiredLocation.setZero()
-        } else {
-            dispatcher.dispatchMessage(SystemEvents.PLAYER_INITIATED_MOVE.ordinal)
+        if (desiredLocation.x >= 0
+            && desiredLocation.x < SystemsGlobalData.TEMP_GROUND_SIZE
+            && desiredLocation.z >= 0
+            && desiredLocation.z < SystemsGlobalData.TEMP_GROUND_SIZE
+        ) {
+            if (SystemsGlobalData.testMapValues[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
+                desiredLocation.setZero()
+            } else {
+                dispatcher.dispatchMessage(SystemEvents.PLAYER_INITIATED_MOVE.ordinal)
+            }
         }
         return true
     }
