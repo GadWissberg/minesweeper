@@ -60,6 +60,8 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
                 addPlayer()
                 dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
             }
+        } else if (msg.message == SystemEvents.PLAYER_PHYSICS_HARD_LAND.ordinal) {
+            soundPlayer.playSoundByDefinition(SoundsDefinitions.TAP)
         }
 
         return false
@@ -108,7 +110,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.MAP_RESET)
+        return listOf(SystemEvents.MAP_RESET, SystemEvents.PLAYER_PHYSICS_HARD_LAND)
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {

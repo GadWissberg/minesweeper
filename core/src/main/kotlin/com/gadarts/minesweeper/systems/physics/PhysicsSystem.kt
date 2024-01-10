@@ -14,6 +14,7 @@ import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 class PhysicsSystem : GameEntitySystem() {
+    private lateinit var contactListener: GameContactListener
     private lateinit var bulletEngineHandler: BulletEngineHandler
 
     override fun initialize(
@@ -24,23 +25,24 @@ class PhysicsSystem : GameEntitySystem() {
         super.initialize(systemsGlobalData, assetsManager, soundPlayer)
         bulletEngineHandler = BulletEngineHandler(globalData)
         bulletEngineHandler.initialize(engine)
+        contactListener = GameContactListener(dispatcher)
     }
 
     override fun getEventsListenList(): List<SystemEvents> {
         return listOf(SystemEvents.MINE_TRIGGERED)
     }
 
-    override fun onSystemReady() {
-
-    }
-
     override fun dispose() {
         bulletEngineHandler.dispose()
+        contactListener.dispose()
     }
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         bulletEngineHandler.update(deltaTime)
+    }
+
+    override fun onSystemReady() {
     }
 
     override fun handleMessage(msg: Telegram?): Boolean {
@@ -67,6 +69,7 @@ class PhysicsSystem : GameEntitySystem() {
                     MathUtils.random(-0.1F, 0.1F)
                 )
             )
+            physicsComponent.rigidBody.userData = globalData.player
         }
         return false
     }

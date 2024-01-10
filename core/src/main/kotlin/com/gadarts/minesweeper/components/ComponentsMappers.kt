@@ -14,4 +14,8 @@ object ComponentsMappers {
         ComponentMapper.getFor(PhysicsComponent::class.java)
     val crate: ComponentMapper<CrateComponent> =
         ComponentMapper.getFor(CrateComponent::class.java)
+    val player: ComponentMapper<PlayerComponent> =
+        ComponentMapper.getFor(PlayerComponent::class.java)
+    val ground: ComponentMapper<GroundComponent> =
+        ComponentMapper.getFor(GroundComponent::class.java)
 }

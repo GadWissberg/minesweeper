@@ -3,6 +3,7 @@ package com.gadarts.minesweeper.components
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.collision.Collision
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody
 import com.badlogic.gdx.utils.Disposable
@@ -44,7 +45,8 @@ class PhysicsComponent : GameComponent, Disposable {
             this.rigidBody.worldTransform = transform
         }
         activateBody()
-        this.rigidBody.collisionFlags = this.rigidBody.collisionFlags or flag
+        this.rigidBody.collisionFlags =
+            this.rigidBody.collisionFlags or flag or btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK
         rigidBody.angularFactor = Vector3(1F, 1F, 1F)
         rigidBody.friction = 1.5F
     }

@@ -8,6 +8,7 @@ enum class SoundsDefinitions(fileNames: Int = 1, val randomPitch: Boolean = true
 
     JUMP,
     PIG_JUMP(2, true),
+    TAP,
     EXPLOSION(3, true),
     WIN,
     BONUS;

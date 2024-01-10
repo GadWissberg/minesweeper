@@ -14,6 +14,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCompoundShape
 import com.gadarts.minesweeper.components.BaseParticleEffectComponent
 import com.gadarts.minesweeper.components.CrateComponent
 import com.gadarts.minesweeper.components.FollowerParticleEffectComponent
+import com.gadarts.minesweeper.components.GroundComponent
 import com.gadarts.minesweeper.components.IndependentParticleEffectComponent
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.components.PhysicsComponent
@@ -33,7 +34,6 @@ class EntityBuilder {
     }
 
     fun finishAndAddToEngine(): Entity {
-        if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         engine!!.addEntity(currentEntity)
         val entity = currentEntity
         finish()
@@ -41,9 +41,6 @@ class EntityBuilder {
     }
 
     private fun finish() {
-        if (currentEntity == null) throw java.lang.RuntimeException(
-            MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST
-        )
         instance.reset()
     }
 
@@ -57,7 +54,6 @@ class EntityBuilder {
     }
 
     fun addModelInstanceComponent(modelInstance: ModelInstance, position: Vector3): EntityBuilder {
-        if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         val component: ModelInstanceComponent =
             engine!!.createComponent(ModelInstanceComponent::class.java)
         if (!position.isZero) {
@@ -70,7 +66,6 @@ class EntityBuilder {
     }
 
     fun addCrateComponent(): EntityBuilder {
-        if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         val component: CrateComponent =
             engine!!.createComponent(CrateComponent::class.java)
         currentEntity!!.add(component)
@@ -78,7 +73,6 @@ class EntityBuilder {
     }
 
     fun addPlayerComponent(): EntityBuilder {
-        if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         val component: PlayerComponent = engine!!.createComponent(PlayerComponent::class.java)
         currentEntity!!.add(component)
         return instance
@@ -86,7 +80,6 @@ class EntityBuilder {
 
 
     fun addTileComponent(): EntityBuilder {
-        if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         val component: TileComponent = engine!!.createComponent(TileComponent::class.java)
         currentEntity!!.add(component)
         return instance
@@ -96,7 +89,6 @@ class EntityBuilder {
         originalEffect: ParticleEffect,
         position: Vector3
     ): EntityBuilder {
-        if (currentEntity == null) throw RuntimeException(MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST)
         val particleEffectComponent = createIndependentParticleEffectComponent(
             originalEffect, position,
             engine!!
@@ -105,10 +97,15 @@ class EntityBuilder {
         return instance
     }
 
+    fun addGroundComponent(): EntityBuilder {
+        val component: GroundComponent = engine!!.createComponent(GroundComponent::class.java)
+        currentEntity!!.add(component)
+        return instance
+    }
+
 
     companion object {
         private val instance = EntityBuilder()
-        const val MSG_FAIL_CALL_BEGIN_BUILDING_ENTITY_FIRST = "Call beginBuildingEntity() first!"
 
         fun beginBuildingEntity(engine: Engine): EntityBuilder {
             instance.init(engine as PooledEngine)

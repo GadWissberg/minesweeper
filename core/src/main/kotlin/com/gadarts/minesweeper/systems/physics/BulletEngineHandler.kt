@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.physics.bullet.Bullet
 import com.badlogic.gdx.physics.bullet.DebugDrawer
 import com.badlogic.gdx.physics.bullet.collision.btAxisSweep3
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseProxy
 import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject
 import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration
@@ -19,6 +20,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody.btRigidBodyConstruct
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw
 import com.badlogic.gdx.utils.Disposable
+import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
 import com.gadarts.minesweeper.systems.data.SystemsGlobalData
@@ -50,6 +52,7 @@ class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposabl
         info.dispose()
         btRigidBody.collisionFlags =
             btRigidBody.collisionFlags or btCollisionObject.CollisionFlags.CF_STATIC_OBJECT
+        btRigidBody.contactCallbackFlag = btBroadphaseProxy.CollisionFilterGroups.KinematicFilter
         return btRigidBody
     }
 
@@ -94,6 +97,8 @@ class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposabl
                 debugDrawer.end()
             }
         }
+        btRigidBody.userData =
+            EntityBuilder.beginBuildingEntity(engine).addGroundComponent().finishAndAddToEngine()
         engine.addEntityListener(this)
     }
 
