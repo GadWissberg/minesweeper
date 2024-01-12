@@ -12,7 +12,7 @@ import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 import kotlin.math.min
 
-class PlayerMovementHandler {
+class PlayerMovementHandler(private val digit: Entity) {
 
     private var jumpProgress: Float = 0.0f
     private var desiredLocation: Vector3 = Vector3()
@@ -20,6 +20,7 @@ class PlayerMovementHandler {
     private var rotationDirection: Float = 0F
     private var currentDirection: Directions = Directions.SOUTH
     private var desiredDirection: Directions? = null
+
     fun reset() {
         jumpProgress = 0F
         desiredDirection = Directions.SOUTH
@@ -65,10 +66,23 @@ class PlayerMovementHandler {
                     desiredLocation.setZero()
                     jumpProgress = 0F
                 }
+                updateDigitPosition(currentPosition)
             } else {
                 desiredLocation.setZero()
             }
         }
+    }
+
+    private fun updateDigitPosition(currentPosition: Vector3) {
+        val digitPosition =
+            ComponentsMappers.modelInstance.get(digit).modelInstance.transform.getTranslation(
+                auxVector3_2
+            )
+        ComponentsMappers.modelInstance.get(digit).modelInstance.transform.setTranslation(
+            currentPosition.x,
+            digitPosition.y,
+            currentPosition.z
+        )
     }
 
     private fun updateJumpHeight(currentPosition: Vector3, dispatcher: MessageDispatcher) {
@@ -186,6 +200,7 @@ class PlayerMovementHandler {
     companion object {
         private val auxVector2_1 = Vector2()
         private val auxVector3_1 = Vector3()
+        private val auxVector3_2 = Vector3()
         private const val ROTATION_STEP = 5F
         private val auxQuat: Quaternion = Quaternion()
         private const val JUMP_MAX_HEIGHT = 3F

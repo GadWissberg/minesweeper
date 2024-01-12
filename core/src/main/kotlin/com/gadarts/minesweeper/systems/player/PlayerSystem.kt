@@ -4,7 +4,12 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
@@ -13,18 +18,21 @@ import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.ModelsDefinitions
 import com.gadarts.minesweeper.assets.SoundsDefinitions
+import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.GameEntitySystem
+import com.gadarts.minesweeper.systems.GameUtils
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 
 class PlayerSystem : GameEntitySystem(), InputProcessor {
 
+    private lateinit var digitModel: Model
     private lateinit var regularJumpSound: Sound
     private lateinit var characterJumpSounds: List<Sound>
     private val previousTouchPoint: Vector2 = Vector2()
-    private val playerMovementHandler = PlayerMovementHandler()
+    private lateinit var playerMovementHandler: PlayerMovementHandler
 
     override fun initialize(
         systemsGlobalData: SystemsGlobalData,
@@ -33,6 +41,10 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     ) {
         super.initialize(systemsGlobalData, assetsManager, soundPlayer)
         addPlayer()
+        val modelBuilder = ModelBuilder()
+        digitModel = GameUtils.createTileModel(modelBuilder, assetsManager, -0.5F)
+        addDigit()
+        playerMovementHandler = PlayerMovementHandler(globalData.digit)
         if (Gdx.input.inputProcessor == null) {
             Gdx.input.inputProcessor = this
         }
@@ -47,6 +59,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun dispose() {
+        digitModel.dispose()
     }
 
     override fun handleMessage(msg: Telegram?): Boolean {
@@ -132,12 +145,36 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
 
 
     private fun addPlayer() {
-        val modelInstance = ModelInstance(assetsManger.getAssetByDefinition(ModelsDefinitions.PIG))
+        val playerModelInstance =
+            ModelInstance(assetsManger.getAssetByDefinition(ModelsDefinitions.PIG))
         globalData.player = EntityBuilder.beginBuildingEntity(engine)
-            .addModelInstanceComponent(modelInstance)
+            .addModelInstanceComponent(playerModelInstance)
             .addPlayerComponent()
             .finishAndAddToEngine()
         placePlayer()
+    }
+
+    private fun addDigit() {
+        val digitModelInstance = ModelInstance(digitModel)
+        (digitModelInstance.materials.get(0)
+            .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+            assetsManger.getAssetByDefinition(TexturesDefinitions.DIGIT_1)
+        (digitModelInstance.materials.get(0)).set(
+            BlendingAttribute(
+                GL20.GL_SRC_ALPHA,
+                GL20.GL_ONE_MINUS_SRC_ALPHA
+            )
+        )
+        globalData.digit = EntityBuilder.beginBuildingEntity(engine)
+            .addModelInstanceComponent(
+                digitModelInstance,
+                Vector3(
+                    ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
+                        auxVector
+                    ).add(0F, 1.4F, 0F)
+                )
+            )
+            .finishAndAddToEngine()
     }
 
     private fun placePlayer() {
@@ -153,4 +190,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         }
     }
 
+    companion object {
+        val auxVector = Vector3()
+    }
 }

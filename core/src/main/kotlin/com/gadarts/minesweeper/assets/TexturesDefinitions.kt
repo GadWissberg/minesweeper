@@ -16,7 +16,14 @@ enum class TexturesDefinitions(fileNames: Int = 1) : AssetDefinition<Texture> {
     TILE_6,
     TILE_7,
     TILE_8,
-    COIN;
+    COIN,
+    DIGIT_1,
+    DIGIT_2,
+    DIGIT_3,
+    DIGIT_4,
+    DIGIT_5,
+    DIGIT_6,
+    DIGIT_7;
 
     private val paths = ArrayList<String>()
     private val pathFormat = "textures/%s.png"

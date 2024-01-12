@@ -10,6 +10,7 @@ import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
 
 class SystemsGlobalData : Disposable {
 
+    lateinit var digit: Entity
     var mapData: Array<Array<TileData>> = Array(testMapValues.size) { row ->
         Array(testMapValues[0].size) { col ->
             TileData(row, col)

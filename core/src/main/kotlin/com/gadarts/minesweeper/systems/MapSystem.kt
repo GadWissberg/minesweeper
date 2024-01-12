@@ -3,8 +3,6 @@ package com.gadarts.minesweeper.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.ai.msg.Telegram
-import com.badlogic.gdx.graphics.VertexAttributes.Usage
-import com.badlogic.gdx.graphics.g3d.Material
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
@@ -39,7 +37,7 @@ class MapSystem : GameEntitySystem() {
         soundPlayer: SoundPlayer
     ) {
         super.initialize(systemsGlobalData, assetsManager, soundPlayer)
-        createTileModel(ModelBuilder(), assetsManager)
+        tileModel = GameUtils.createTileModel(ModelBuilder(), assetsManager)
         for (row in SystemsGlobalData.testMapValues.indices) {
             for (col in SystemsGlobalData.testMapValues[row].indices) {
                 val tileModelInstance = ModelInstance(tileModel)
@@ -73,29 +71,6 @@ class MapSystem : GameEntitySystem() {
         return listOf(SystemEvents.PLAYER_LANDED, SystemEvents.PLAYER_BEGIN)
     }
 
-    private fun createTileModel(
-        modelBuilder: ModelBuilder,
-        assetsManager: GameAssetManager
-    ) {
-        val diffuse = TextureAttribute.createDiffuse(
-            assetsManager.getAssetByDefinition(
-                TexturesDefinitions.TILE_UNREVEALED
-            )
-        )
-        diffuse.scaleU = 1F
-        diffuse.scaleV = 1F
-        tileModel = modelBuilder.createRect(
-            0F, 0F, 1F,
-            1F, 0F, 1F,
-            1F, 0F, 0F,
-            0F, 0F, 0F,
-            0F, 1F, 0F,
-            Material(
-                diffuse
-            ),
-            (Usage.Position or Usage.Normal or Usage.TextureCoordinates).toLong()
-        )
-    }
 
     override fun onSystemReady() {
     }
