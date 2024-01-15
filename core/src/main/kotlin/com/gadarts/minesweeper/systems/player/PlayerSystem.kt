@@ -40,11 +40,11 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         soundPlayer: SoundPlayer
     ) {
         super.initialize(systemsGlobalData, assetsManager, soundPlayer)
-        addPlayer()
+        addPlayer(false)
         val modelBuilder = ModelBuilder()
         digitModel = GameUtils.createTileModel(modelBuilder, assetsManager, -0.5F)
         addDigit()
-        playerMovementHandler = PlayerMovementHandler(globalData.digit)
+        playerMovementHandler = PlayerMovementHandler(globalData.playerData.digit)
         if (Gdx.input.inputProcessor == null) {
             Gdx.input.inputProcessor = this
         }
@@ -66,15 +66,27 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         if (msg == null) return false
 
         if (msg.message == SystemEvents.MAP_RESET.ordinal) {
-            playerMovementHandler.reset()
-            engine.removeEntity(globalData.player)
-            globalData.player = null
+            ComponentsMappers.modelInstance.get(globalData.playerData.digit).visible = false
+            engine.removeEntity(globalData.playerData.player)
+            globalData.playerData.player = null
             Gdx.app.postRunnable {
-                addPlayer()
+                addPlayer(true)
                 dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
             }
         } else if (msg.message == SystemEvents.PLAYER_PHYSICS_HARD_LAND.ordinal) {
             soundPlayer.playSoundByDefinition(SoundsDefinitions.TAP)
+        } else if (msg.message == SystemEvents.CURRENT_TILE_VALUE_CALCULATED.ordinal) {
+            val definition = sumToTextureDefinition[msg.extraInfo as Int]
+            if (definition != null) {
+                ComponentsMappers.modelInstance.get(globalData.playerData.digit).visible = true
+                (ComponentsMappers.modelInstance.get(globalData.playerData.digit).modelInstance.materials.get(
+                    0
+                )
+                    .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                    assetsManger.getAssetByDefinition(definition)
+            } else {
+                ComponentsMappers.modelInstance.get(globalData.playerData.digit).visible = false
+            }
         }
 
         return false
@@ -98,13 +110,13 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        if (globalData.player == null || ComponentsMappers.physics.has(globalData.player)) return false
+        if (globalData.playerData.player == null || ComponentsMappers.physics.has(globalData.playerData.player)) return false
 
         val moved = playerMovementHandler.movePlayer(
             screenX,
             screenY,
             previousTouchPoint,
-            globalData.player!!,
+            globalData.playerData.player!!,
             dispatcher,
         )
         if (moved) {
@@ -123,7 +135,11 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.MAP_RESET, SystemEvents.PLAYER_PHYSICS_HARD_LAND)
+        return listOf(
+            SystemEvents.MAP_RESET,
+            SystemEvents.PLAYER_PHYSICS_HARD_LAND,
+            SystemEvents.CURRENT_TILE_VALUE_CALCULATED
+        )
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
@@ -139,19 +155,23 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun update(deltaTime: Float) {
-        if (globalData.player == null || ComponentsMappers.physics.has(globalData.player)) return
-        playerMovementHandler.update(deltaTime, globalData.player!!, dispatcher)
+        if (globalData.playerData.player == null || ComponentsMappers.physics.has(globalData.playerData.player)) return
+        playerMovementHandler.update(deltaTime, globalData.playerData.player!!, dispatcher)
     }
 
 
-    private fun addPlayer() {
+    private fun addPlayer(resetPlayerMovementHandler: Boolean) {
         val playerModelInstance =
             ModelInstance(assetsManger.getAssetByDefinition(ModelsDefinitions.PIG))
-        globalData.player = EntityBuilder.beginBuildingEntity(engine)
+        globalData.playerData.player = EntityBuilder.beginBuildingEntity(engine)
             .addModelInstanceComponent(playerModelInstance)
             .addPlayerComponent()
             .finishAndAddToEngine()
         placePlayer()
+        if (resetPlayerMovementHandler) {
+            playerMovementHandler.reset(globalData.playerData.player!!)
+            ComponentsMappers.modelInstance.get(globalData.playerData.digit).visible = false
+        }
     }
 
     private fun addDigit() {
@@ -165,11 +185,11 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
                 GL20.GL_ONE_MINUS_SRC_ALPHA
             )
         )
-        globalData.digit = EntityBuilder.beginBuildingEntity(engine)
+        globalData.playerData.digit = EntityBuilder.beginBuildingEntity(engine)
             .addModelInstanceComponent(
                 digitModelInstance,
                 Vector3(
-                    ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
+                    ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
                         auxVector
                     ).add(0F, 1.4F, 0F)
                 )
@@ -181,7 +201,7 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
         for (row in SystemsGlobalData.testMapValues.indices) {
             for (col in SystemsGlobalData.testMapValues[0].indices) {
                 if (SystemsGlobalData.testMapValues[row][col] == 2) {
-                    ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.setToTranslation(
+                    ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.setToTranslation(
                         col + 0.5F, 0F, row + 0.5F
                     ).rotate(Vector3.Y, -90F)
                     return
@@ -192,5 +212,15 @@ class PlayerSystem : GameEntitySystem(), InputProcessor {
 
     companion object {
         val auxVector = Vector3()
+        private val sumToTextureDefinition = listOf(
+            null,
+            TexturesDefinitions.DIGIT_1,
+            TexturesDefinitions.DIGIT_2,
+            TexturesDefinitions.DIGIT_3,
+            TexturesDefinitions.DIGIT_4,
+            TexturesDefinitions.DIGIT_5,
+            TexturesDefinitions.DIGIT_6,
+            TexturesDefinitions.DIGIT_7,
+        )
     }
 }

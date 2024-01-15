@@ -1,31 +1,25 @@
 package com.gadarts.minesweeper.systems.data
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
-import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
 
 class SystemsGlobalData : Disposable {
 
-    lateinit var digit: Entity
     var mapData: Array<Array<TileData>> = Array(testMapValues.size) { row ->
         Array(testMapValues[0].size) { col ->
             TileData(row, col)
         }
     }
-    lateinit var stage: Stage
-    var debugDrawingMethod: CollisionShapesDebugDrawing? = null
-    lateinit var collisionWorld: btDiscreteDynamicsWorld
-    var player: Entity? = null
+    val physicsData = PhysicsData()
+    val playerData = PlayerData()
     lateinit var camera: PerspectiveCamera
+    lateinit var stage: Stage
     lateinit var particleSystem: ParticleSystem
-    var coins = 0
 
     override fun dispose() {
-        collisionWorld.dispose()
+        physicsData.dispose()
     }
 
     companion object {

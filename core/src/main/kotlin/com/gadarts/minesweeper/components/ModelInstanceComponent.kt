@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 
 
 class ModelInstanceComponent : GameComponent {
+    var visible: Boolean = true
     lateinit var modelInstance: ModelInstance
         private set
 

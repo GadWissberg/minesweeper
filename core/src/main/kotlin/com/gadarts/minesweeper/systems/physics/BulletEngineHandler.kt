@@ -38,7 +38,7 @@ class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposabl
     private fun initializeDebug() {
         debugDrawer = DebugDrawer()
         debugDrawer.debugMode = btIDebugDraw.DebugDrawModes.DBG_DrawWireframe
-        globalData.collisionWorld.debugDrawer = debugDrawer
+        globalData.physicsData.collisionWorld.debugDrawer = debugDrawer
     }
 
     private fun createGroundPhysicsBody(): btRigidBody {
@@ -67,7 +67,7 @@ class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposabl
     override fun entityAdded(entity: Entity?) {
         if (ComponentsMappers.physics.has(entity)) {
             val btRigidBody: btRigidBody = ComponentsMappers.physics.get(entity).rigidBody
-            globalData.collisionWorld.addRigidBody(btRigidBody)
+            globalData.physicsData.collisionWorld.addRigidBody(btRigidBody)
         }
     }
 
@@ -75,7 +75,7 @@ class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposabl
         if (ComponentsMappers.physics.has(entity)) {
             val physicsComponent = ComponentsMappers.physics[entity]
             physicsComponent.rigidBody.activationState = 0
-            globalData.collisionWorld.removeCollisionObject(physicsComponent.rigidBody)
+            globalData.physicsData.collisionWorld.removeCollisionObject(physicsComponent.rigidBody)
             physicsComponent.dispose()
         }
     }
@@ -89,11 +89,11 @@ class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposabl
         initializeCollisionWorld()
         initializeDebug()
         val btRigidBody = createGroundPhysicsBody()
-        globalData.collisionWorld.addRigidBody(btRigidBody)
-        globalData.debugDrawingMethod = object : CollisionShapesDebugDrawing {
+        globalData.physicsData.collisionWorld.addRigidBody(btRigidBody)
+        globalData.physicsData.debugDrawingMethod = object : CollisionShapesDebugDrawing {
             override fun drawCollisionShapes(camera: PerspectiveCamera) {
                 debugDrawer.begin(camera)
-                globalData.collisionWorld.debugDrawWorld()
+                globalData.physicsData.collisionWorld.debugDrawWorld()
                 debugDrawer.end()
             }
         }
@@ -103,13 +103,13 @@ class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposabl
     }
 
     private fun initializeCollisionWorld() {
-        globalData.collisionWorld = btDiscreteDynamicsWorld(
+        globalData.physicsData.collisionWorld = btDiscreteDynamicsWorld(
             dispatcher,
             broadPhase,
             solver,
             collisionConfiguration
         )
-        globalData.collisionWorld.gravity = Vector3(0F, GRAVITY_FORCE, 0F)
+        globalData.physicsData.collisionWorld.gravity = Vector3(0F, GRAVITY_FORCE, 0F)
     }
 
     override fun dispose() {
@@ -122,7 +122,7 @@ class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposabl
     }
 
     fun update(deltaTime: Float) {
-        globalData.collisionWorld.stepSimulation(
+        globalData.physicsData.collisionWorld.stepSimulation(
             deltaTime,
             5,
             1f / 60F

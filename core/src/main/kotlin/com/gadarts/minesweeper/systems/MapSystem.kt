@@ -88,7 +88,7 @@ class MapSystem : GameEntitySystem() {
             return true
         } else if (msg.message == SystemEvents.PLAYER_BEGIN.ordinal) {
             val position =
-                ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
+                ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
                     auxVector
                 )
             val currentRow = position.z.toInt()
@@ -105,7 +105,7 @@ class MapSystem : GameEntitySystem() {
 
     private fun handlePlayerLanded() {
         val position =
-            ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
+            ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
                 auxVector
             )
         val currentRow = position.z.toInt()

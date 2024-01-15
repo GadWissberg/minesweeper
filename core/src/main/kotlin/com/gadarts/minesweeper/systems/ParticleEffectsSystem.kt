@@ -158,7 +158,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
             assetsManger.getAssetByDefinition(
                 ParticleEffectsDefinitions.EXPLOSION
             ),
-            ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
+            ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
                 auxVector1
             ).add(0F, 0.1F, 0F)
         ).finishAndAddToEngine()
@@ -169,14 +169,14 @@ class ParticleEffectsSystem : GameEntitySystem() {
             EntityBuilder.createFollowerParticleEffectComponent(
                 smokeParticleEffect, engine as PooledEngine
             )
-        if (globalData.player != null) {
-            globalData.player!!.add(
+        if (globalData.playerData.player != null) {
+            globalData.playerData.player!!.add(
                 followerParticleEffectComponent
             )
             playParticleEffect(followerParticleEffectComponent.effect)
             updateFollower(
-                globalData.player!!,
-                ComponentsMappers.followersParticleEffect.get(globalData.player)
+                globalData.playerData.player!!,
+                ComponentsMappers.followersParticleEffect.get(globalData.playerData.player)
             )
         }
     }

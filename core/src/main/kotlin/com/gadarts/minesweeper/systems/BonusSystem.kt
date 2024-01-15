@@ -63,7 +63,7 @@ class BonusSystem : GameEntitySystem() {
 
         if (msg.message == SystemEvents.PLAYER_LANDED.ordinal) {
             val position =
-                ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
+                ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
                     auxVector
                 )
             val row = position.z.toInt()

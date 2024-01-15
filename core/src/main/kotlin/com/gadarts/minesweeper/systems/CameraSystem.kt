@@ -16,7 +16,6 @@ import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.data.SystemsGlobalData
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
 import kotlin.math.absoluteValue
 
 
@@ -62,28 +61,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         if (!shakeCameraOffset.isZero && nextShake < TimeUtils.millis()) {
-            val right = Vector3(globalData.camera.direction).crs(globalData.camera.up).nor()
-            val xOffset =
-                shakeCameraOffset.x * right.x + shakeCameraOffset.y * globalData.camera.up.x
-            val yOffset =
-                shakeCameraOffset.x * right.y + shakeCameraOffset.y * globalData.camera.up.y
-            val zOffset =
-                shakeCameraOffset.x * right.z + shakeCameraOffset.y * globalData.camera.up.z
-
-            globalData.camera.position.add(
-                xOffset,
-                yOffset,
-                zOffset
-            )
-            shakeCameraOffset.set(
-                calculateShakeCameraOffsetCoordinate(shakeCameraOffset.x),
-                calculateShakeCameraOffsetCoordinate(shakeCameraOffset.y),
-            )
-            nextShake = if (shakeCameraOffset.isZero) {
-                0L
-            } else {
-                TimeUtils.millis() + SHAKE_INTERVALS
-            }
+            handleCameraShakeEffect()
         } else {
             moveCamera(deltaTime)
         }
@@ -91,48 +69,9 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         globalData.camera.update()
     }
 
-    private fun calculateShakeCameraOffsetCoordinate(coordinate: Float) =
-        if (coordinate.absoluteValue > SHAKE_REDUCE_STEP_SIZE) coordinate * -1F + reduceShakeStepSize(
-            coordinate
-        ) else 0F
-
-    private fun reduceShakeStepSize(currentValue: Float): Float {
-        return if (currentValue.absoluteValue > SHAKE_REDUCE_STEP_SIZE) {
-            if (currentValue > 0) {
-                SHAKE_REDUCE_STEP_SIZE
-            } else {
-                -SHAKE_REDUCE_STEP_SIZE
-            }
-        } else 0F
-    }
-
-    private fun moveCamera(deltaTime: Float) {
-        if (!originalCameraPosition.isZero) {
-            val playerPosition =
-                ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
-                    auxVector
-                )
-            globalData.camera.position.x = Interpolation.exp5.apply(
-                originalCameraPosition.x,
-                playerPosition.x,
-                cameraMovementProgress
-            )
-            globalData.camera.position.z = Interpolation.exp5.apply(
-                originalCameraPosition.z,
-                playerPosition.z + CAMERA_OFFSET_FROM_PLAYER,
-                cameraMovementProgress
-            )
-            if (cameraMovementProgress >= 1F) {
-                originalCameraPosition.setZero()
-            } else {
-                cameraMovementProgress += 0.4F * deltaTime
-            }
-        }
-    }
-
     override fun onSystemReady() {
         val playerPosition =
-            ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform.getTranslation(
+            ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
                 auxVector
             )
         globalData.camera.position.set(
@@ -145,6 +84,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
 
     override fun dispose() {
     }
+
 
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
@@ -202,6 +142,69 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
 
     }
 
+    private fun calculateShakeCameraOffsetCoordinate(coordinate: Float) =
+        if (coordinate.absoluteValue > SHAKE_REDUCE_STEP_SIZE) coordinate * -1F + reduceShakeStepSize(
+            coordinate
+        ) else 0F
+
+    private fun reduceShakeStepSize(currentValue: Float): Float {
+        return if (currentValue.absoluteValue > SHAKE_REDUCE_STEP_SIZE) {
+            if (currentValue > 0) {
+                SHAKE_REDUCE_STEP_SIZE
+            } else {
+                -SHAKE_REDUCE_STEP_SIZE
+            }
+        } else 0F
+    }
+
+    private fun moveCamera(deltaTime: Float) {
+        if (!originalCameraPosition.isZero) {
+            val playerPosition =
+                ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
+                    auxVector
+                )
+            globalData.camera.position.x = Interpolation.exp5.apply(
+                originalCameraPosition.x,
+                playerPosition.x,
+                cameraMovementProgress
+            )
+            globalData.camera.position.z = Interpolation.exp5.apply(
+                originalCameraPosition.z,
+                playerPosition.z + CAMERA_OFFSET_FROM_PLAYER,
+                cameraMovementProgress
+            )
+            if (cameraMovementProgress >= 1F) {
+                originalCameraPosition.setZero()
+            } else {
+                cameraMovementProgress += 0.4F * deltaTime
+            }
+        }
+    }
+
+    private fun handleCameraShakeEffect() {
+        val right = Vector3(globalData.camera.direction).crs(globalData.camera.up).nor()
+        val xOffset =
+            shakeCameraOffset.x * right.x + shakeCameraOffset.y * globalData.camera.up.x
+        val yOffset =
+            shakeCameraOffset.x * right.y + shakeCameraOffset.y * globalData.camera.up.y
+        val zOffset =
+            shakeCameraOffset.x * right.z + shakeCameraOffset.y * globalData.camera.up.z
+        globalData.camera.position.add(
+            xOffset,
+            yOffset,
+            zOffset
+        )
+        shakeCameraOffset.set(
+            calculateShakeCameraOffsetCoordinate(shakeCameraOffset.x),
+            calculateShakeCameraOffsetCoordinate(shakeCameraOffset.y),
+        )
+        nextShake = if (shakeCameraOffset.isZero) {
+            0L
+        } else {
+            TimeUtils.millis() + SHAKE_INTERVALS
+        }
+    }
+
     companion object {
         private const val CAMERA_OFFSET_FROM_PLAYER = 4F
         private const val FAR = 100f
@@ -211,5 +214,4 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         private const val SHAKE_INTERVALS = 100L
         private const val SHAKE_MAX_OFFSET = 0.3F
     }
-
 }

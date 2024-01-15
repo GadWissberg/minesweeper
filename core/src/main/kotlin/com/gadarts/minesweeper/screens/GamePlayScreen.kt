@@ -46,7 +46,7 @@ class GamePlayScreen(private val assetsManager: GameAssetManager) : Screen {
     }
 
     override fun dispose() {
-        systemsGlobalData.collisionWorld.dispose()
+        systemsGlobalData.physicsData.collisionWorld.dispose()
     }
 
 }

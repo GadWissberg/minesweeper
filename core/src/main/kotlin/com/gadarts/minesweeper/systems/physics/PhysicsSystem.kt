@@ -49,14 +49,14 @@ class PhysicsSystem : GameEntitySystem() {
         if (msg == null) return false
         if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
             val physicsComponent = EntityBuilder.createPhysicsComponent(
-                ComponentsMappers.modelInstance.get(globalData.player).modelInstance.calculateBoundingBox(
+                ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.calculateBoundingBox(
                     auxBoundingBox
                 ),
-                ComponentsMappers.modelInstance.get(globalData.player).modelInstance.transform,
+                ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform,
                 engine as PooledEngine
             )
-            globalData.player?.add(physicsComponent)
-            globalData.collisionWorld.addRigidBody(physicsComponent.rigidBody)
+            globalData.playerData.player?.add(physicsComponent)
+            globalData.physicsData.collisionWorld.addRigidBody(physicsComponent.rigidBody)
             physicsComponent.rigidBody.applyImpulse(
                 Vector3(
                     MathUtils.random(-1F, 1F),
@@ -69,7 +69,7 @@ class PhysicsSystem : GameEntitySystem() {
                     MathUtils.random(-0.1F, 0.1F)
                 )
             )
-            physicsComponent.rigidBody.userData = globalData.player
+            physicsComponent.rigidBody.userData = globalData.playerData.player
         }
         return false
     }

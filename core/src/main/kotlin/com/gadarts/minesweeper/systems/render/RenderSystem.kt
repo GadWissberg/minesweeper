@@ -91,18 +91,22 @@ class RenderSystem : GameEntitySystem() {
 
     private fun renderCollisionShapes() {
         if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
-        val debugDrawingMethod: CollisionShapesDebugDrawing? = globalData.debugDrawingMethod
+        val debugDrawingMethod: CollisionShapesDebugDrawing? =
+            globalData.physicsData.debugDrawingMethod
         debugDrawingMethod?.drawCollisionShapes(globalData.camera)
     }
 
     private fun renderModels(modelBatch: ModelBatch, applyEnvironment: Boolean) {
         for (i in 0 until modelEntities.size()) {
-            val modelInstance =
-                ComponentsMappers.modelInstance.get(modelEntities.get(i)).modelInstance
-            if (applyEnvironment) {
-                modelBatch.render(modelInstance, environment)
-            } else {
-                modelBatch.render(modelInstance)
+            val modelInstanceComponent = ComponentsMappers.modelInstance.get(modelEntities.get(i))
+            if (modelInstanceComponent.visible) {
+                val modelInstance =
+                    modelInstanceComponent.modelInstance
+                if (applyEnvironment) {
+                    modelBatch.render(modelInstance, environment)
+                } else {
+                    modelBatch.render(modelInstance)
+                }
             }
         }
     }

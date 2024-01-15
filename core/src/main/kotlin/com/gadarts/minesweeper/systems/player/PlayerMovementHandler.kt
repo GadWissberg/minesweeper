@@ -21,7 +21,12 @@ class PlayerMovementHandler(private val digit: Entity) {
     private var currentDirection: Directions = Directions.SOUTH
     private var desiredDirection: Directions? = null
 
-    fun reset() {
+    fun reset(player: Entity) {
+        updateDigitPosition(
+            ComponentsMappers.modelInstance.get(player).modelInstance.transform.getTranslation(
+                auxVector3_1
+            )
+        )
         jumpProgress = 0F
         desiredDirection = Directions.SOUTH
         originalLocation.setZero()
