@@ -23,7 +23,10 @@ enum class TexturesDefinitions(fileNames: Int = 1) : AssetDefinition<Texture> {
     DIGIT_4,
     DIGIT_5,
     DIGIT_6,
-    DIGIT_7;
+    DIGIT_7,
+    BUTTON_POWERUP_UP,
+    BUTTON_POWERUP_DOWN,
+    POWERUP_ICON_SHIELD;
 
     private val paths = ArrayList<String>()
     private val pathFormat = "textures/%s.png"
