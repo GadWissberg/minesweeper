@@ -29,7 +29,7 @@ class PhysicsSystem : GameEntitySystem() {
     }
 
     override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.MINE_TRIGGERED)
+        return listOf(SystemEvents.MINE_TRIGGERED, SystemEvents.PLAYER_BLOWN)
     }
 
     override fun dispose() {
@@ -47,7 +47,7 @@ class PhysicsSystem : GameEntitySystem() {
 
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
-        if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
+        if (msg.message == SystemEvents.PLAYER_BLOWN.ordinal) {
             val physicsComponent = EntityBuilder.createPhysicsComponent(
                 ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.calculateBoundingBox(
                     auxBoundingBox

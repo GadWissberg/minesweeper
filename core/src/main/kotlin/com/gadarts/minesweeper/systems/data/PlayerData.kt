@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.gadarts.minesweeper.components.player.PowerupTypes
 
 class PlayerData {
+    var invulnerable = false
     lateinit var digit: Entity
     val powerups: MutableMap<PowerupTypes, Int> = mutableMapOf()
     var player: Entity? = null

@@ -68,7 +68,11 @@ class MapSystem : GameEntitySystem() {
 
 
     override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.PLAYER_LANDED, SystemEvents.PLAYER_BEGIN)
+        return listOf(
+            SystemEvents.PLAYER_LANDED,
+            SystemEvents.PLAYER_BEGIN,
+            SystemEvents.PLAYER_BLOWN
+        )
     }
 
 
@@ -83,21 +87,31 @@ class MapSystem : GameEntitySystem() {
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
 
-        if (msg.message == SystemEvents.PLAYER_LANDED.ordinal) {
-            handlePlayerLanded()
-            return true
-        } else if (msg.message == SystemEvents.PLAYER_BEGIN.ordinal) {
-            val position =
-                ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
-                    auxVector
+        when (msg.message) {
+            SystemEvents.PLAYER_LANDED.ordinal -> {
+                handlePlayerLanded()
+                return true
+            }
+            SystemEvents.PLAYER_BEGIN.ordinal -> {
+                val position =
+                    ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
+                        auxVector
+                    )
+                val currentRow = position.z.toInt()
+                val currentCol = position.x.toInt()
+                sumMinesAround(
+                    currentRow,
+                    currentCol
                 )
-            val currentRow = position.z.toInt()
-            val currentCol = position.x.toInt()
-            sumMinesAround(
-                currentRow,
-                currentCol
-            )
-            return true
+                return true
+            }
+            SystemEvents.PLAYER_BLOWN.ordinal -> {
+                Timer.schedule(object : Timer.Task() {
+                    override fun run() {
+                        resetMap()
+                    }
+                }, 5F)
+            }
         }
 
         return false
@@ -144,11 +158,6 @@ class MapSystem : GameEntitySystem() {
             soundPlayer.playSoundByDefinition(SoundsDefinitions.WIN)
         }
         dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal)
-        Timer.schedule(object : Timer.Task() {
-            override fun run() {
-                resetMap()
-            }
-        }, 5F)
     }
 
     private fun resetMap() {

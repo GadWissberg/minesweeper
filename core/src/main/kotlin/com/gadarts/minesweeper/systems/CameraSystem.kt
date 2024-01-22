@@ -31,7 +31,8 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         return listOf(
             SystemEvents.PLAYER_INITIATED_MOVE,
             SystemEvents.MINE_TRIGGERED,
-            SystemEvents.PLAYER_BEGIN
+            SystemEvents.PLAYER_BEGIN,
+            SystemEvents.PLAYER_BLOWN,
         )
     }
 
@@ -92,7 +93,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         if (msg.message == SystemEvents.PLAYER_INITIATED_MOVE.ordinal || msg.message == SystemEvents.PLAYER_BEGIN.ordinal) {
             originalCameraPosition.set(globalData.camera.position)
             cameraMovementProgress = 0F
-        } else if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
+        } else if (msg.message == SystemEvents.PLAYER_BLOWN.ordinal) {
             shakeCameraOffset.set(
                 MathUtils.random(SHAKE_MAX_OFFSET),
                 MathUtils.random(SHAKE_MAX_OFFSET),

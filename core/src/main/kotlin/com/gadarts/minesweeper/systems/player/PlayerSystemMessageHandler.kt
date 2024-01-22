@@ -48,6 +48,12 @@ class PlayerSystemMessageHandler(
             SystemEvents.POWERUP_BUTTON_CLICKED.ordinal to { msg, playerData, _, _, _ ->
                 val type = msg.extraInfo as PowerupTypes
                 playerData.powerups[type] = playerData.powerups[type]!! - 1
+                playerData.invulnerable = true
+            },
+            SystemEvents.MINE_TRIGGERED.ordinal to { _, playerData, _, messageDispatcher, _ ->
+                if (!playerData.invulnerable) {
+                    messageDispatcher.dispatchMessage(SystemEvents.PLAYER_BLOWN.ordinal)
+                }
             }
         )
 

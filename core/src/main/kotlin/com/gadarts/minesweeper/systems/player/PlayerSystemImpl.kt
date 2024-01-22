@@ -117,7 +117,8 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
             SystemEvents.MAP_RESET,
             SystemEvents.PLAYER_PHYSICS_HARD_LAND,
             SystemEvents.CURRENT_TILE_VALUE_CALCULATED,
-            SystemEvents.POWERUP_BUTTON_CLICKED
+            SystemEvents.POWERUP_BUTTON_CLICKED,
+            SystemEvents.MINE_TRIGGERED
         )
     }
 

@@ -48,7 +48,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.MINE_TRIGGERED)
+        return listOf(SystemEvents.MINE_TRIGGERED, SystemEvents.PLAYER_BLOWN)
     }
 
     override fun onSystemReady() {
@@ -67,7 +67,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
 
-        if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
+        if (msg.message == SystemEvents.PLAYER_BLOWN.ordinal) {
             reactToMineTriggered()
             return true
         }
@@ -105,6 +105,8 @@ class ParticleEffectsSystem : GameEntitySystem() {
         entity: Entity,
         particleEffectComponent: BaseParticleEffectComponent
     ) {
+        if (!ComponentsMappers.physics.has(entity)) return
+
         ComponentsMappers.physics.get(entity).motionState?.getWorldTransform(
             auxMatrix
         )
