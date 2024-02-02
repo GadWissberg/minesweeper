@@ -16,7 +16,6 @@ enum class TexturesDefinitions(fileNames: Int = 1) : AssetDefinition<Texture> {
     TILE_6,
     TILE_7,
     TILE_8,
-    COIN,
     DIGIT_1,
     DIGIT_2,
     DIGIT_3,
@@ -26,7 +25,9 @@ enum class TexturesDefinitions(fileNames: Int = 1) : AssetDefinition<Texture> {
     DIGIT_7,
     BUTTON_POWERUP_UP,
     BUTTON_POWERUP_DOWN,
-    POWERUP_ICON_SHIELD;
+    ICON_STATUS_COINS,
+    ICON_STATUS_SHIELD,
+    ICON_BUTTON_SHIELD;
 
     private val paths = ArrayList<String>()
     private val pathFormat = "textures/%s.png"

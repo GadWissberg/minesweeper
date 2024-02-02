@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.SystemEvents
+import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 import kotlin.math.min
 
@@ -50,19 +51,23 @@ class PlayerMovementHandler(private val digit: Entity) {
         return closestDirection
     }
 
-    private fun updateMovement(deltaTime: Float, player: Entity, dispatcher: MessageDispatcher) {
+    private fun updateMovement(
+        deltaTime: Float,
+        playerData: PlayerData,
+        dispatcher: MessageDispatcher
+    ) {
         if (!desiredLocation.isZero && desiredDirection != null) {
             val x = desiredLocation.x.toInt()
             val z = desiredLocation.z.toInt()
             if (desiredLocation.x >= 0 && x < SystemsGlobalData.TEMP_GROUND_SIZE && desiredLocation.z >= 0 && z < SystemsGlobalData.TEMP_GROUND_SIZE) {
                 val transform =
-                    ComponentsMappers.modelInstance.get(player).modelInstance.transform
+                    ComponentsMappers.modelInstance.get(playerData.player!!).modelInstance.transform
                 transform.setTranslation(
                     auxVector3_1.set(originalLocation)
                         .slerp(desiredLocation, Interpolation.circle.apply(jumpProgress))
                 )
                 val currentPosition = transform.getTranslation(auxVector3_1)
-                updateJumpHeight(currentPosition, dispatcher)
+                updateJumpHeight(currentPosition)
                 jumpProgress += min(deltaTime * 4F, 0.1F)
                 transform.setTranslation(currentPosition)
                 if (transform.getTranslation(auxVector3_1)
@@ -70,11 +75,26 @@ class PlayerMovementHandler(private val digit: Entity) {
                 ) {
                     desiredLocation.setZero()
                     jumpProgress = 0F
+                    landed(dispatcher, playerData)
                 }
                 updateDigitPosition(currentPosition)
             } else {
                 desiredLocation.setZero()
             }
+        }
+    }
+
+    private fun landed(
+        dispatcher: MessageDispatcher,
+        playerData: PlayerData
+    ) {
+        dispatcher.dispatchMessage(SystemEvents.PLAYER_LANDED.ordinal)
+        if (playerData.invulnerable > 0) {
+            playerData.invulnerable--
+            dispatcher.dispatchMessage(
+                SystemEvents.SHIELD_CONSUME.ordinal,
+                playerData.invulnerable
+            )
         }
     }
 
@@ -90,16 +110,13 @@ class PlayerMovementHandler(private val digit: Entity) {
         )
     }
 
-    private fun updateJumpHeight(currentPosition: Vector3, dispatcher: MessageDispatcher) {
+    private fun updateJumpHeight(currentPosition: Vector3) {
         if (jumpProgress <= 0.5F) {
             currentPosition.y =
                 Interpolation.bounceIn.apply(0F, JUMP_MAX_HEIGHT, jumpProgress)
         } else {
             currentPosition.y =
                 Interpolation.bounceOut.apply(JUMP_MAX_HEIGHT, 0F, jumpProgress)
-            if (jumpProgress >= 1F) {
-                dispatcher.dispatchMessage(SystemEvents.PLAYER_LANDED.ordinal)
-            }
         }
     }
 
@@ -179,9 +196,9 @@ class PlayerMovementHandler(private val digit: Entity) {
         return true
     }
 
-    fun update(deltaTime: Float, player: Entity, dispatcher: MessageDispatcher) {
-        rotate(player)
-        updateMovement(deltaTime, player, dispatcher)
+    fun update(deltaTime: Float, playerData: PlayerData, dispatcher: MessageDispatcher) {
+        rotate(playerData.player!!)
+        updateMovement(deltaTime, playerData, dispatcher)
     }
 
     private enum class Directions(val direction: Vector3) {

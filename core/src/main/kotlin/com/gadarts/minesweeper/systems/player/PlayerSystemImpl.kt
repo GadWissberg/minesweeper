@@ -136,7 +136,7 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
 
     override fun update(deltaTime: Float) {
         if (globalData.playerData.player == null || ComponentsMappers.physics.has(globalData.playerData.player)) return
-        playerMovementHandler.update(deltaTime, globalData.playerData.player!!, dispatcher)
+        playerMovementHandler.update(deltaTime, globalData.playerData, dispatcher)
     }
 
 
