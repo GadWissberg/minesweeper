@@ -6,6 +6,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Cell
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle
@@ -25,6 +26,7 @@ import com.gadarts.minesweeper.systems.data.SystemsGlobalData
 
 class HudSystem : GameEntitySystem() {
 
+    private var shieldIndicatorTableCell: Cell<Table>? = null
     private var shieldIndicatorTable: Table? = null
     private lateinit var indicatorsTable: Table
     private var shieldStatusLabel: Label? = null
@@ -139,7 +141,11 @@ class HudSystem : GameEntitySystem() {
             shieldIndicatorTable = Table()
             shieldIndicatorTable!!.add(Image(assetsManger.getAssetByDefinition(TexturesDefinitions.ICON_STATUS_SHIELD)))
             shieldIndicatorTable!!.add(shieldStatusLabel)
-            indicatorsTable.add(shieldIndicatorTable)
+            if (shieldIndicatorTableCell == null) {
+                shieldIndicatorTableCell = indicatorsTable.add(shieldIndicatorTable)
+            } else {
+                shieldIndicatorTableCell!!.setActor(shieldIndicatorTable)
+            }
         }
     }
 
