@@ -2,6 +2,7 @@ package com.gadarts.minesweeper.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
@@ -34,9 +35,10 @@ class MapSystem : GameEntitySystem() {
     override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer
+        soundPlayer: SoundPlayer,
+        dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
         tileModel = GameUtils.createTileModel(ModelBuilder(), assetsManager)
         for (row in SystemsGlobalData.testMapValues.indices) {
             for (col in SystemsGlobalData.testMapValues[row].indices) {
@@ -92,6 +94,7 @@ class MapSystem : GameEntitySystem() {
                 handlePlayerLanded()
                 return true
             }
+
             SystemEvents.PLAYER_BEGIN.ordinal -> {
                 val position =
                     ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
@@ -105,12 +108,14 @@ class MapSystem : GameEntitySystem() {
                 )
                 return true
             }
+
             SystemEvents.PLAYER_BLOWN.ordinal -> {
                 Timer.schedule(object : Timer.Task() {
                     override fun run() {
                         resetMap()
                     }
                 }, 5F)
+                return true
             }
         }
 

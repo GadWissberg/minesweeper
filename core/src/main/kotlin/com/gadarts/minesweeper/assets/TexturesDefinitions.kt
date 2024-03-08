@@ -25,6 +25,7 @@ enum class TexturesDefinitions(fileNames: Int = 1) : AssetDefinition<Texture> {
     DIGIT_7,
     BUTTON_POWERUP_UP,
     BUTTON_POWERUP_DOWN,
+    BUTTON_POWERUP_DISABLED,
     ICON_STATUS_COINS,
     ICON_STATUS_SHIELD,
     ICON_BUTTON_SHIELD;

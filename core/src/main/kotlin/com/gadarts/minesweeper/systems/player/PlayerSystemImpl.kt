@@ -1,8 +1,10 @@
 package com.gadarts.minesweeper.systems.player
 
+import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.GL20
@@ -23,8 +25,15 @@ import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.GameUtils
+import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
+import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnCurrentTileValueCalculated
+import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnMapReset
+import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnMineTriggered
+import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnPlayerPickedUpBonus
+import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnPowerupButtonClicked
 
 
 class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
@@ -34,14 +43,13 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     private lateinit var characterJumpSounds: List<Sound>
     private val previousTouchPoint: Vector2 = Vector2()
     private lateinit var playerMovementHandler: PlayerMovementHandler
-    private lateinit var messageHandler: PlayerSystemMessageHandler
     override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer
+        soundPlayer: SoundPlayer,
+        dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
-        messageHandler = PlayerSystemMessageHandler(soundPlayer, assetsManager)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
         addPlayer(false)
         val modelBuilder = ModelBuilder()
         digitModel = GameUtils.createTileModel(modelBuilder, assetsManager, -0.5F)
@@ -64,10 +72,25 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
         digitModel.dispose()
     }
 
-    override fun handleMessage(msg: Telegram?): Boolean {
-        if (msg == null) return false
-
-        return messageHandler.handle(msg, globalData.playerData, engine, dispatcher, this)
+    override fun getSubscribedEvents(): Map<SystemEvents, HandlerOnEvent> {
+        return mapOf(
+            SystemEvents.MAP_RESET to PlayerSystemOnMapReset(this),
+            SystemEvents.PLAYER_PHYSICS_HARD_LAND to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    playerData: PlayerData,
+                    assetsManger: GameAssetManager,
+                    dispatcher: MessageDispatcher,
+                    engine: Engine
+                ) {
+                    soundPlayer.playSoundByDefinition(SoundsDefinitions.TAP)
+                }
+            },
+            SystemEvents.CURRENT_TILE_VALUE_CALCULATED to PlayerSystemOnCurrentTileValueCalculated(),
+            SystemEvents.POWERUP_BUTTON_CLICKED to PlayerSystemOnPowerupButtonClicked(),
+            SystemEvents.MINE_TRIGGERED to PlayerSystemOnMineTriggered(),
+            SystemEvents.PLAYER_PICKED_UP_BONUS to PlayerSystemOnPlayerPickedUpBonus()
+        )
     }
 
     override fun keyDown(keycode: Int): Boolean {
@@ -110,16 +133,6 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
 
     override fun touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         return false
-    }
-
-    override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(
-            SystemEvents.MAP_RESET,
-            SystemEvents.PLAYER_PHYSICS_HARD_LAND,
-            SystemEvents.CURRENT_TILE_VALUE_CALCULATED,
-            SystemEvents.POWERUP_BUTTON_CLICKED,
-            SystemEvents.MINE_TRIGGERED
-        )
     }
 
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {

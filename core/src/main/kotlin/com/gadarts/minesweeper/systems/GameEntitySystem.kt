@@ -15,12 +15,17 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
     protected lateinit var assetsManger: GameAssetManager
     protected lateinit var globalData: SystemsGlobalData
         private set
-    protected val dispatcher: MessageDispatcher = MessageDispatcher()
+    protected lateinit var dispatcher: MessageDispatcher
 
     abstract fun onSystemReady()
     override fun handleMessage(msg: Telegram?): Boolean {
-        return false
+        if (msg == null) return false
+
+        val handlerOnEvent = getSubscribedEvents()[SystemEvents.entries[msg.message]]
+        handlerOnEvent?.react(msg, globalData.playerData, assetsManger, dispatcher, engine)
+        return handlerOnEvent != null
     }
+
     open fun addListener(listener: GameEntitySystem) {
         listener.getEventsListenList().forEach { event ->
             dispatcher.addListener(
@@ -28,15 +33,23 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
                 event.ordinal
             )
         }
+        getSubscribedEvents().forEach { dispatcher.addListener(this, it.key.ordinal) }
     }
+
+    protected open fun getSubscribedEvents(): Map<SystemEvents, HandlerOnEvent> {
+        return emptyMap()
+    }
+
     open fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer
+        soundPlayer: SoundPlayer,
+        dispatcher: MessageDispatcher
     ) {
         this.globalData = systemsGlobalData
         this.assetsManger = assetsManager
         this.soundPlayer = soundPlayer
+        this.dispatcher = dispatcher
     }
 
     protected open fun getEventsListenList(): List<SystemEvents> = emptyList()

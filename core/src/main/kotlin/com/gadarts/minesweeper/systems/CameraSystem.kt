@@ -2,6 +2,7 @@ package com.gadarts.minesweeper.systems
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
@@ -39,9 +40,10 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer
+        soundPlayer: SoundPlayer,
+        dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
         val cam = PerspectiveCamera(
             67F,
             MineSweeper.PORTRAIT_RESOLUTION_WIDTH.toFloat(),
@@ -93,12 +95,14 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         if (msg.message == SystemEvents.PLAYER_INITIATED_MOVE.ordinal || msg.message == SystemEvents.PLAYER_BEGIN.ordinal) {
             originalCameraPosition.set(globalData.camera.position)
             cameraMovementProgress = 0F
+            return true
         } else if (msg.message == SystemEvents.PLAYER_BLOWN.ordinal) {
             shakeCameraOffset.set(
                 MathUtils.random(SHAKE_MAX_OFFSET),
                 MathUtils.random(SHAKE_MAX_OFFSET),
             )
             nextShake = TimeUtils.millis() + SHAKE_INTERVALS
+            return true
         }
         return false
     }

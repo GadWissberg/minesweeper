@@ -3,6 +3,7 @@ package com.gadarts.minesweeper.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Interpolation
@@ -25,9 +26,10 @@ class BonusSystem : GameEntitySystem() {
     override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer
+        soundPlayer: SoundPlayer,
+        dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
         crates = engine.getEntitiesFor(Family.all(CrateComponent::class.java).get())
         addCrates(assetsManager)
     }
@@ -74,8 +76,10 @@ class BonusSystem : GameEntitySystem() {
                     assetsManger.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),
                     position
                 ).finishAndAddToEngine()
+                dispatcher.dispatchMessage(SystemEvents.PLAYER_PICKED_UP_BONUS.ordinal)
                 soundPlayer.playSoundByDefinition(SoundsDefinitions.BONUS)
             }
+            return true
         }
 
         return false

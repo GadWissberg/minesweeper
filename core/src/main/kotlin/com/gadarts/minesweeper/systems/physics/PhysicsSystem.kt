@@ -1,6 +1,7 @@
 package com.gadarts.minesweeper.systems.physics
 
 import com.badlogic.ashley.core.PooledEngine
+import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
@@ -20,9 +21,10 @@ class PhysicsSystem : GameEntitySystem() {
     override fun initialize(
         systemsGlobalData: SystemsGlobalData,
         assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer
+        soundPlayer: SoundPlayer,
+        dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer)
+        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
         bulletEngineHandler = BulletEngineHandler(globalData)
         bulletEngineHandler.initialize(engine)
         contactListener = GameContactListener(dispatcher)
@@ -70,6 +72,7 @@ class PhysicsSystem : GameEntitySystem() {
                 )
             )
             physicsComponent.rigidBody.userData = globalData.playerData.player
+            return true
         }
         return false
     }
