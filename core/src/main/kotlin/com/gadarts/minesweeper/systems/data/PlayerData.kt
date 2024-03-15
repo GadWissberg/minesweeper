@@ -5,6 +5,7 @@ import com.gadarts.minesweeper.components.player.PowerupTypes
 
 class PlayerData {
 
+    var invulnerableEffect: Float = 0F
     var invulnerable: Int = 0
 
     lateinit var digit: Entity

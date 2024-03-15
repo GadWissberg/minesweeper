@@ -21,7 +21,7 @@ import com.gadarts.minesweeper.components.BaseParticleEffectComponent
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.FollowerParticleEffectComponent
 import com.gadarts.minesweeper.components.IndependentParticleEffectComponent
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 
 
 class ParticleEffectsSystem : GameEntitySystem() {
@@ -31,13 +31,13 @@ class ParticleEffectsSystem : GameEntitySystem() {
     private val particleEntitiesToRemove = ArrayList<Entity>()
 
     override fun initialize(
-        systemsGlobalData: SystemsGlobalData,
+        gameSessionData: GameSessionData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
-        globalData.particleSystem = ParticleSystem()
+        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
+        this.gameSessionData.particleSystem = ParticleSystem()
         billboardParticleBatch = BillboardParticleBatch()
         assetsManager.loadParticleEffects(billboardParticleBatch)
         particleEffectsEntities = engine.getEntitiesFor(
@@ -54,8 +54,8 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     override fun onSystemReady() {
-        billboardParticleBatch.setCamera(globalData.camera)
-        globalData.particleSystem.add(billboardParticleBatch)
+        billboardParticleBatch.setCamera(gameSessionData.camera)
+        gameSessionData.particleSystem.add(billboardParticleBatch)
     }
 
     override fun dispose() {
@@ -85,7 +85,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
 
     private fun removeParticleEffectsMarkedToBeRemoved() {
         for (entity in particleEntitiesToRemove) {
-            globalData.particleSystem.remove(fetchParticleEffect(entity).effect)
+            gameSessionData.particleSystem.remove(fetchParticleEffect(entity).effect)
             entity.remove(BaseParticleEffectComponent::class.java)
         }
     }
@@ -144,16 +144,16 @@ class ParticleEffectsSystem : GameEntitySystem() {
 
 
     private fun playParticleEffect(effect: ParticleEffect) {
-        globalData.particleSystem.add(effect)
+        gameSessionData.particleSystem.add(effect)
         effect.init()
         effect.start()
     }
 
     private fun updateSystem(deltaTime: Float) {
-        globalData.particleSystem.update(deltaTime)
-        globalData.particleSystem.begin()
-        globalData.particleSystem.draw()
-        globalData.particleSystem.end()
+        gameSessionData.particleSystem.update(deltaTime)
+        gameSessionData.particleSystem.begin()
+        gameSessionData.particleSystem.draw()
+        gameSessionData.particleSystem.end()
     }
 
     private fun reactToMineTriggered() {
@@ -162,7 +162,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
             assetsManger.getAssetByDefinition(
                 ParticleEffectsDefinitions.EXPLOSION
             ),
-            ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
+            ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
                 auxVector1
             ).add(0F, 0.1F, 0F)
         ).finishAndAddToEngine()
@@ -173,14 +173,14 @@ class ParticleEffectsSystem : GameEntitySystem() {
             EntityBuilder.createFollowerParticleEffectComponent(
                 smokeParticleEffect, engine as PooledEngine
             )
-        if (globalData.playerData.player != null) {
-            globalData.playerData.player!!.add(
+        if (gameSessionData.playerData.player != null) {
+            gameSessionData.playerData.player!!.add(
                 followerParticleEffectComponent
             )
             playParticleEffect(followerParticleEffectComponent.effect)
             updateFollower(
-                globalData.playerData.player!!,
-                ComponentsMappers.followersParticleEffect.get(globalData.playerData.player)
+                gameSessionData.playerData.player!!,
+                ComponentsMappers.followersParticleEffect.get(gameSessionData.playerData.player)
             )
         }
     }

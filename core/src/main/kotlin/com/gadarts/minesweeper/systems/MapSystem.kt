@@ -18,8 +18,8 @@ import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.TileComponent
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData.Companion.TEMP_GROUND_SIZE
+import com.gadarts.minesweeper.systems.data.GameSessionData
+import com.gadarts.minesweeper.systems.data.GameSessionData.Companion.TEMP_GROUND_SIZE
 import kotlin.math.max
 import kotlin.math.min
 
@@ -33,15 +33,15 @@ class MapSystem : GameEntitySystem() {
     private lateinit var lineGrid: Model
 
     override fun initialize(
-        systemsGlobalData: SystemsGlobalData,
+        gameSessionData: GameSessionData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
+        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
         tileModel = GameUtils.createTileModel(ModelBuilder(), assetsManager)
-        for (row in SystemsGlobalData.testMapValues.indices) {
-            for (col in SystemsGlobalData.testMapValues[row].indices) {
+        for (row in GameSessionData.testMapValues.indices) {
+            for (col in GameSessionData.testMapValues[row].indices) {
                 val tileModelInstance = ModelInstance(tileModel)
                 val tileEntity = EntityBuilder.beginBuildingEntity(engine)
                     .addModelInstanceComponent(
@@ -51,11 +51,11 @@ class MapSystem : GameEntitySystem() {
                     .addTileComponent()
                     .finishAndAddToEngine()
                 tiles[row][col] = tileEntity
-                if (SystemsGlobalData.testMapValues[row][col] == 3) {
+                if (GameSessionData.testMapValues[row][col] == 3) {
                     (tileModelInstance.materials.get(0)
                         .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
                         assetsManger.getAssetByDefinition(TexturesDefinitions.TILE_DESTINATION)
-                } else if (SystemsGlobalData.testMapValues[row][col] == 4) {
+                } else if (GameSessionData.testMapValues[row][col] == 4) {
                     val modelInstance = ModelInstance(
                         assetsManager.getAssetByDefinition(ModelsDefinitions.ROCK)
                     )
@@ -97,7 +97,7 @@ class MapSystem : GameEntitySystem() {
 
             SystemEvents.PLAYER_BEGIN.ordinal -> {
                 val position =
-                    ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
+                    ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
                         auxVector
                     )
                 val currentRow = position.z.toInt()
@@ -124,12 +124,12 @@ class MapSystem : GameEntitySystem() {
 
     private fun handlePlayerLanded() {
         val position =
-            ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
+            ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
                 auxVector
             )
         val currentRow = position.z.toInt()
         val currentCol = position.x.toInt()
-        val currentValue = SystemsGlobalData.testMapValues[currentRow][currentCol]
+        val currentValue = GameSessionData.testMapValues[currentRow][currentCol]
         if (currentValue == 1 || currentValue == 3) {
             gameFinished(currentValue)
         } else {
@@ -149,7 +149,7 @@ class MapSystem : GameEntitySystem() {
         var sum = 0
         for (row in max(currentRow - 1, 0)..min(currentRow + 1, tiles.size - 1)) {
             for (col in max(currentCol - 1, 0)..min(currentCol + 1, tiles[0].size - 1)) {
-                if (SystemsGlobalData.testMapValues[row][col] == 1 && (row != currentRow || col != currentCol)) {
+                if (GameSessionData.testMapValues[row][col] == 1 && (row != currentRow || col != currentCol)) {
                     sum += 1
                 }
             }

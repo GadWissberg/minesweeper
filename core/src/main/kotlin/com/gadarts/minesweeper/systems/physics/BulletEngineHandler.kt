@@ -23,10 +23,10 @@ import com.badlogic.gdx.utils.Disposable
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 
 
-class BulletEngineHandler(private val globalData: SystemsGlobalData) : Disposable, EntityListener {
+class BulletEngineHandler(private val globalData: GameSessionData) : Disposable, EntityListener {
 
     private lateinit var debugDrawer: DebugDrawer
     private lateinit var broadPhase: btAxisSweep3

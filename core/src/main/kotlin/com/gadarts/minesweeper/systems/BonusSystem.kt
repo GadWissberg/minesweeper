@@ -18,26 +18,26 @@ import com.gadarts.minesweeper.assets.ParticleEffectsDefinitions
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.CrateComponent
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 
 class BonusSystem : GameEntitySystem() {
     private lateinit var crates: ImmutableArray<Entity>
 
     override fun initialize(
-        systemsGlobalData: SystemsGlobalData,
+        gameSessionData: GameSessionData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
+        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
         crates = engine.getEntitiesFor(Family.all(CrateComponent::class.java).get())
         addCrates(assetsManager)
     }
 
     private fun addCrates(assetsManager: GameAssetManager) {
-        for (row in SystemsGlobalData.testMapValues.indices) {
-            for (col in SystemsGlobalData.testMapValues[0].indices) {
-                if (SystemsGlobalData.testMapValues[row][col] == 5) {
+        for (row in GameSessionData.testMapValues.indices) {
+            for (col in GameSessionData.testMapValues[0].indices) {
+                if (GameSessionData.testMapValues[row][col] == 5) {
                     val modelInstance = ModelInstance(
                         assetsManager.getAssetByDefinition(ModelsDefinitions.CRATE)
                     )
@@ -49,7 +49,7 @@ class BonusSystem : GameEntitySystem() {
                         )
                         .addCrateComponent()
                         .finishAndAddToEngine()
-                    globalData.mapData[row][col].crate = entity
+                    gameSessionData.mapData[row][col].crate = entity
                     return
                 }
             }
@@ -65,13 +65,13 @@ class BonusSystem : GameEntitySystem() {
 
         if (msg.message == SystemEvents.PLAYER_LANDED.ordinal) {
             val position =
-                ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
+                ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
                     auxVector
                 )
             val row = position.z.toInt()
             val col = position.x.toInt()
-            if (SystemsGlobalData.testMapValues[row][col] == 5 && globalData.mapData[row][col].crate != null) {
-                engine.removeEntity(globalData.mapData[row][col].crate)
+            if (GameSessionData.testMapValues[row][col] == 5 && gameSessionData.mapData[row][col].crate != null) {
+                engine.removeEntity(gameSessionData.mapData[row][col].crate)
                 EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
                     assetsManger.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),
                     position

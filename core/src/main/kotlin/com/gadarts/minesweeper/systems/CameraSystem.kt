@@ -16,7 +16,7 @@ import com.gadarts.minesweeper.MineSweeper
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 import kotlin.math.absoluteValue
 
 
@@ -38,12 +38,12 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     }
 
     override fun initialize(
-        systemsGlobalData: SystemsGlobalData,
+        gameSessionData: GameSessionData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
+        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
         val cam = PerspectiveCamera(
             67F,
             MineSweeper.PORTRAIT_RESOLUTION_WIDTH.toFloat(),
@@ -53,7 +53,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         cam.far = FAR
         cam.update()
         originalCameraPosition.set(cam.position)
-        systemsGlobalData.camera = cam
+        gameSessionData.camera = cam
         if (GameDebugSettings.CAMERA_CONTROLLER_ENABLED) {
             cameraInputController = CameraInputController(cam)
             Gdx.input.inputProcessor = cameraInputController
@@ -69,20 +69,20 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
             moveCamera(deltaTime)
         }
         cameraInputController?.update()
-        globalData.camera.update()
+        gameSessionData.camera.update()
     }
 
     override fun onSystemReady() {
         val playerPosition =
-            ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
+            ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
                 auxVector
             )
-        globalData.camera.position.set(
+        gameSessionData.camera.position.set(
             playerPosition.x,
             18f,
             playerPosition.z + CAMERA_OFFSET_FROM_PLAYER
         )
-        globalData.camera.lookAt(playerPosition)
+        gameSessionData.camera.lookAt(playerPosition)
     }
 
     override fun dispose() {
@@ -93,7 +93,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         if (msg == null) return false
 
         if (msg.message == SystemEvents.PLAYER_INITIATED_MOVE.ordinal || msg.message == SystemEvents.PLAYER_BEGIN.ordinal) {
-            originalCameraPosition.set(globalData.camera.position)
+            originalCameraPosition.set(gameSessionData.camera.position)
             cameraMovementProgress = 0F
             return true
         } else if (msg.message == SystemEvents.PLAYER_BLOWN.ordinal) {
@@ -165,15 +165,15 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     private fun moveCamera(deltaTime: Float) {
         if (!originalCameraPosition.isZero) {
             val playerPosition =
-                ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
+                ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
                     auxVector
                 )
-            globalData.camera.position.x = Interpolation.exp5.apply(
+            gameSessionData.camera.position.x = Interpolation.exp5.apply(
                 originalCameraPosition.x,
                 playerPosition.x,
                 cameraMovementProgress
             )
-            globalData.camera.position.z = Interpolation.exp5.apply(
+            gameSessionData.camera.position.z = Interpolation.exp5.apply(
                 originalCameraPosition.z,
                 playerPosition.z + CAMERA_OFFSET_FROM_PLAYER,
                 cameraMovementProgress
@@ -187,14 +187,14 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     }
 
     private fun handleCameraShakeEffect() {
-        val right = Vector3(globalData.camera.direction).crs(globalData.camera.up).nor()
+        val right = Vector3(gameSessionData.camera.direction).crs(gameSessionData.camera.up).nor()
         val xOffset =
-            shakeCameraOffset.x * right.x + shakeCameraOffset.y * globalData.camera.up.x
+            shakeCameraOffset.x * right.x + shakeCameraOffset.y * gameSessionData.camera.up.x
         val yOffset =
-            shakeCameraOffset.x * right.y + shakeCameraOffset.y * globalData.camera.up.y
+            shakeCameraOffset.x * right.y + shakeCameraOffset.y * gameSessionData.camera.up.y
         val zOffset =
-            shakeCameraOffset.x * right.z + shakeCameraOffset.y * globalData.camera.up.z
-        globalData.camera.position.add(
+            shakeCameraOffset.x * right.z + shakeCameraOffset.y * gameSessionData.camera.up.z
+        gameSessionData.camera.position.add(
             xOffset,
             yOffset,
             zOffset

@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 import kotlin.math.min
 
 class PlayerMovementHandler(private val digit: Entity) {
@@ -59,7 +59,7 @@ class PlayerMovementHandler(private val digit: Entity) {
         if (!desiredLocation.isZero && desiredDirection != null) {
             val x = desiredLocation.x.toInt()
             val z = desiredLocation.z.toInt()
-            if (desiredLocation.x >= 0 && x < SystemsGlobalData.TEMP_GROUND_SIZE && desiredLocation.z >= 0 && z < SystemsGlobalData.TEMP_GROUND_SIZE) {
+            if (desiredLocation.x >= 0 && x < GameSessionData.TEMP_GROUND_SIZE && desiredLocation.z >= 0 && z < GameSessionData.TEMP_GROUND_SIZE) {
                 val transform =
                     ComponentsMappers.modelInstance.get(playerData.player!!).modelInstance.transform
                 transform.setTranslation(
@@ -183,11 +183,11 @@ class PlayerMovementHandler(private val digit: Entity) {
         )
 
         if (desiredLocation.x >= 0
-            && desiredLocation.x < SystemsGlobalData.TEMP_GROUND_SIZE
+            && desiredLocation.x < GameSessionData.TEMP_GROUND_SIZE
             && desiredLocation.z >= 0
-            && desiredLocation.z < SystemsGlobalData.TEMP_GROUND_SIZE
+            && desiredLocation.z < GameSessionData.TEMP_GROUND_SIZE
         ) {
-            if (SystemsGlobalData.testMapValues[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
+            if (GameSessionData.testMapValues[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
                 desiredLocation.setZero()
             } else {
                 dispatcher.dispatchMessage(SystemEvents.PLAYER_INITIATED_MOVE.ordinal)

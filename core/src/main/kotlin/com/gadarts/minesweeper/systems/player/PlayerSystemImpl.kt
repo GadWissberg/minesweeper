@@ -28,12 +28,14 @@ import com.gadarts.minesweeper.systems.GameUtils
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnCurrentTileValueCalculated
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnMapReset
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnMineTriggered
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnPlayerPickedUpBonus
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnPowerupButtonClicked
+import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnShieldConsume
+import kotlin.math.max
 
 
 class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
@@ -44,17 +46,17 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     private val previousTouchPoint: Vector2 = Vector2()
     private lateinit var playerMovementHandler: PlayerMovementHandler
     override fun initialize(
-        systemsGlobalData: SystemsGlobalData,
+        gameSessionData: GameSessionData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
+        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
         addPlayer(false)
         val modelBuilder = ModelBuilder()
         digitModel = GameUtils.createTileModel(modelBuilder, assetsManager, -0.5F)
         addDigit()
-        playerMovementHandler = PlayerMovementHandler(globalData.playerData.digit)
+        playerMovementHandler = PlayerMovementHandler(this.gameSessionData.playerData.digit)
         if (Gdx.input.inputProcessor == null) {
             Gdx.input.inputProcessor = InputMultiplexer(this)
         }
@@ -89,7 +91,8 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
             SystemEvents.CURRENT_TILE_VALUE_CALCULATED to PlayerSystemOnCurrentTileValueCalculated(),
             SystemEvents.POWERUP_BUTTON_CLICKED to PlayerSystemOnPowerupButtonClicked(),
             SystemEvents.MINE_TRIGGERED to PlayerSystemOnMineTriggered(),
-            SystemEvents.PLAYER_PICKED_UP_BONUS to PlayerSystemOnPlayerPickedUpBonus()
+            SystemEvents.PLAYER_PICKED_UP_BONUS to PlayerSystemOnPlayerPickedUpBonus(),
+            SystemEvents.SHIELD_CONSUME to PlayerSystemOnShieldConsume(),
         )
     }
 
@@ -111,13 +114,16 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        if (globalData.playerData.player == null || ComponentsMappers.physics.has(globalData.playerData.player)) return false
+        if (gameSessionData.playerData.player == null || ComponentsMappers.physics.has(
+                gameSessionData.playerData.player
+            )
+        ) return false
 
         val moved = playerMovementHandler.movePlayer(
             screenX,
             screenY,
             previousTouchPoint,
-            globalData.playerData.player!!,
+            gameSessionData.playerData.player!!,
             dispatcher,
         )
         if (moved) {
@@ -148,22 +154,35 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     }
 
     override fun update(deltaTime: Float) {
-        if (globalData.playerData.player == null || ComponentsMappers.physics.has(globalData.playerData.player)) return
-        playerMovementHandler.update(deltaTime, globalData.playerData, dispatcher)
+        if (gameSessionData.playerData.player == null || ComponentsMappers.physics.has(
+                gameSessionData.playerData.player
+            )
+        ) return
+        playerMovementHandler.update(deltaTime, gameSessionData.playerData, dispatcher)
+        if (gameSessionData.playerData.invulnerable > 0) {
+            gameSessionData.playerData.invulnerableEffect += 0.1F
+            (ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.materials.get(
+                0
+            ).get(BlendingAttribute.Type) as BlendingAttribute).opacity =
+                max(MathUtils.sin(gameSessionData.playerData.invulnerableEffect), 0.5F)
+        }
     }
 
 
     override fun addPlayer(resetPlayerMovementHandler: Boolean) {
         val playerModelInstance =
             ModelInstance(assetsManger.getAssetByDefinition(ModelsDefinitions.PIG))
-        globalData.playerData.player = EntityBuilder.beginBuildingEntity(engine)
+        val blendingAttribute = BlendingAttribute()
+        blendingAttribute.opacity = 1F
+        playerModelInstance.materials.get(0).set(blendingAttribute)
+        gameSessionData.playerData.player = EntityBuilder.beginBuildingEntity(engine)
             .addModelInstanceComponent(playerModelInstance)
             .addPlayerComponent()
             .finishAndAddToEngine()
         placePlayer()
         if (resetPlayerMovementHandler) {
-            playerMovementHandler.reset(globalData.playerData.player!!)
-            ComponentsMappers.modelInstance.get(globalData.playerData.digit).visible = false
+            playerMovementHandler.reset(gameSessionData.playerData.player!!)
+            ComponentsMappers.modelInstance.get(gameSessionData.playerData.digit).visible = false
         }
     }
 
@@ -178,11 +197,11 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
                 GL20.GL_ONE_MINUS_SRC_ALPHA
             )
         )
-        globalData.playerData.digit = EntityBuilder.beginBuildingEntity(engine)
+        gameSessionData.playerData.digit = EntityBuilder.beginBuildingEntity(engine)
             .addModelInstanceComponent(
                 digitModelInstance,
                 Vector3(
-                    ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.getTranslation(
+                    ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
                         auxVector
                     ).add(0F, 1.4F, 0F)
                 )
@@ -191,10 +210,10 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     }
 
     private fun placePlayer() {
-        for (row in SystemsGlobalData.testMapValues.indices) {
-            for (col in SystemsGlobalData.testMapValues[0].indices) {
-                if (SystemsGlobalData.testMapValues[row][col] == 2) {
-                    ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform.setToTranslation(
+        for (row in GameSessionData.testMapValues.indices) {
+            for (col in GameSessionData.testMapValues[0].indices) {
+                if (GameSessionData.testMapValues[row][col] == 2) {
+                    ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.setToTranslation(
                         col + 0.5F, 0F, row + 0.5F
                     ).rotate(Vector3.Y, -90F)
                     return

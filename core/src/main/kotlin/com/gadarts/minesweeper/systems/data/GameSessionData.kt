@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.Disposable
 
-class SystemsGlobalData : Disposable {
+class GameSessionData : Disposable {
 
     var mapData: Array<Array<TileData>> = Array(testMapValues.size) { row ->
         Array(testMapValues[0].size) { col ->

@@ -6,23 +6,23 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.systems.Systems
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 
 
 class GamePlayScreen(private val assetsManager: GameAssetManager) : Screen {
-    private lateinit var systemsGlobalData: SystemsGlobalData
+    private lateinit var gameSessionData: GameSessionData
     private lateinit var engine: PooledEngine
 
     override fun show() {
         engine = PooledEngine()
-        systemsGlobalData = SystemsGlobalData()
+        gameSessionData = GameSessionData()
         val systems = Systems.entries.toTypedArray()
         val soundPlayer = SoundPlayer(assetsManager)
         val dispatcher = MessageDispatcher()
         systems.forEach { system ->
             engine.addSystem(system.systemInstance)
             system.systemInstance.initialize(
-                systemsGlobalData,
+                gameSessionData,
                 assetsManager,
                 soundPlayer,
                 dispatcher
@@ -54,7 +54,7 @@ class GamePlayScreen(private val assetsManager: GameAssetManager) : Screen {
     }
 
     override fun dispose() {
-        systemsGlobalData.physicsData.collisionWorld.dispose()
+        gameSessionData.physicsData.collisionWorld.dispose()
     }
 
 }

@@ -12,20 +12,20 @@ import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.SystemEvents
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 
 class PhysicsSystem : GameEntitySystem() {
     private lateinit var contactListener: GameContactListener
     private lateinit var bulletEngineHandler: BulletEngineHandler
 
     override fun initialize(
-        systemsGlobalData: SystemsGlobalData,
+        gameSessionData: GameSessionData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
-        bulletEngineHandler = BulletEngineHandler(globalData)
+        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
+        bulletEngineHandler = BulletEngineHandler(this.gameSessionData)
         bulletEngineHandler.initialize(engine)
         contactListener = GameContactListener(dispatcher)
     }
@@ -51,14 +51,14 @@ class PhysicsSystem : GameEntitySystem() {
         if (msg == null) return false
         if (msg.message == SystemEvents.PLAYER_BLOWN.ordinal) {
             val physicsComponent = EntityBuilder.createPhysicsComponent(
-                ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.calculateBoundingBox(
+                ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.calculateBoundingBox(
                     auxBoundingBox
                 ),
-                ComponentsMappers.modelInstance.get(globalData.playerData.player).modelInstance.transform,
+                ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform,
                 engine as PooledEngine
             )
-            globalData.playerData.player?.add(physicsComponent)
-            globalData.physicsData.collisionWorld.addRigidBody(physicsComponent.rigidBody)
+            gameSessionData.playerData.player?.add(physicsComponent)
+            gameSessionData.physicsData.collisionWorld.addRigidBody(physicsComponent.rigidBody)
             physicsComponent.rigidBody.applyImpulse(
                 Vector3(
                     MathUtils.random(-1F, 1F),
@@ -71,7 +71,7 @@ class PhysicsSystem : GameEntitySystem() {
                     MathUtils.random(-0.1F, 0.1F)
                 )
             )
-            physicsComponent.rigidBody.userData = globalData.playerData.player
+            physicsComponent.rigidBody.userData = gameSessionData.playerData.player
             return true
         }
         return false

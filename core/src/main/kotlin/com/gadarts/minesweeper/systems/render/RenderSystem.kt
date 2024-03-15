@@ -22,7 +22,7 @@ import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
 import com.gadarts.minesweeper.systems.GameEntitySystem
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 
 
 class RenderSystem : GameEntitySystem() {
@@ -35,12 +35,12 @@ class RenderSystem : GameEntitySystem() {
     private lateinit var modelEntities: ImmutableArray<Entity>
 
     override fun initialize(
-        systemsGlobalData: SystemsGlobalData,
+        gameSessionData: GameSessionData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
+        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
         axisModelHandler = AxisModelHandler()
         axisModelHandler.addAxis(engine)
         modelEntities = engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
@@ -71,7 +71,7 @@ class RenderSystem : GameEntitySystem() {
     }
 
     override fun update(deltaTime: Float) {
-        shadowLight.begin(Vector3.Zero, globalData.camera.direction)
+        shadowLight.begin(Vector3.Zero, gameSessionData.camera.direction)
         shadowBatch.begin(shadowLight.camera)
         renderModels(shadowBatch, false)
         shadowBatch.end()
@@ -84,18 +84,18 @@ class RenderSystem : GameEntitySystem() {
                 or GL20.GL_DEPTH_BUFFER_BIT
                 or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
         )
-        modelBatch.begin(globalData.camera)
+        modelBatch.begin(gameSessionData.camera)
         renderModels(modelBatch, true)
         renderCollisionShapes()
-        modelBatch.render(globalData.particleSystem, environment)
+        modelBatch.render(gameSessionData.particleSystem, environment)
         modelBatch.end()
     }
 
     private fun renderCollisionShapes() {
         if (!GameDebugSettings.SHOW_COLLISION_SHAPES) return
         val debugDrawingMethod: CollisionShapesDebugDrawing? =
-            globalData.physicsData.debugDrawingMethod
-        debugDrawingMethod?.drawCollisionShapes(globalData.camera)
+            gameSessionData.physicsData.debugDrawingMethod
+        debugDrawingMethod?.drawCollisionShapes(gameSessionData.camera)
     }
 
     private fun renderModels(modelBatch: ModelBatch, applyEnvironment: Boolean) {

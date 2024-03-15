@@ -28,7 +28,7 @@ import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 import com.gadarts.minesweeper.systems.hud.react.HudSystemOnPlayerPickedUpBonus
 
 
@@ -42,19 +42,19 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
     private lateinit var leftSideTable: Table
 
     override fun initialize(
-        systemsGlobalData: SystemsGlobalData,
+        gameSessionData: GameSessionData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
-        super.initialize(systemsGlobalData, assetsManager, soundPlayer, dispatcher)
-        globalData.stage =
+        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
+        this.gameSessionData.stage =
             Stage(StretchViewport(RESOLUTION_WIDTH.toFloat(), RESOLUTION_HEIGHT.toFloat()))
-        (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(0, globalData.stage)
+        (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(0, this.gameSessionData.stage)
         val hudTable = Table()
-        hudTable.setSize(globalData.stage.width, globalData.stage.height)
-        globalData.stage.addActor(hudTable)
-        globalData.stage.isDebugAll = GameDebugSettings.DISPLAY_UI_BORDERS
+        hudTable.setSize(this.gameSessionData.stage.width, this.gameSessionData.stage.height)
+        this.gameSessionData.stage.addActor(hudTable)
+        this.gameSessionData.stage.isDebugAll = GameDebugSettings.DISPLAY_UI_BORDERS
         addComponents(assetsManager, hudTable)
     }
 
@@ -178,7 +178,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         val powerup = msg.extraInfo as PowerupTypes
         if (powerup == PowerupTypes.SHIELD) {
             shieldStatusLabel = Label(
-                globalData.playerData.invulnerable.toString(), Label.LabelStyle(
+                gameSessionData.playerData.invulnerable.toString(), Label.LabelStyle(
                     assetsManger.getAssetByDefinition(FontsDefinitions.SYMTEXT_100),
                     Color.WHITE
                 )
@@ -195,8 +195,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
     }
 
     override fun update(deltaTime: Float) {
-        globalData.stage.act(deltaTime)
-        globalData.stage.draw()
+        gameSessionData.stage.act(deltaTime)
+        gameSessionData.stage.draw()
     }
 
     companion object {

@@ -3,13 +3,13 @@ package com.gadarts.minesweeper.systems.player.react
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.gadarts.minesweeper.assets.GameAssetManager
-import com.gadarts.minesweeper.components.player.PowerupTypes
+import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
-import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
 
-class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
+class PlayerSystemOnShieldConsume : HandlerOnEvent {
     override fun react(
         msg: Telegram,
         playerData: PlayerData,
@@ -18,11 +18,8 @@ class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
         engine: Engine
     ) {
         if (playerData.invulnerable <= 0) {
-            val type = msg.extraInfo as PowerupTypes
-            playerData.powerups[type] = playerData.powerups[type]!! - 1
-            playerData.invulnerable = 4
-            playerData.invulnerableEffect = 0F
-            dispatcher.dispatchMessage(SystemEvents.POWERUP_ACTIVATED.ordinal, type)
+            (ComponentsMappers.modelInstance.get(playerData.player).modelInstance.materials.get(0)
+                .get(BlendingAttribute.Type) as BlendingAttribute).opacity = 1F
         }
     }
 

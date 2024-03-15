@@ -7,13 +7,13 @@ import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
-import com.gadarts.minesweeper.systems.data.SystemsGlobalData
+import com.gadarts.minesweeper.systems.data.GameSessionData
 
 
 abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
     protected lateinit var soundPlayer: SoundPlayer
     protected lateinit var assetsManger: GameAssetManager
-    protected lateinit var globalData: SystemsGlobalData
+    protected lateinit var gameSessionData: GameSessionData
         private set
     protected lateinit var dispatcher: MessageDispatcher
 
@@ -22,7 +22,7 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
         if (msg == null) return false
 
         val handlerOnEvent = getSubscribedEvents()[SystemEvents.entries[msg.message]]
-        handlerOnEvent?.react(msg, globalData.playerData, assetsManger, dispatcher, engine)
+        handlerOnEvent?.react(msg, gameSessionData.playerData, assetsManger, dispatcher, engine)
         return handlerOnEvent != null
     }
 
@@ -41,12 +41,12 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
     }
 
     open fun initialize(
-        systemsGlobalData: SystemsGlobalData,
+        gameSessionData: GameSessionData,
         assetsManager: GameAssetManager,
         soundPlayer: SoundPlayer,
         dispatcher: MessageDispatcher
     ) {
-        this.globalData = systemsGlobalData
+        this.gameSessionData = gameSessionData
         this.assetsManger = assetsManager
         this.soundPlayer = soundPlayer
         this.dispatcher = dispatcher
