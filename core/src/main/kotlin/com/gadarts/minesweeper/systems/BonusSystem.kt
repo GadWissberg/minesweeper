@@ -71,6 +71,7 @@ class BonusSystem : GameEntitySystem() {
             val row = position.z.toInt()
             val col = position.x.toInt()
             if (GameSessionData.testMapValues[row][col] == 5 && gameSessionData.mapData[row][col].crate != null) {
+                GameSessionData.testMapValues[row][col] = 0
                 engine.removeEntity(gameSessionData.mapData[row][col].crate)
                 EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
                     assetsManger.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),
