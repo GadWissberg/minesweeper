@@ -1,6 +1,7 @@
 package com.gadarts.minesweeper.systems.player
 
 import com.badlogic.ashley.core.Engine
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.InputProcessor
@@ -13,7 +14,9 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
@@ -27,15 +30,14 @@ import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.GameUtils
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
-import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.data.GameSessionData
+import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnCurrentTileValueCalculated
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnMapReset
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnMineTriggered
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnPlayerPickedUpBonus
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnPowerupButtonClicked
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnShieldConsume
-import kotlin.math.max
 
 
 class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
@@ -154,17 +156,45 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     }
 
     override fun update(deltaTime: Float) {
-        if (gameSessionData.playerData.player == null || ComponentsMappers.physics.has(
-                gameSessionData.playerData.player
-            )
-        ) return
-        playerMovementHandler.update(deltaTime, gameSessionData.playerData, dispatcher)
+        val player = gameSessionData.playerData.player
+        if (player == null || ComponentsMappers.physics.has(player)) return
+        playerMovementHandler.update(
+            deltaTime,
+            gameSessionData.playerData,
+            dispatcher
+        )
+        updateInvulnerableEffect(deltaTime, player)
+    }
+
+    private fun updateInvulnerableEffect(deltaTime: Float, player: Entity?) {
         if (gameSessionData.playerData.invulnerable > 0) {
-            gameSessionData.playerData.invulnerableEffect += 0.1F
-            (ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.materials.get(
-                0
-            ).get(BlendingAttribute.Type) as BlendingAttribute).opacity =
-                max(MathUtils.sin(gameSessionData.playerData.invulnerableEffect), 0.5F)
+            gameSessionData.playerData.invulnerableEffect += deltaTime
+            val playerModelInstanceComponent = ComponentsMappers.modelInstance.get(player)
+            val sin = MathUtils.sin(gameSessionData.playerData.invulnerableEffect)
+            val value = MathUtils.clamp(
+                sin,
+                0.25F,
+                0.75F
+            )
+            val shieldModelInstanceComponent =
+                ComponentsMappers.modelInstance.get(gameSessionData.playerData.invulnerableDisplay)
+            (shieldModelInstanceComponent.modelInstance.materials.get(0)
+                .get(BlendingAttribute.Type) as BlendingAttribute).opacity =
+                value
+            shieldModelInstanceComponent.modelInstance.transform.setTranslation(
+                playerModelInstanceComponent.modelInstance.transform.getTranslation(
+                    auxVector
+                )
+            )
+            val scale =
+                Interpolation.exp10.apply(
+                    1F,
+                    1.2F,
+                    MathUtils.sin((gameSessionData.playerData.invulnerableEffect))
+                )
+            shieldModelInstanceComponent.modelInstance.transform.`val`[Matrix4.M00] = scale
+            shieldModelInstanceComponent.modelInstance.transform.`val`[Matrix4.M11] = scale
+            shieldModelInstanceComponent.modelInstance.transform.`val`[Matrix4.M22] = scale
         }
     }
 
@@ -172,9 +202,6 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     override fun addPlayer(resetPlayerMovementHandler: Boolean) {
         val playerModelInstance =
             ModelInstance(assetsManger.getAssetByDefinition(ModelsDefinitions.PIG))
-        val blendingAttribute = BlendingAttribute()
-        blendingAttribute.opacity = 1F
-        playerModelInstance.materials.get(0).set(blendingAttribute)
         gameSessionData.playerData.player = EntityBuilder.beginBuildingEntity(engine)
             .addModelInstanceComponent(playerModelInstance)
             .addPlayerComponent()
@@ -204,7 +231,8 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
                     ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
                         auxVector
                     ).add(0F, 1.4F, 0F)
-                )
+                ),
+                true
             )
             .finishAndAddToEngine()
     }

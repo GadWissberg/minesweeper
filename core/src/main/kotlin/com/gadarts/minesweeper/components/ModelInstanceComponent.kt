@@ -7,9 +7,12 @@ class ModelInstanceComponent : GameComponent {
     var visible: Boolean = true
     lateinit var modelInstance: ModelInstance
         private set
+    var manualRendering = false
+        private set
 
-    fun init(modelInstance: ModelInstance) {
+    fun init(modelInstance: ModelInstance, manualRendering: Boolean = false) {
         this.modelInstance = modelInstance
+        this.manualRendering = manualRendering
     }
 
     override fun reset() {

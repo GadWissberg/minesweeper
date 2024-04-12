@@ -3,6 +3,8 @@ package com.gadarts.minesweeper.systems.player.react
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
+import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.player.PowerupTypes
 import com.gadarts.minesweeper.systems.HandlerOnEvent
@@ -23,6 +25,9 @@ class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
             playerData.invulnerable = 4
             playerData.invulnerableEffect = 0F
             dispatcher.dispatchMessage(SystemEvents.POWERUP_ACTIVATED.ordinal, type)
+            playerData.invulnerableDisplay = EntityBuilder.beginBuildingEntity(engine)
+                .addModelInstanceComponent(ModelInstance(playerData.invulnerableEffectModel))
+                .finishAndAddToEngine()
         }
     }
 

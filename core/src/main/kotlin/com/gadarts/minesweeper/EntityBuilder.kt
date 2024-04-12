@@ -53,13 +53,17 @@ class EntityBuilder {
         return addModelInstanceComponent(modelInstance, Vector3.Zero)
     }
 
-    fun addModelInstanceComponent(modelInstance: ModelInstance, position: Vector3): EntityBuilder {
+    fun addModelInstanceComponent(
+        modelInstance: ModelInstance,
+        position: Vector3,
+        manualRendering: Boolean = false
+    ): EntityBuilder {
         val component: ModelInstanceComponent =
             engine!!.createComponent(ModelInstanceComponent::class.java)
         if (!position.isZero) {
             modelInstance.transform.setTranslation(position)
         }
-        component.init(modelInstance)
+        component.init(modelInstance, manualRendering)
         currentEntity!!.add(component)
         component.modelInstance.userData = currentEntity
         return instance

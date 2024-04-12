@@ -76,19 +76,31 @@ class RenderSystem : GameEntitySystem() {
         renderModels(shadowBatch, false)
         shadowBatch.end()
         shadowLight.end()
-        Gdx.gl.glViewport(0, 0, Gdx.graphics.width, Gdx.graphics.height)
-        ScreenUtils.clear(Color.BLACK, true)
-        Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
-        Gdx.gl.glClear(
-            GL20.GL_COLOR_BUFFER_BIT
-                or GL20.GL_DEPTH_BUFFER_BIT
-                or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
-        )
+        clearDisplay()
         modelBatch.begin(gameSessionData.camera)
         renderModels(modelBatch, true)
         renderCollisionShapes()
         modelBatch.render(gameSessionData.particleSystem, environment)
         modelBatch.end()
+        modelBatch.begin(gameSessionData.camera)
+        Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT)
+        renderModel(
+            ComponentsMappers.modelInstance.get(gameSessionData.playerData.digit),
+            false,
+            modelBatch
+        )
+        modelBatch.end()
+    }
+
+    private fun clearDisplay() {
+        Gdx.gl.glViewport(0, 0, Gdx.graphics.width, Gdx.graphics.height)
+        ScreenUtils.clear(Color.BLACK, true)
+        Gdx.gl.glClearColor(0F, 0F, 0F, 1F)
+        Gdx.gl.glClear(
+            GL20.GL_COLOR_BUFFER_BIT
+                    or GL20.GL_DEPTH_BUFFER_BIT
+                    or if (Gdx.graphics.bufferFormat.coverageSampling) GL20.GL_COVERAGE_BUFFER_BIT_NV else 0
+        )
     }
 
     private fun renderCollisionShapes() {
@@ -101,14 +113,24 @@ class RenderSystem : GameEntitySystem() {
     private fun renderModels(modelBatch: ModelBatch, applyEnvironment: Boolean) {
         for (i in 0 until modelEntities.size()) {
             val modelInstanceComponent = ComponentsMappers.modelInstance.get(modelEntities.get(i))
-            if (modelInstanceComponent.visible) {
-                val modelInstance =
-                    modelInstanceComponent.modelInstance
-                if (applyEnvironment) {
-                    modelBatch.render(modelInstance, environment)
-                } else {
-                    modelBatch.render(modelInstance)
-                }
+            if (!modelInstanceComponent.manualRendering) {
+                renderModel(modelInstanceComponent, applyEnvironment, modelBatch)
+            }
+        }
+    }
+
+    private fun renderModel(
+        modelInstanceComponent: ModelInstanceComponent,
+        applyEnvironment: Boolean,
+        modelBatch: ModelBatch
+    ) {
+        if (modelInstanceComponent.visible) {
+            val modelInstance =
+                modelInstanceComponent.modelInstance
+            if (applyEnvironment) {
+                modelBatch.render(modelInstance, environment)
+            } else {
+                modelBatch.render(modelInstance)
             }
         }
     }

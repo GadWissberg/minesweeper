@@ -20,6 +20,7 @@ class GameSessionData : Disposable {
 
     override fun dispose() {
         physicsData.dispose()
+        playerData.dispose()
     }
 
     companion object {
