@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.utils.TimeUtils
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.gadarts.minesweeper.GameDebugSettings
 import com.gadarts.minesweeper.SoundPlayer
@@ -178,7 +179,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         val powerup = msg.extraInfo as PowerupTypes
         if (powerup == PowerupTypes.SHIELD) {
             shieldStatusLabel = Label(
-                gameSessionData.playerData.invulnerable.toString(), Label.LabelStyle(
+                gameSessionData.playerData.invulnerableStepsLeft.toString(), Label.LabelStyle(
                     assetsManger.getAssetByDefinition(FontsDefinitions.SYMTEXT_100),
                     Color.WHITE
                 )
@@ -197,6 +198,9 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
     override fun update(deltaTime: Float) {
         gameSessionData.stage.act(deltaTime)
         gameSessionData.stage.draw()
+        if (shieldStatusLabel != null && gameSessionData.playerData.invulnerableStepsLeft == 1) {
+            shieldStatusLabel!!.isVisible = ((TimeUtils.millis() / 1000L) % 10L) % 2L == 0L
+        }
     }
 
     companion object {

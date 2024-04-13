@@ -19,13 +19,16 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.minesweeper.EntityBuilder
+import com.gadarts.minesweeper.GameDebugSettings
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.ModelsDefinitions
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
+import com.gadarts.minesweeper.components.player.PowerupTypes
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.GameUtils
 import com.gadarts.minesweeper.systems.HandlerOnEvent
@@ -70,6 +73,12 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
 
     override fun onSystemReady() {
         dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
+        if (GameDebugSettings.SHIELD_ON_START) {
+            dispatcher.dispatchMessage(
+                SystemEvents.POWERUP_BUTTON_CLICKED.ordinal,
+                PowerupTypes.SHIELD
+            )
+        }
     }
 
     override fun dispose() {
@@ -167,7 +176,7 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     }
 
     private fun updateInvulnerableEffect(deltaTime: Float, player: Entity?) {
-        if (gameSessionData.playerData.invulnerable > 0) {
+        if (gameSessionData.playerData.invulnerableStepsLeft > 0) {
             gameSessionData.playerData.invulnerableEffect += deltaTime
             val playerModelInstanceComponent = ComponentsMappers.modelInstance.get(player)
             val sin = MathUtils.sin(gameSessionData.playerData.invulnerableEffect)
@@ -195,6 +204,10 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
             shieldModelInstanceComponent.modelInstance.transform.`val`[Matrix4.M00] = scale
             shieldModelInstanceComponent.modelInstance.transform.`val`[Matrix4.M11] = scale
             shieldModelInstanceComponent.modelInstance.transform.`val`[Matrix4.M22] = scale
+            if (gameSessionData.playerData.invulnerableStepsLeft == 1) {
+                shieldModelInstanceComponent.visible =
+                    ((TimeUtils.millis() / 1000L) % 10L) % 2L == 0L
+            }
         }
     }
 

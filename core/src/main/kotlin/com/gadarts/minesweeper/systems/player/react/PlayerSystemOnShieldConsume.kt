@@ -15,7 +15,7 @@ class PlayerSystemOnShieldConsume : HandlerOnEvent {
         dispatcher: MessageDispatcher,
         engine: Engine
     ) {
-        if (playerData.invulnerable <= 0) {
+        if (playerData.invulnerableStepsLeft <= 0) {
             engine.removeEntity(playerData.invulnerableDisplay)
         }
     }

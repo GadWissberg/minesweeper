@@ -16,9 +16,9 @@ class PlayerSystemOnMineTriggered : HandlerOnEvent {
         dispatcher: MessageDispatcher,
         engine: Engine
     ) {
-        if (playerData.invulnerable <= 0) {
+        if (playerData.invulnerableStepsLeft <= 0) {
             playerData.reset()
-            dispatcher.dispatchMessage(SystemEvents.PLAYER_BLOWN.ordinal)
+        dispatcher.dispatchMessage(SystemEvents.PLAYER_BLOWN.ordinal)
         }
     }
 

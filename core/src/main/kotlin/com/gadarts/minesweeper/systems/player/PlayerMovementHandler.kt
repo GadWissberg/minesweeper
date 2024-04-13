@@ -89,11 +89,11 @@ class PlayerMovementHandler(private val digit: Entity) {
         playerData: PlayerData
     ) {
         dispatcher.dispatchMessage(SystemEvents.PLAYER_LANDED.ordinal)
-        if (playerData.invulnerable > 0) {
-            playerData.invulnerable--
+        if (playerData.invulnerableStepsLeft > 0) {
+            playerData.invulnerableStepsLeft--
             dispatcher.dispatchMessage(
                 SystemEvents.SHIELD_CONSUME.ordinal,
-                playerData.invulnerable
+                playerData.invulnerableStepsLeft
             )
         }
     }

@@ -132,6 +132,7 @@ class MapSystem : GameEntitySystem() {
         val currentValue = GameSessionData.testMapValues[currentRow][currentCol]
         if (currentValue == 1 || currentValue == 3) {
             gameFinished(currentValue)
+            dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal)
         } else {
             (ComponentsMappers.modelInstance.get(tiles[currentRow][currentCol]).modelInstance.materials[0].get(
                 TextureAttribute.Diffuse
@@ -162,7 +163,6 @@ class MapSystem : GameEntitySystem() {
         if (currentValue == 3) {
             soundPlayer.playSoundByDefinition(SoundsDefinitions.WIN)
         }
-        dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal)
     }
 
     private fun resetMap() {

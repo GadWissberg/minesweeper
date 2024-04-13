@@ -25,14 +25,19 @@ class PlayerData : Disposable {
         (VertexAttributes.Usage.Position or VertexAttributes.Usage.Normal).toLong()
     )
     var invulnerableEffect: Float = 0F
-    var invulnerable: Int = 0
+    var invulnerableStepsLeft: Int = 0
 
     lateinit var digit: Entity
     val powerups: MutableMap<PowerupTypes, Int> = mutableMapOf()
     var player: Entity? = null
 
+    init {
+        reset()
+    }
+
     fun reset() {
-        invulnerable = 0
+        invulnerableStepsLeft = 0
+        PowerupTypes.entries.forEach { powerups[it] = 0 }
     }
 
     override fun dispose() {

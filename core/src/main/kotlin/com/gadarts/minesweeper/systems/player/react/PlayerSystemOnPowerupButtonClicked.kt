@@ -19,10 +19,10 @@ class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
         dispatcher: MessageDispatcher,
         engine: Engine
     ) {
-        if (playerData.invulnerable <= 0) {
+        if (playerData.invulnerableStepsLeft <= 0) {
             val type = msg.extraInfo as PowerupTypes
             playerData.powerups[type] = playerData.powerups[type]!! - 1
-            playerData.invulnerable = 4
+            playerData.invulnerableStepsLeft = 4
             playerData.invulnerableEffect = 0F
             dispatcher.dispatchMessage(SystemEvents.POWERUP_ACTIVATED.ordinal, type)
             playerData.invulnerableDisplay = EntityBuilder.beginBuildingEntity(engine)

@@ -69,7 +69,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
 
-        if (msg.message == SystemEvents.PLAYER_BLOWN.ordinal) {
+        if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
             reactToMineTriggered()
             return true
         }
@@ -107,19 +107,11 @@ class ParticleEffectsSystem : GameEntitySystem() {
         entity: Entity,
         particleEffectComponent: BaseParticleEffectComponent
     ) {
-        if (!ComponentsMappers.physics.has(entity)) return
-
-        ComponentsMappers.physics.get(entity).motionState?.getWorldTransform(
-            auxMatrix
+        ComponentsMappers.modelInstance.get(entity).modelInstance.transform.getTranslation(
+            auxVector1
         )
-        auxMatrix.setToTranslation(
-            auxMatrix.`val`[Matrix4.M03],
-            auxMatrix.`val`[Matrix4.M13],
-            auxMatrix.`val`[Matrix4.M23]
-        )
-        particleEffectComponent.effect.setTransform(
-            auxMatrix
-        )
+        auxMatrix.setToTranslation(auxVector1)
+        particleEffectComponent.effect.setTransform(auxMatrix)
     }
 
     private fun fetchParticleEffect(entity: Entity): BaseParticleEffectComponent =
