@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
+import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
@@ -17,7 +18,8 @@ class PlayerSystemOnMapReset(private val playerSystem: PlayerSystem) : HandlerOn
         playerData: PlayerData,
         assetsManger: GameAssetManager,
         dispatcher: MessageDispatcher,
-        engine: Engine
+        engine: Engine,
+        soundPlayer: SoundPlayer
     ) {
         ComponentsMappers.modelInstance.get(playerData.digit).visible = false
         engine.removeEntity(playerData.player)

@@ -11,6 +11,8 @@ enum class SoundsDefinitions(fileNames: Int = 1, val randomPitch: Boolean = true
     TAP,
     EXPLOSION(3, true),
     WIN,
+    SHIELD_ACTIVATED,
+    SHIELD_DEPLETED,
     BONUS;
 
     private val paths = ArrayList<String>()

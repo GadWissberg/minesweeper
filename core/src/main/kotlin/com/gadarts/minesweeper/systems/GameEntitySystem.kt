@@ -22,7 +22,7 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
         if (msg == null) return false
 
         val handlerOnEvent = getSubscribedEvents()[SystemEvents.entries[msg.message]]
-        handlerOnEvent?.react(msg, gameSessionData.playerData, assetsManger, dispatcher, engine)
+        handlerOnEvent?.react(msg, gameSessionData.playerData, assetsManger, dispatcher, engine, soundPlayer)
         return handlerOnEvent != null
     }
 

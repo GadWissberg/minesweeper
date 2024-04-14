@@ -94,7 +94,8 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
                     playerData: PlayerData,
                     assetsManger: GameAssetManager,
                     dispatcher: MessageDispatcher,
-                    engine: Engine
+                    engine: Engine,
+                    soundPlayer: SoundPlayer
                 ) {
                     soundPlayer.playSoundByDefinition(SoundsDefinitions.TAP)
                 }

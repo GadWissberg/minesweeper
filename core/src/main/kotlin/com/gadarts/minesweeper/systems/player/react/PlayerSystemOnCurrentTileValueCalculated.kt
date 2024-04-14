@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
+import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
@@ -16,7 +17,8 @@ class PlayerSystemOnCurrentTileValueCalculated : HandlerOnEvent {
         playerData: PlayerData,
         assetsManger: GameAssetManager,
         dispatcher: MessageDispatcher,
-        engine: Engine
+        engine: Engine,
+        soundPlayer: SoundPlayer
     ) {
         val definition = sumToTextureDefinition[msg.extraInfo as Int]
         if (definition != null) {

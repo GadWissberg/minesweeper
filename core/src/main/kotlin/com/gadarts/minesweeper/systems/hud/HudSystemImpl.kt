@@ -23,6 +23,7 @@ import com.gadarts.minesweeper.GameDebugSettings
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.FontsDefinitions
 import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.player.PowerupTypes
 import com.gadarts.minesweeper.systems.GameEntitySystem
@@ -68,7 +69,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     playerData: PlayerData,
                     assetsManger: GameAssetManager,
                     dispatcher: MessageDispatcher,
-                    engine: Engine
+                    engine: Engine,
+                    soundPlayer: SoundPlayer
                 ) {
                     displayPowerupIndicator(msg)
                     if ((playerData.powerups[PowerupTypes.SHIELD] ?: 0) <= 0) {
@@ -82,11 +84,13 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     playerData: PlayerData,
                     assetsManger: GameAssetManager,
                     dispatcher: MessageDispatcher,
-                    engine: Engine
+                    engine: Engine,
+                    soundPlayer: SoundPlayer
                 ) {
                     val newValue = msg.extraInfo as Int
                     if (newValue <= 0) {
                         shieldIndicatorTable?.remove()
+                        soundPlayer.playSoundByDefinition(SoundsDefinitions.SHIELD_DEPLETED)
                     } else {
                         shieldStatusLabel?.setText(newValue)
                     }
@@ -98,7 +102,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     playerData: PlayerData,
                     assetsManger: GameAssetManager,
                     dispatcher: MessageDispatcher,
-                    engine: Engine
+                    engine: Engine,
+                    soundPlayer: SoundPlayer
                 ) {
                     shieldButton.touchable = Touchable.disabled
                 }
@@ -109,7 +114,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     playerData: PlayerData,
                     assetsManger: GameAssetManager,
                     dispatcher: MessageDispatcher,
-                    engine: Engine
+                    engine: Engine,
+                    soundPlayer: SoundPlayer
                 ) {
                     shieldButton.touchable = Touchable.enabled
                 }
