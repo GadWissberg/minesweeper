@@ -5,7 +5,7 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
-import com.gadarts.minesweeper.components.player.PowerupTypes
+import com.gadarts.minesweeper.components.player.PowerupType
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.data.PlayerData
 
@@ -18,8 +18,8 @@ class PlayerSystemOnPlayerPickedUpBonus : HandlerOnEvent {
         engine: Engine,
         soundPlayer: SoundPlayer
     ) {
-        playerData.powerups[PowerupTypes.SHIELD] =
-            (playerData.powerups[PowerupTypes.SHIELD] ?: 0).plus(1)
+        playerData.powerups[PowerupType.SHIELD] =
+            (playerData.powerups[PowerupType.SHIELD] ?: 0).plus(1)
     }
 
 }

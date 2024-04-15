@@ -8,7 +8,7 @@ import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.SoundsDefinitions
-import com.gadarts.minesweeper.components.player.PowerupTypes
+import com.gadarts.minesweeper.components.player.PowerupType
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
@@ -23,7 +23,7 @@ class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
         soundPlayer: SoundPlayer
     ) {
         if (playerData.invulnerableStepsLeft <= 0) {
-            val type = msg.extraInfo as PowerupTypes
+            val type = msg.extraInfo as PowerupType
             playerData.powerups[type] = playerData.powerups[type]!! - 1
             playerData.invulnerableStepsLeft = 4
             playerData.invulnerableEffect = 0F

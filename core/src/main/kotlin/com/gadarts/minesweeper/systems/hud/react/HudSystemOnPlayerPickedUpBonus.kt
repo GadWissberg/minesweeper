@@ -5,6 +5,7 @@ import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.components.player.PowerupType
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.hud.HudSystem
@@ -18,7 +19,7 @@ class HudSystemOnPlayerPickedUpBonus(private val hudSystem: HudSystem) : Handler
         engine: Engine,
         soundPlayer: SoundPlayer
     ) {
-        hudSystem.setShieldButtonState(false)
+        hudSystem.setPowerUpButtonState(false, msg.extraInfo as PowerupType)
     }
 
 }

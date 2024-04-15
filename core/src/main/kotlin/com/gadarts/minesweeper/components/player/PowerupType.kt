@@ -1,5 +1,5 @@
 package com.gadarts.minesweeper.components.player
 
-enum class PowerupTypes {
-    SHIELD
+enum class PowerupType {
+    SHIELD, XRAY
 }

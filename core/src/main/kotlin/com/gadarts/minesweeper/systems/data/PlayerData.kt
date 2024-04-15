@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.minesweeper.components.player.PowerupTypes
+import com.gadarts.minesweeper.components.player.PowerupType
 
 
 class PlayerData : Disposable {
@@ -28,7 +28,7 @@ class PlayerData : Disposable {
     var invulnerableStepsLeft: Int = 0
 
     lateinit var digit: Entity
-    val powerups: MutableMap<PowerupTypes, Int> = mutableMapOf()
+    val powerups: MutableMap<PowerupType, Int> = mutableMapOf()
     var player: Entity? = null
 
     init {
@@ -37,7 +37,7 @@ class PlayerData : Disposable {
 
     fun reset() {
         invulnerableStepsLeft = 0
-        PowerupTypes.entries.forEach { powerups[it] = 0 }
+        PowerupType.entries.forEach { powerups[it] = 0 }
     }
 
     override fun dispose() {

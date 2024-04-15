@@ -25,7 +25,7 @@ import com.gadarts.minesweeper.assets.FontsDefinitions
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
-import com.gadarts.minesweeper.components.player.PowerupTypes
+import com.gadarts.minesweeper.components.player.PowerupType
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
@@ -37,6 +37,7 @@ import com.gadarts.minesweeper.systems.hud.react.HudSystemOnPlayerPickedUpBonus
 class HudSystemImpl : HudSystem, GameEntitySystem() {
 
     private lateinit var shieldButton: ImageButton
+    private lateinit var xrayButton: ImageButton
     private var shieldIndicatorTableCell: Cell<Table>? = null
     private var shieldIndicatorTable: Table? = null
     private lateinit var indicatorsTable: Table
@@ -73,8 +74,13 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     soundPlayer: SoundPlayer
                 ) {
                     displayPowerupIndicator(msg)
-                    if ((playerData.powerups[PowerupTypes.SHIELD] ?: 0) <= 0) {
-                        shieldButton.isDisabled = true
+                    val type = msg.extraInfo as PowerupType
+                    if ((playerData.powerups[type] ?: 0) <= 0) {
+                        if (type == PowerupType.SHIELD) {
+                            shieldButton.isDisabled = true
+                        } else if (type == PowerupType.XRAY) {
+                            xrayButton.isDisabled = true
+                        }
                     }
                 }
             },
@@ -106,6 +112,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     soundPlayer: SoundPlayer
                 ) {
                     shieldButton.touchable = Touchable.disabled
+                    xrayButton.touchable = Touchable.disabled
                 }
             },
             SystemEvents.PLAYER_BEGIN to object : HandlerOnEvent {
@@ -118,6 +125,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     soundPlayer: SoundPlayer
                 ) {
                     shieldButton.touchable = Touchable.enabled
+                    xrayButton.touchable = Touchable.enabled
                 }
             }
         )
@@ -128,35 +136,53 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         hudTable: Table
     ) {
         val coinsIndicator = addCoinsIndicator(assetsManager)
+        val rightSideTable = Table()
+        shieldButton = addPowerupButton(
+            rightSideTable,
+            PowerupType.SHIELD,
+            TexturesDefinitions.ICON_BUTTON_SHIELD
+        )
+        xrayButton = addPowerupButton(
+            rightSideTable,
+            PowerupType.XRAY,
+            TexturesDefinitions.ICON_BUTTON_EYE
+        )
+        leftSideTable = Table()
+        hudTable.add(leftSideTable).expand().grow()
+        hudTable.add(rightSideTable).expand().top().right()
+        indicatorsTable = Table()
+        indicatorsTable.add(coinsIndicator).row()
+        leftSideTable.add(indicatorsTable).expand().top().left().pad(HUD_COMPONENTS_PADDING).row()
+    }
+
+    private fun addPowerupButton(
+        rightSideTable: Table,
+        type: PowerupType,
+        textureDefinition: TexturesDefinitions
+    ): ImageButton {
         val style = ImageButtonStyle(
-            TextureRegionDrawable(assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_UP)),
-            TextureRegionDrawable(assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DOWN)),
+            TextureRegionDrawable(assetsManger.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_UP)),
+            TextureRegionDrawable(assetsManger.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DOWN)),
             null,
-            TextureRegionDrawable(assetsManager.getAssetByDefinition(TexturesDefinitions.ICON_BUTTON_SHIELD)),
+            TextureRegionDrawable(assetsManger.getAssetByDefinition(textureDefinition)),
             null,
             null
         )
         style.disabled =
-            TextureRegionDrawable(assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DISABLED))
-        shieldButton = ImageButton(style)
-        shieldButton.addListener(object : ClickListener() {
+            TextureRegionDrawable(assetsManger.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DISABLED))
+        val button = ImageButton(style)
+        button.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
-                if (shieldButton.isDisabled) return
+                if (button.isDisabled) return
                 dispatcher.dispatchMessage(
                     SystemEvents.POWERUP_BUTTON_CLICKED.ordinal,
-                    PowerupTypes.SHIELD
+                    type
                 )
             }
         })
-        shieldButton.isDisabled = true
-        leftSideTable = Table()
-        val rightSideTable = Table()
-        hudTable.add(leftSideTable).expand().grow()
-        hudTable.add(rightSideTable).expand().grow()
-        rightSideTable.add(shieldButton).expand().top().right().pad(HUD_COMPONENTS_PADDING)
-        indicatorsTable = Table()
-        indicatorsTable.add(coinsIndicator).row()
-        leftSideTable.add(indicatorsTable).expand().top().left().pad(HUD_COMPONENTS_PADDING).row()
+        button.isDisabled = true
+        rightSideTable.add(button).expandX().top().right().pad(HUD_COMPONENTS_PADDING).row()
+        return button
     }
 
     private fun addCoinsIndicator(assetsManager: GameAssetManager): Table {
@@ -182,8 +208,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
     }
 
     fun displayPowerupIndicator(msg: Telegram) {
-        val powerup = msg.extraInfo as PowerupTypes
-        if (powerup == PowerupTypes.SHIELD) {
+        val powerup = msg.extraInfo as PowerupType
+        if (powerup == PowerupType.SHIELD) {
             shieldStatusLabel = Label(
                 gameSessionData.playerData.invulnerableStepsLeft.toString(), Label.LabelStyle(
                     assetsManger.getAssetByDefinition(FontsDefinitions.SYMTEXT_100),
@@ -215,8 +241,12 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         const val RESOLUTION_HEIGHT = 2400
     }
 
-    override fun setShieldButtonState(b: Boolean) {
-        shieldButton.isDisabled = b
+    override fun setPowerUpButtonState(b: Boolean, powerupType: PowerupType) {
+        if (powerupType == PowerupType.SHIELD) {
+            shieldButton.isDisabled = b
+        } else if (powerupType == PowerupType.XRAY) {
+            xrayButton.isDisabled = b
+        }
     }
 
 }

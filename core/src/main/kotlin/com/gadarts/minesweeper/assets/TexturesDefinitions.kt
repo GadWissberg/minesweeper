@@ -28,7 +28,8 @@ enum class TexturesDefinitions(fileNames: Int = 1) : AssetDefinition<Texture> {
     BUTTON_POWERUP_DISABLED,
     ICON_STATUS_COINS,
     ICON_STATUS_SHIELD,
-    ICON_BUTTON_SHIELD;
+    ICON_BUTTON_SHIELD,
+    ICON_BUTTON_EYE;
 
     private val paths = ArrayList<String>()
     private val pathFormat = "textures/%s.png"

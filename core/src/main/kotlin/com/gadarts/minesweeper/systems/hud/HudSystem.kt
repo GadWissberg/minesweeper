@@ -1,6 +1,8 @@
 package com.gadarts.minesweeper.systems.hud
 
+import com.gadarts.minesweeper.components.player.PowerupType
+
 interface HudSystem {
-    fun setShieldButtonState(b: Boolean)
+    fun setPowerUpButtonState(b: Boolean, powerupType: PowerupType)
 
 }

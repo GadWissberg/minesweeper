@@ -28,7 +28,7 @@ import com.gadarts.minesweeper.assets.ModelsDefinitions
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
-import com.gadarts.minesweeper.components.player.PowerupTypes
+import com.gadarts.minesweeper.components.player.PowerupType
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.GameUtils
 import com.gadarts.minesweeper.systems.HandlerOnEvent
@@ -76,7 +76,7 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
         if (GameDebugSettings.SHIELD_ON_START) {
             dispatcher.dispatchMessage(
                 SystemEvents.POWERUP_BUTTON_CLICKED.ordinal,
-                PowerupTypes.SHIELD
+                PowerupType.SHIELD
             )
         }
     }

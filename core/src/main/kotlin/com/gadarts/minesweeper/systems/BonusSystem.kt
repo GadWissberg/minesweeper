@@ -18,6 +18,7 @@ import com.gadarts.minesweeper.assets.ParticleEffectsDefinitions
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.CrateComponent
+import com.gadarts.minesweeper.components.player.PowerupType
 import com.gadarts.minesweeper.systems.data.GameSessionData
 
 class BonusSystem : GameEntitySystem() {
@@ -62,7 +63,6 @@ class BonusSystem : GameEntitySystem() {
 
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
-
         if (msg.message == SystemEvents.PLAYER_LANDED.ordinal) {
             val position =
                 ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
@@ -77,12 +77,14 @@ class BonusSystem : GameEntitySystem() {
                     assetsManger.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),
                     position
                 ).finishAndAddToEngine()
-                dispatcher.dispatchMessage(SystemEvents.PLAYER_PICKED_UP_BONUS.ordinal)
+                dispatcher.dispatchMessage(
+                    SystemEvents.PLAYER_PICKED_UP_BONUS.ordinal,
+                    PowerupType.SHIELD
+                )
                 soundPlayer.playSoundByDefinition(SoundsDefinitions.BONUS)
             }
             return true
         }
-
         return false
     }
 
