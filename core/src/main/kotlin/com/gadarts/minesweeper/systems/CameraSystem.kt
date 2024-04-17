@@ -52,6 +52,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
             Gdx.input.inputProcessor = cameraInputController
         }
     }
+
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         if (!shakeCameraOffset.isZero && nextShake < TimeUtils.millis()) {
@@ -154,7 +155,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     }
 
     private fun moveCamera(deltaTime: Float) {
-        if (!originalCameraPosition.isZero) {
+        if (!originalCameraPosition.isZero && gameSessionData.playerData.player != null) {
             val playerPosition =
                 ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
                     auxVector
