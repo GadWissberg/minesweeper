@@ -3,7 +3,6 @@ package com.gadarts.minesweeper.systems
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Interpolation
@@ -11,7 +10,8 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.minesweeper.EntityBuilder
-import com.gadarts.minesweeper.SoundPlayer
+import com.gadarts.minesweeper.GameDebugSettings
+import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.ModelsDefinitions
 import com.gadarts.minesweeper.assets.ParticleEffectsDefinitions
@@ -24,15 +24,10 @@ import com.gadarts.minesweeper.systems.data.GameSessionData
 class BonusSystem : GameEntitySystem() {
     private lateinit var crates: ImmutableArray<Entity>
 
-    override fun initialize(
-        gameSessionData: GameSessionData,
-        assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer,
-        dispatcher: MessageDispatcher
-    ) {
-        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
         crates = engine.getEntitiesFor(Family.all(CrateComponent::class.java).get())
-        addCrates(assetsManager)
+        addCrates(services.assetsManager)
     }
 
     private fun addCrates(assetsManager: GameAssetManager) {
@@ -74,14 +69,14 @@ class BonusSystem : GameEntitySystem() {
                 GameSessionData.testMapValues[row][col] = 0
                 engine.removeEntity(gameSessionData.mapData[row][col].crate)
                 EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
-                    assetsManger.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),
+                    services.assetsManager.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),
                     position
                 ).finishAndAddToEngine()
-                dispatcher.dispatchMessage(
+                services.dispatcher.dispatchMessage(
                     SystemEvents.PLAYER_PICKED_UP_BONUS.ordinal,
-                    PowerupType.SHIELD
+                    GameDebugSettings.FORCE_CRATES_TO_SPECIFIC_POWER_UP ?: PowerupType.SHIELD
                 )
-                soundPlayer.playSoundByDefinition(SoundsDefinitions.BONUS)
+                services.soundPlayer.playSoundByDefinition(SoundsDefinitions.BONUS)
             }
             return true
         }

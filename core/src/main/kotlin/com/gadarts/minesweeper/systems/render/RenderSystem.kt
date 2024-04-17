@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
@@ -16,8 +15,7 @@ import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.ScreenUtils
 import com.gadarts.minesweeper.GameDebugSettings
-import com.gadarts.minesweeper.SoundPlayer
-import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
@@ -34,13 +32,8 @@ class RenderSystem : GameEntitySystem() {
     private lateinit var modelBatch: ModelBatch
     private lateinit var modelEntities: ImmutableArray<Entity>
 
-    override fun initialize(
-        gameSessionData: GameSessionData,
-        assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer,
-        dispatcher: MessageDispatcher
-    ) {
-        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
         axisModelHandler = AxisModelHandler()
         axisModelHandler.addAxis(engine)
         modelEntities = engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())

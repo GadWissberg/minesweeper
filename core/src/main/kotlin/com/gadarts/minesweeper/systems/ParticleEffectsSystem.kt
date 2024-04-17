@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
@@ -13,8 +12,7 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
-import com.gadarts.minesweeper.SoundPlayer
-import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.assets.ParticleEffectsDefinitions
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.BaseParticleEffectComponent
@@ -30,16 +28,11 @@ class ParticleEffectsSystem : GameEntitySystem() {
     private lateinit var billboardParticleBatch: BillboardParticleBatch
     private val particleEntitiesToRemove = ArrayList<Entity>()
 
-    override fun initialize(
-        gameSessionData: GameSessionData,
-        assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer,
-        dispatcher: MessageDispatcher
-    ) {
-        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
         this.gameSessionData.particleSystem = ParticleSystem()
         billboardParticleBatch = BillboardParticleBatch()
-        assetsManager.loadParticleEffects(billboardParticleBatch)
+        services.assetsManager.loadParticleEffects(billboardParticleBatch)
         particleEffectsEntities = engine.getEntitiesFor(
             Family.one(
                 IndependentParticleEffectComponent::class.java,
@@ -149,16 +142,16 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     private fun reactToMineTriggered() {
-        soundPlayer.playSoundByDefinition(SoundsDefinitions.EXPLOSION)
+        services.soundPlayer.playSoundByDefinition(SoundsDefinitions.EXPLOSION)
         EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
-            assetsManger.getAssetByDefinition(
+            services.assetsManager.getAssetByDefinition(
                 ParticleEffectsDefinitions.EXPLOSION
             ),
             ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
                 auxVector1
             ).add(0F, 0.1F, 0F)
         ).finishAndAddToEngine()
-        val smokeParticleEffect = assetsManger.getAssetByDefinition(
+        val smokeParticleEffect = services.assetsManager.getAssetByDefinition(
             ParticleEffectsDefinitions.SMOKE
         )
         val followerParticleEffectComponent =

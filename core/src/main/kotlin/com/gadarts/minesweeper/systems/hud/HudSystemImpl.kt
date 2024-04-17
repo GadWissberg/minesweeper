@@ -1,9 +1,7 @@
 package com.gadarts.minesweeper.systems.hud
 
-import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.InputEvent
@@ -20,7 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.TimeUtils
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.gadarts.minesweeper.GameDebugSettings
-import com.gadarts.minesweeper.SoundPlayer
+import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.assets.FontsDefinitions
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.SoundsDefinitions
@@ -31,6 +29,7 @@ import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.data.GameSessionData
+import com.gadarts.minesweeper.systems.data.TileData
 import com.gadarts.minesweeper.systems.hud.react.HudSystemOnPlayerPickedUpBonus
 
 
@@ -44,13 +43,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
     private var shieldStatusLabel: Label? = null
     private lateinit var leftSideTable: Table
 
-    override fun initialize(
-        gameSessionData: GameSessionData,
-        assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer,
-        dispatcher: MessageDispatcher
-    ) {
-        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
         this.gameSessionData.stage =
             Stage(StretchViewport(RESOLUTION_WIDTH.toFloat(), RESOLUTION_HEIGHT.toFloat()))
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(0, this.gameSessionData.stage)
@@ -58,7 +52,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         hudTable.setSize(this.gameSessionData.stage.width, this.gameSessionData.stage.height)
         this.gameSessionData.stage.addActor(hudTable)
         this.gameSessionData.stage.isDebugAll = GameDebugSettings.DISPLAY_UI_BORDERS
-        addComponents(assetsManager, hudTable)
+        addComponents(services.assetsManager, hudTable)
     }
 
     override fun getSubscribedEvents(): Map<SystemEvents, HandlerOnEvent> {
@@ -68,10 +62,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                 override fun react(
                     msg: Telegram,
                     playerData: PlayerData,
-                    assetsManger: GameAssetManager,
-                    dispatcher: MessageDispatcher,
-                    engine: Engine,
-                    soundPlayer: SoundPlayer
+                    services: Services,
+                    mapData: Array<Array<TileData>>
                 ) {
                     displayPowerupIndicator(msg)
                     val type = msg.extraInfo as PowerupType
@@ -88,15 +80,13 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                 override fun react(
                     msg: Telegram,
                     playerData: PlayerData,
-                    assetsManger: GameAssetManager,
-                    dispatcher: MessageDispatcher,
-                    engine: Engine,
-                    soundPlayer: SoundPlayer
+                    services: Services,
+                    mapData: Array<Array<TileData>>
                 ) {
                     val newValue = msg.extraInfo as Int
                     if (newValue <= 0) {
                         shieldIndicatorTable?.remove()
-                        soundPlayer.playSoundByDefinition(SoundsDefinitions.SHIELD_DEPLETED)
+                        services.soundPlayer.playSoundByDefinition(SoundsDefinitions.SHIELD_DEPLETED)
                     } else {
                         shieldStatusLabel?.setText(newValue)
                     }
@@ -106,10 +96,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                 override fun react(
                     msg: Telegram,
                     playerData: PlayerData,
-                    assetsManger: GameAssetManager,
-                    dispatcher: MessageDispatcher,
-                    engine: Engine,
-                    soundPlayer: SoundPlayer
+                    services: Services,
+                    mapData: Array<Array<TileData>>
                 ) {
                     shieldButton.touchable = Touchable.disabled
                     xrayButton.touchable = Touchable.disabled
@@ -119,10 +107,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                 override fun react(
                     msg: Telegram,
                     playerData: PlayerData,
-                    assetsManger: GameAssetManager,
-                    dispatcher: MessageDispatcher,
-                    engine: Engine,
-                    soundPlayer: SoundPlayer
+                    services: Services,
+                    mapData: Array<Array<TileData>>
                 ) {
                     shieldButton.touchable = Touchable.enabled
                     xrayButton.touchable = Touchable.enabled
@@ -161,20 +147,20 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         textureDefinition: TexturesDefinitions
     ): ImageButton {
         val style = ImageButtonStyle(
-            TextureRegionDrawable(assetsManger.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_UP)),
-            TextureRegionDrawable(assetsManger.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DOWN)),
+            TextureRegionDrawable(services.assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_UP)),
+            TextureRegionDrawable(services.assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DOWN)),
             null,
-            TextureRegionDrawable(assetsManger.getAssetByDefinition(textureDefinition)),
+            TextureRegionDrawable(services.assetsManager.getAssetByDefinition(textureDefinition)),
             null,
             null
         )
         style.disabled =
-            TextureRegionDrawable(assetsManger.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DISABLED))
+            TextureRegionDrawable(services.assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DISABLED))
         val button = ImageButton(style)
         button.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 if (button.isDisabled) return
-                dispatcher.dispatchMessage(
+                services.dispatcher.dispatchMessage(
                     SystemEvents.POWERUP_BUTTON_CLICKED.ordinal,
                     type
                 )
@@ -212,12 +198,18 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         if (powerup == PowerupType.SHIELD) {
             shieldStatusLabel = Label(
                 gameSessionData.playerData.invulnerableStepsLeft.toString(), Label.LabelStyle(
-                    assetsManger.getAssetByDefinition(FontsDefinitions.SYMTEXT_100),
+                    services.assetsManager.getAssetByDefinition(FontsDefinitions.SYMTEXT_100),
                     Color.WHITE
                 )
             )
             shieldIndicatorTable = Table()
-            shieldIndicatorTable!!.add(Image(assetsManger.getAssetByDefinition(TexturesDefinitions.ICON_STATUS_SHIELD)))
+            shieldIndicatorTable!!.add(
+                Image(
+                    services.assetsManager.getAssetByDefinition(
+                        TexturesDefinitions.ICON_STATUS_SHIELD
+                    )
+                )
+            )
             shieldIndicatorTable!!.add(shieldStatusLabel)
             if (shieldIndicatorTableCell == null) {
                 shieldIndicatorTableCell = indicatorsTable.add(shieldIndicatorTable)

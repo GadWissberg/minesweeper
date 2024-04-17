@@ -1,24 +1,20 @@
 package com.gadarts.minesweeper.systems.player.react
 
-import com.badlogic.ashley.core.Engine
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
-import com.gadarts.minesweeper.SoundPlayer
-import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.data.PlayerData
+import com.gadarts.minesweeper.systems.data.TileData
 
 class PlayerSystemOnCurrentTileValueCalculated : HandlerOnEvent {
     override fun react(
         msg: Telegram,
         playerData: PlayerData,
-        assetsManger: GameAssetManager,
-        dispatcher: MessageDispatcher,
-        engine: Engine,
-        soundPlayer: SoundPlayer
+        services: Services,
+        mapData: Array<Array<TileData>>
     ) {
         val definition = sumToTextureDefinition[msg.extraInfo as Int]
         if (definition != null) {
@@ -26,7 +22,7 @@ class PlayerSystemOnCurrentTileValueCalculated : HandlerOnEvent {
             (ComponentsMappers.modelInstance.get(playerData.digit).modelInstance.materials.get(
                 0
             ).get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                assetsManger.getAssetByDefinition(definition)
+                services.assetsManager.getAssetByDefinition(definition)
         } else {
             ComponentsMappers.modelInstance.get(playerData.digit).visible = false
         }

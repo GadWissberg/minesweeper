@@ -2,7 +2,6 @@ package com.gadarts.minesweeper.systems
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
-import com.badlogic.gdx.ai.msg.MessageDispatcher
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
@@ -13,8 +12,7 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.minesweeper.GameDebugSettings
 import com.gadarts.minesweeper.MineSweeper
-import com.gadarts.minesweeper.SoundPlayer
-import com.gadarts.minesweeper.assets.GameAssetManager
+import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.data.GameSessionData
 import kotlin.math.absoluteValue
@@ -37,13 +35,8 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         )
     }
 
-    override fun initialize(
-        gameSessionData: GameSessionData,
-        assetsManager: GameAssetManager,
-        soundPlayer: SoundPlayer,
-        dispatcher: MessageDispatcher
-    ) {
-        super.initialize(gameSessionData, assetsManager, soundPlayer, dispatcher)
+    override fun initialize(gameSessionData: GameSessionData, services: Services) {
+        super.initialize(gameSessionData, services)
         val cam = PerspectiveCamera(
             67F,
             MineSweeper.PORTRAIT_RESOLUTION_WIDTH.toFloat(),
@@ -58,9 +51,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
             cameraInputController = CameraInputController(cam)
             Gdx.input.inputProcessor = cameraInputController
         }
-
     }
-
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         if (!shakeCameraOffset.isZero && nextShake < TimeUtils.millis()) {
