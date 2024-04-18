@@ -1,5 +1,6 @@
 package com.gadarts.minesweeper.systems.player.react
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.gadarts.minesweeper.EntityBuilder
@@ -9,14 +10,13 @@ import com.gadarts.minesweeper.components.player.PowerupType
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
-import com.gadarts.minesweeper.systems.data.TileData
 
 class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
     override fun react(
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        mapData: Array<Array<TileData>>
+        tiles: Array<Array<Entity?>>
     ) {
         val powerupType = msg.extraInfo as PowerupType
         if (powerupType == PowerupType.SHIELD) {

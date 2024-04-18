@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.components.ComponentsMappers
+import com.gadarts.minesweeper.components.PhysicsComponent
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.GameSessionData
@@ -22,8 +23,12 @@ class PhysicsSystem : GameEntitySystem() {
         bulletEngineHandler.initialize(engine)
         contactListener = GameContactListener(services.dispatcher)
     }
+
     override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.MINE_TRIGGERED, SystemEvents.PLAYER_BLOWN)
+        return listOf(
+            SystemEvents.PLAYER_BLOWN,
+            SystemEvents.PLAYER_IS_ABOUT_TO_BE_REMOVED
+        )
     }
 
     override fun dispose() {
@@ -65,6 +70,18 @@ class PhysicsSystem : GameEntitySystem() {
             )
             physicsComponent.rigidBody.userData = gameSessionData.playerData.player
             return true
+        } else if (msg.message == SystemEvents.PLAYER_IS_ABOUT_TO_BE_REMOVED.ordinal) {
+            val player = gameSessionData.playerData.player
+            if (ComponentsMappers.physics.has(player)) {
+                val physicsComponent = ComponentsMappers.physics.get(
+                    gameSessionData.playerData.player
+                )
+                gameSessionData.physicsData.collisionWorld.removeRigidBody(
+                    physicsComponent.rigidBody
+                )
+                physicsComponent.dispose()
+                gameSessionData.playerData.player?.remove(PhysicsComponent::class.java)
+            }
         }
         return false
     }

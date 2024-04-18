@@ -1,5 +1,6 @@
 package com.gadarts.minesweeper.systems.hud
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ai.msg.Telegram
@@ -29,7 +30,6 @@ import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.data.GameSessionData
-import com.gadarts.minesweeper.systems.data.TileData
 import com.gadarts.minesweeper.systems.hud.react.HudSystemOnPlayerPickedUpBonus
 
 
@@ -63,7 +63,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     msg: Telegram,
                     playerData: PlayerData,
                     services: Services,
-                    mapData: Array<Array<TileData>>
+                    tiles: Array<Array<Entity?>>
                 ) {
                     displayPowerupIndicator(msg)
                     val type = msg.extraInfo as PowerupType
@@ -81,7 +81,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     msg: Telegram,
                     playerData: PlayerData,
                     services: Services,
-                    mapData: Array<Array<TileData>>
+                    tiles: Array<Array<Entity?>>
                 ) {
                     val newValue = msg.extraInfo as Int
                     if (newValue <= 0) {
@@ -97,7 +97,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     msg: Telegram,
                     playerData: PlayerData,
                     services: Services,
-                    mapData: Array<Array<TileData>>
+                    tiles: Array<Array<Entity?>>
                 ) {
                     shieldButton.touchable = Touchable.disabled
                     xrayButton.touchable = Touchable.disabled
@@ -108,7 +108,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     msg: Telegram,
                     playerData: PlayerData,
                     services: Services,
-                    mapData: Array<Array<TileData>>
+                    tiles: Array<Array<Entity?>>
                 ) {
                     shieldButton.touchable = Touchable.enabled
                     xrayButton.touchable = Touchable.enabled

@@ -20,6 +20,7 @@ import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.FollowerParticleEffectComponent
 import com.gadarts.minesweeper.components.IndependentParticleEffectComponent
 import com.gadarts.minesweeper.systems.data.GameSessionData
+import com.gadarts.minesweeper.systems.map.MutableCellPosition
 
 
 class ParticleEffectsSystem : GameEntitySystem() {
@@ -63,7 +64,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
         if (msg == null) return false
 
         if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
-            reactToMineTriggered()
+            reactToMineTriggered(msg.extraInfo as MutableCellPosition)
             return true
         }
 
@@ -141,24 +142,29 @@ class ParticleEffectsSystem : GameEntitySystem() {
         gameSessionData.particleSystem.end()
     }
 
-    private fun reactToMineTriggered() {
+    private fun reactToMineTriggered(mutableCellPosition: MutableCellPosition) {
         services.soundPlayer.playSoundByDefinition(SoundsDefinitions.EXPLOSION)
         EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
             services.assetsManager.getAssetByDefinition(
                 ParticleEffectsDefinitions.EXPLOSION
             ),
-            ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
-                auxVector1
-            ).add(0F, 0.1F, 0F)
+            auxVector1.set(mutableCellPosition.col + 0.5F, 0.1F, mutableCellPosition.row + 0.5F)
         ).finishAndAddToEngine()
-        val smokeParticleEffect = services.assetsManager.getAssetByDefinition(
-            ParticleEffectsDefinitions.SMOKE
-        )
-        val followerParticleEffectComponent =
-            EntityBuilder.createFollowerParticleEffectComponent(
-                smokeParticleEffect, engine as PooledEngine
+        applySmokeToPlayer()
+    }
+
+    private fun applySmokeToPlayer() {
+        if (gameSessionData.playerData.player != null && ComponentsMappers.physics.has(
+                gameSessionData.playerData.player
             )
-        if (gameSessionData.playerData.player != null) {
+        ) {
+            val smokeParticleEffect = services.assetsManager.getAssetByDefinition(
+                ParticleEffectsDefinitions.SMOKE
+            )
+            val followerParticleEffectComponent =
+                EntityBuilder.createFollowerParticleEffectComponent(
+                    smokeParticleEffect, engine as PooledEngine
+                )
             gameSessionData.playerData.player!!.add(
                 followerParticleEffectComponent
             )

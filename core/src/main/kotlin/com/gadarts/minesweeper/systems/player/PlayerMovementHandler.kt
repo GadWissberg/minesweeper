@@ -71,7 +71,7 @@ class PlayerMovementHandler(private val digit: Entity) {
                 jumpProgress += min(deltaTime * 4F, 0.1F)
                 transform.setTranslation(currentPosition)
                 if (transform.getTranslation(auxVector3_1)
-                        .epsilonEquals(desiredLocation, 0.01F)
+                        .epsilonEquals(desiredLocation, 0.01F) && jumpProgress != 0F
                 ) {
                     desiredLocation.setZero()
                     jumpProgress = 0F

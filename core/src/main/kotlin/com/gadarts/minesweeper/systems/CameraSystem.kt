@@ -29,7 +29,6 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     override fun getEventsListenList(): List<SystemEvents> {
         return listOf(
             SystemEvents.PLAYER_INITIATED_MOVE,
-            SystemEvents.MINE_TRIGGERED,
             SystemEvents.PLAYER_BEGIN,
             SystemEvents.PLAYER_BLOWN,
         )

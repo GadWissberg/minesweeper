@@ -28,14 +28,14 @@ import kotlin.math.min
 class MapSystemImpl : GameEntitySystem(), MapSystem {
 
     private lateinit var tileModel: Model
-    private var tiles: Array<Array<Entity?>> = Array(TEMP_GROUND_SIZE) {
-        arrayOfNulls<Entity?>(TEMP_GROUND_SIZE)
-    }
     private lateinit var lineGrid: Model
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         tileModel = GameUtils.createTileModel(ModelBuilder(), services.assetsManager)
+        val tiles = Array(TEMP_GROUND_SIZE) {
+            arrayOfNulls<Entity?>(TEMP_GROUND_SIZE)
+        }
         for (row in GameSessionData.testMapValues.indices) {
             for (col in GameSessionData.testMapValues[row].indices) {
                 val tileModelInstance = ModelInstance(tileModel)
@@ -62,23 +62,22 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
                 }
             }
         }
+        gameSessionData.tiles = tiles
     }
 
-    override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(
-            SystemEvents.PLAYER_LANDED,
-            SystemEvents.PLAYER_BEGIN,
-            SystemEvents.PLAYER_BLOWN
-        )
-    }
+    override fun revealTile(destRow: Int, destCol: Int) {
+        if (destRow < 0 || destRow >= gameSessionData.tiles.size || destCol < 0 || destCol >= gameSessionData.tiles[0].size) return
 
-    override fun revealTile(currentRow: Int, currentCol: Int) {
-        (ComponentsMappers.modelInstance.get(tiles[currentRow][currentCol]).modelInstance.materials[0].get(
+        val sum = sumMinesAround(destRow, destCol)
+        (ComponentsMappers.modelInstance.get(gameSessionData.tiles[destRow][destCol]).modelInstance.materials[0].get(
             TextureAttribute.Diffuse
         ) as TextureAttribute).textureDescription.texture =
-            services.assetsManager.getAssetByDefinition(
-                sumToTextureDefinition[sumMinesAround(currentRow, currentCol)]
-            )
+            services.assetsManager.getAssetByDefinition(sumToTextureDefinition[sum])
+        ComponentsMappers.tile.get(gameSessionData.tiles[destRow][destCol]).revealed = true
+        services.dispatcher.dispatchMessage(
+            SystemEvents.TILE_REVEALED.ordinal,
+            tileCalculatedResult.set(destRow, destCol, sum)
+        )
     }
 
 
@@ -95,20 +94,21 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
             SystemEvents.PLAYER_LANDED to MapSystemOnPlayerLanded(this),
             SystemEvents.PLAYER_BEGIN to MapSystemOnPlayerBegin(this),
             SystemEvents.PLAYER_BLOWN to MapSystemOnPlayerBlown(),
-            SystemEvents.POWERUP_ACTIVATED to MapSystemOnPowerupActivated(),
+            SystemEvents.POWERUP_ACTIVATED to MapSystemOnPowerupActivated(this),
         )
     }
 
-    override fun sumMinesAround(currentRow: Int, currentCol: Int): Int {
+    override fun sumMinesAround(destRow: Int, destCol: Int): Int {
+        if (destRow < 0 || destRow >= gameSessionData.tiles.size || destCol < 0 || destCol >= gameSessionData.tiles[0].size) return 0
+
         var sum = 0
-        for (row in max(currentRow - 1, 0)..min(currentRow + 1, tiles.size - 1)) {
-            for (col in max(currentCol - 1, 0)..min(currentCol + 1, tiles[0].size - 1)) {
-                if (GameSessionData.testMapValues[row][col] == 1 && (row != currentRow || col != currentCol)) {
+        for (row in max(destRow - 1, 0)..min(destRow + 1, gameSessionData.tiles.size - 1)) {
+            for (col in max(destCol - 1, 0)..min(destCol + 1, gameSessionData.tiles[0].size - 1)) {
+                if (GameSessionData.testMapValues[row][col] == 1 && (row != destRow || col != destCol)) {
                     sum += 1
                 }
             }
         }
-        services.dispatcher.dispatchMessage(SystemEvents.CURRENT_TILE_VALUE_CALCULATED.ordinal, sum)
         return sum
     }
 
@@ -125,6 +125,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
             TexturesDefinitions.TILE_7,
             TexturesDefinitions.TILE_8,
         )
+        private val tileCalculatedResult = TileCalculatedResult()
     }
 
 }

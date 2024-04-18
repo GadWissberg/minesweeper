@@ -45,7 +45,7 @@ class BonusSystem : GameEntitySystem() {
                         )
                         .addCrateComponent()
                         .finishAndAddToEngine()
-                    gameSessionData.mapData[row][col].crate = entity
+                    ComponentsMappers.tile.get(gameSessionData.tiles[row][col]).crate = entity
                     return
                 }
             }
@@ -65,9 +65,11 @@ class BonusSystem : GameEntitySystem() {
                 )
             val row = position.z.toInt()
             val col = position.x.toInt()
-            if (GameSessionData.testMapValues[row][col] == 5 && gameSessionData.mapData[row][col].crate != null) {
+            val tileComponent = ComponentsMappers.tile.get(gameSessionData.tiles[row][col])
+            if (GameSessionData.testMapValues[row][col] == 5 && tileComponent.crate != null
+            ) {
                 GameSessionData.testMapValues[row][col] = 0
-                engine.removeEntity(gameSessionData.mapData[row][col].crate)
+                engine.removeEntity(tileComponent.crate)
                 EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
                     services.assetsManager.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),
                     position

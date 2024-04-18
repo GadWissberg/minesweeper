@@ -18,4 +18,6 @@ object ComponentsMappers {
         ComponentMapper.getFor(PlayerComponent::class.java)
     val ground: ComponentMapper<GroundComponent> =
         ComponentMapper.getFor(GroundComponent::class.java)
+    val tile: ComponentMapper<TileComponent> =
+        ComponentMapper.getFor(TileComponent::class.java)
 }

@@ -1,5 +1,6 @@
 package com.gadarts.minesweeper.systems.data
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -7,11 +8,7 @@ import com.badlogic.gdx.utils.Disposable
 
 class GameSessionData : Disposable {
 
-    var mapData: Array<Array<TileData>> = Array(testMapValues.size) { row ->
-        Array(testMapValues[0].size) { col ->
-            TileData(row, col)
-        }
-    }
+    lateinit var tiles: Array<Array<Entity?>>
     val physicsData = PhysicsData()
     val playerData = PlayerData()
     lateinit var camera: PerspectiveCamera

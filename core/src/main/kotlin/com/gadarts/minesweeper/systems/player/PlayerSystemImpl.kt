@@ -32,7 +32,6 @@ import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.GameSessionData
 import com.gadarts.minesweeper.systems.data.PlayerData
-import com.gadarts.minesweeper.systems.data.TileData
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnCurrentTileValueCalculated
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnMapReset
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnMineTriggered
@@ -86,12 +85,12 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
                     msg: Telegram,
                     playerData: PlayerData,
                     services: Services,
-                    mapData: Array<Array<TileData>>
+                    tiles: Array<Array<Entity?>>
                 ) {
                     services.soundPlayer.playSoundByDefinition(SoundsDefinitions.TAP)
                 }
             },
-            SystemEvents.CURRENT_TILE_VALUE_CALCULATED to PlayerSystemOnCurrentTileValueCalculated(),
+            SystemEvents.TILE_REVEALED to PlayerSystemOnCurrentTileValueCalculated(),
             SystemEvents.POWERUP_BUTTON_CLICKED to PlayerSystemOnPowerupButtonClicked(),
             SystemEvents.MINE_TRIGGERED to PlayerSystemOnMineTriggered(),
             SystemEvents.PLAYER_PICKED_UP_BONUS to PlayerSystemOnPlayerPickedUpBonus(),

@@ -22,9 +22,9 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
             msg,
             gameSessionData.playerData,
             services,
-            gameSessionData.mapData
+            gameSessionData.tiles
         )
-        return handlerOnEvent != null
+        return false
     }
 
     open fun addListener(listener: GameEntitySystem) {

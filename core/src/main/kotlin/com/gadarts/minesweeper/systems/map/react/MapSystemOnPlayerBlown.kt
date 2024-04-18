@@ -1,5 +1,6 @@
 package com.gadarts.minesweeper.systems.map.react
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
@@ -11,7 +12,6 @@ import com.gadarts.minesweeper.components.TileComponent
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
-import com.gadarts.minesweeper.systems.data.TileData
 
 class MapSystemOnPlayerBlown :
     HandlerOnEvent {
@@ -19,7 +19,7 @@ class MapSystemOnPlayerBlown :
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        mapData: Array<Array<TileData>>
+        tiles: Array<Array<Entity?>>
     ) {
         Timer.schedule(object : Timer.Task() {
             override fun run() {

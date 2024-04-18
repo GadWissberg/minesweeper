@@ -10,4 +10,11 @@ class MutableCellPosition {
         return this
     }
 
+    fun equalsToCell(cell: MutableCellPosition): Boolean {
+        return equalsToCell(cell.row, cell.col)
+    }
+
+    fun equalsToCell(row: Int, col: Int): Boolean {
+        return this.col == col && this.row == row
+    }
 }
