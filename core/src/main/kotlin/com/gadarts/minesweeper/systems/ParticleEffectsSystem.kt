@@ -20,7 +20,9 @@ import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.FollowerParticleEffectComponent
 import com.gadarts.minesweeper.components.IndependentParticleEffectComponent
 import com.gadarts.minesweeper.systems.data.GameSessionData
-import com.gadarts.minesweeper.systems.map.MutableCellPosition
+import com.gadarts.minesweeper.systems.map.MutableTilePosition
+import com.gadarts.minesweeper.systems.map.TileCalculatedResult
+import com.gadarts.minesweeper.systems.player.PlayerUtils
 
 
 class ParticleEffectsSystem : GameEntitySystem() {
@@ -44,7 +46,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.MINE_TRIGGERED, SystemEvents.PLAYER_BLOWN)
+        return listOf(SystemEvents.MINE_TRIGGERED, SystemEvents.TILE_REVEALED)
     }
 
     override fun onSystemReady() {
@@ -64,8 +66,25 @@ class ParticleEffectsSystem : GameEntitySystem() {
         if (msg == null) return false
 
         if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
-            reactToMineTriggered(msg.extraInfo as MutableCellPosition)
+            reactToMineTriggered(msg.extraInfo as MutableTilePosition)
             return true
+        } else if (msg.message == SystemEvents.TILE_REVEALED.ordinal) {
+            val calculatedResult = msg.extraInfo as TileCalculatedResult
+            if (!PlayerUtils.getPlayerTilePosition(
+                    gameSessionData.playerData,
+                    auxMutableTilePosition1
+                ).equalsToCell(
+                    auxMutableTilePosition2.set(
+                        calculatedResult.row,
+                        calculatedResult.col
+                    )
+                )
+            ) {
+                addParticleEffect(
+                    ParticleEffectsDefinitions.CRATE_PARTICLES,
+                    auxVector1.set(calculatedResult.col + 0.5F, 0F, calculatedResult.row + 0.5F)
+                )
+            }
         }
 
         return false
@@ -142,15 +161,25 @@ class ParticleEffectsSystem : GameEntitySystem() {
         gameSessionData.particleSystem.end()
     }
 
-    private fun reactToMineTriggered(mutableCellPosition: MutableCellPosition) {
+    private fun reactToMineTriggered(mutableTilePosition: MutableTilePosition) {
         services.soundPlayer.playSoundByDefinition(SoundsDefinitions.EXPLOSION)
+        addParticleEffect(
+            ParticleEffectsDefinitions.EXPLOSION,
+            auxVector1.set(mutableTilePosition.col + 0.5F, 0.1F, mutableTilePosition.row + 0.5F)
+        )
+        applySmokeToPlayer()
+    }
+
+    private fun addParticleEffect(
+        particleEffectDefinition: ParticleEffectsDefinitions,
+        position: Vector3
+    ) {
         EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
             services.assetsManager.getAssetByDefinition(
-                ParticleEffectsDefinitions.EXPLOSION
+                particleEffectDefinition
             ),
-            auxVector1.set(mutableCellPosition.col + 0.5F, 0.1F, mutableCellPosition.row + 0.5F)
+            position
         ).finishAndAddToEngine()
-        applySmokeToPlayer()
     }
 
     private fun applySmokeToPlayer() {
@@ -179,5 +208,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     companion object {
         val auxMatrix: Matrix4 = Matrix4()
         val auxVector1 = Vector3()
+        private val auxMutableTilePosition1 = MutableTilePosition()
+        private val auxMutableTilePosition2 = MutableTilePosition()
     }
 }

@@ -160,6 +160,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         button.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 if (button.isDisabled) return
+                services.soundPlayer.playSoundByDefinition(SoundsDefinitions.BIP)
                 services.dispatcher.dispatchMessage(
                     SystemEvents.POWERUP_BUTTON_CLICKED.ordinal,
                     type

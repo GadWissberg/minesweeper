@@ -8,7 +8,7 @@ import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.data.PlayerData
-import com.gadarts.minesweeper.systems.map.MutableCellPosition
+import com.gadarts.minesweeper.systems.map.MutableTilePosition
 import com.gadarts.minesweeper.systems.map.TileCalculatedResult
 import com.gadarts.minesweeper.systems.player.PlayerUtils
 
@@ -20,7 +20,7 @@ class PlayerSystemOnCurrentTileValueCalculated : HandlerOnEvent {
         tiles: Array<Array<Entity?>>
     ) {
         val tileCalculatedResult = msg.extraInfo as TileCalculatedResult
-        if (!PlayerUtils.getPlayerCellPosition(playerData, auxCell)
+        if (!PlayerUtils.getPlayerTilePosition(playerData, auxCell)
                 .equalsToCell(tileCalculatedResult.row, tileCalculatedResult.col)
         ) return
 
@@ -47,6 +47,6 @@ class PlayerSystemOnCurrentTileValueCalculated : HandlerOnEvent {
             TexturesDefinitions.DIGIT_6,
             TexturesDefinitions.DIGIT_7,
         )
-        private val auxCell = MutableCellPosition()
+        private val auxCell = MutableTilePosition()
     }
 }

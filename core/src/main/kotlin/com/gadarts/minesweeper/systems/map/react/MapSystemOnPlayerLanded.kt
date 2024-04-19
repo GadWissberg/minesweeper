@@ -11,7 +11,7 @@ import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.GameSessionData
 import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.map.MapSystem
-import com.gadarts.minesweeper.systems.map.MutableCellPosition
+import com.gadarts.minesweeper.systems.map.MutableTilePosition
 
 class MapSystemOnPlayerLanded(private val mapSystem: MapSystem) :
     HandlerOnEvent {
@@ -43,6 +43,6 @@ class MapSystemOnPlayerLanded(private val mapSystem: MapSystem) :
 
     companion object {
         private val auxVector = Vector3()
-        private val auxCellPosition = MutableCellPosition()
+        private val auxCellPosition = MutableTilePosition()
     }
 }

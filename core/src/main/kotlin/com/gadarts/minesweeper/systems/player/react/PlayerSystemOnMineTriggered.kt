@@ -6,7 +6,7 @@ import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
-import com.gadarts.minesweeper.systems.map.MutableCellPosition
+import com.gadarts.minesweeper.systems.map.MutableTilePosition
 import com.gadarts.minesweeper.systems.player.PlayerUtils
 
 class PlayerSystemOnMineTriggered : HandlerOnEvent {
@@ -16,8 +16,8 @@ class PlayerSystemOnMineTriggered : HandlerOnEvent {
         services: Services,
         tiles: Array<Array<Entity?>>
     ) {
-        val mineCell = msg.extraInfo as MutableCellPosition
-        if (playerData.invulnerableStepsLeft <= 0 && PlayerUtils.getPlayerCellPosition(
+        val mineCell = msg.extraInfo as MutableTilePosition
+        if (playerData.invulnerableStepsLeft <= 0 && PlayerUtils.getPlayerTilePosition(
                 playerData,
                 auxCellPosition
             ).equalsToCell(mineCell)
@@ -28,6 +28,6 @@ class PlayerSystemOnMineTriggered : HandlerOnEvent {
     }
 
     companion object {
-        val auxCellPosition = MutableCellPosition()
+        val auxCellPosition = MutableTilePosition()
     }
 }

@@ -13,7 +13,9 @@ enum class SoundsDefinitions(fileNames: Int = 1, val randomPitch: Boolean = true
     WIN,
     SHIELD_ACTIVATED,
     SHIELD_DEPLETED,
-    BONUS;
+    BONUS,
+    TILE_REVEALED,
+    BIP;
 
     private val paths = ArrayList<String>()
     private val pathFormat = "sounds/%s.wav"

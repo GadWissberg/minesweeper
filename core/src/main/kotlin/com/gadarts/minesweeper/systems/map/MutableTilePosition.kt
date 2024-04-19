@@ -1,16 +1,16 @@
 package com.gadarts.minesweeper.systems.map
 
-class MutableCellPosition {
+class MutableTilePosition {
     var col: Int = 0
     var row: Int = 0
 
-    fun set(row: Int, col: Int): MutableCellPosition {
+    fun set(row: Int, col: Int): MutableTilePosition {
         this.row = row
         this.col = col
         return this
     }
 
-    fun equalsToCell(cell: MutableCellPosition): Boolean {
+    fun equalsToCell(cell: MutableTilePosition): Boolean {
         return equalsToCell(cell.row, cell.col)
     }
 

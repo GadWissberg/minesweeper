@@ -7,7 +7,7 @@ import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.map.MapSystem
-import com.gadarts.minesweeper.systems.map.MutableCellPosition
+import com.gadarts.minesweeper.systems.map.MutableTilePosition
 import com.gadarts.minesweeper.systems.player.PlayerUtils
 
 class MapSystemOnPlayerBegin(private val mapSystem: MapSystem) :
@@ -18,7 +18,7 @@ class MapSystemOnPlayerBegin(private val mapSystem: MapSystem) :
         services: Services,
         tiles: Array<Array<Entity?>>
     ) {
-        PlayerUtils.getPlayerCellPosition(playerData, auxCell)
+        PlayerUtils.getPlayerTilePosition(playerData, auxCell)
         mapSystem.sumMinesAround(
             auxCell.row,
             auxCell.col
@@ -33,6 +33,6 @@ class MapSystemOnPlayerBegin(private val mapSystem: MapSystem) :
     }
 
     companion object {
-        private val auxCell = MutableCellPosition()
+        private val auxCell = MutableTilePosition()
     }
 }
