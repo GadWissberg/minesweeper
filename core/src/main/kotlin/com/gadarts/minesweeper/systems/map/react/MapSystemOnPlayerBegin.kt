@@ -16,7 +16,8 @@ class MapSystemOnPlayerBegin(private val mapSystem: MapSystem) :
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        tiles: Array<Array<Entity?>>
+        tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>
     ) {
         PlayerUtils.getPlayerTilePosition(playerData, auxCell)
         mapSystem.sumMinesAround(

@@ -13,7 +13,8 @@ class HudSystemOnPlayerPickedUpBonus(private val hudSystem: HudSystem) : Handler
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        tiles: Array<Array<Entity?>>
+        tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>
     ) {
         hudSystem.setPowerUpButtonState(false, msg.extraInfo as PowerupType)
     }

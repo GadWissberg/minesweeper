@@ -63,7 +63,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     msg: Telegram,
                     playerData: PlayerData,
                     services: Services,
-                    tiles: Array<Array<Entity?>>
+                    tiles: Array<Array<Entity?>>,
+                    testMapValues: Array<Array<Int>>
                 ) {
                     displayPowerupIndicator(msg)
                     val type = msg.extraInfo as PowerupType
@@ -81,7 +82,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     msg: Telegram,
                     playerData: PlayerData,
                     services: Services,
-                    tiles: Array<Array<Entity?>>
+                    tiles: Array<Array<Entity?>>,
+                    testMapValues: Array<Array<Int>>
                 ) {
                     val newValue = msg.extraInfo as Int
                     if (newValue <= 0) {
@@ -97,7 +99,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     msg: Telegram,
                     playerData: PlayerData,
                     services: Services,
-                    tiles: Array<Array<Entity?>>
+                    tiles: Array<Array<Entity?>>,
+                    testMapValues: Array<Array<Int>>
                 ) {
                     shieldButton.touchable = Touchable.disabled
                     xrayButton.touchable = Touchable.disabled
@@ -108,7 +111,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                     msg: Telegram,
                     playerData: PlayerData,
                     services: Services,
-                    tiles: Array<Array<Entity?>>
+                    tiles: Array<Array<Entity?>>,
+                    testMapValues: Array<Array<Int>>
                 ) {
                     shieldButton.touchable = Touchable.enabled
                     xrayButton.touchable = Touchable.enabled

@@ -11,6 +11,7 @@ interface HandlerOnEvent {
         playerData: PlayerData,
         services: Services,
         tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>,
     )
 
 }

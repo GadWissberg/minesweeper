@@ -15,7 +15,8 @@ class PlayerSystemOnMapReset(private val playerSystem: PlayerSystem) : HandlerOn
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        tiles: Array<Array<Entity?>>
+        tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>
     ) {
         ComponentsMappers.modelInstance.get(playerData.digit).visible = false
         services.dispatcher.dispatchMessage(SystemEvents.PLAYER_IS_ABOUT_TO_BE_REMOVED.ordinal)
@@ -23,7 +24,7 @@ class PlayerSystemOnMapReset(private val playerSystem: PlayerSystem) : HandlerOn
         playerData.player = null
         Gdx.app.postRunnable {
             playerSystem.addPlayer(true)
-            services.dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
+            playerSystem.playerBegin()
         }
     }
 }

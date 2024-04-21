@@ -22,7 +22,8 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
             msg,
             gameSessionData.playerData,
             services,
-            gameSessionData.tiles
+            gameSessionData.tiles,
+            gameSessionData.testMapValues
         )
         return false
     }

@@ -16,7 +16,8 @@ class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        tiles: Array<Array<Entity?>>
+        tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>
     ) {
         val powerupType = msg.extraInfo as PowerupType
         if (powerupType == PowerupType.SHIELD) {

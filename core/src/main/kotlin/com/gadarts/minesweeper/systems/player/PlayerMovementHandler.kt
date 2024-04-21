@@ -13,7 +13,10 @@ import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.data.GameSessionData
 import kotlin.math.min
 
-class PlayerMovementHandler(private val digit: Entity) {
+class PlayerMovementHandler(
+    private val digit: Entity,
+    private val testMapValues: Array<Array<Int>>
+) {
 
     private var jumpProgress: Float = 0.0f
     private var desiredLocation: Vector3 = Vector3()
@@ -68,7 +71,7 @@ class PlayerMovementHandler(private val digit: Entity) {
                 )
                 val currentPosition = transform.getTranslation(auxVector3_1)
                 updateJumpHeight(currentPosition)
-                jumpProgress += min(deltaTime * 4F, 0.1F)
+                jumpProgress += min(deltaTime * 4F, 0.05F)
                 transform.setTranslation(currentPosition)
                 if (transform.getTranslation(auxVector3_1)
                         .epsilonEquals(desiredLocation, 0.01F) && jumpProgress != 0F
@@ -187,7 +190,7 @@ class PlayerMovementHandler(private val digit: Entity) {
             && desiredLocation.z >= 0
             && desiredLocation.z < GameSessionData.TEMP_GROUND_SIZE
         ) {
-            if (GameSessionData.testMapValues[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
+            if (testMapValues[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
                 desiredLocation.setZero()
             } else {
                 dispatcher.dispatchMessage(SystemEvents.PLAYER_INITIATED_MOVE.ordinal)

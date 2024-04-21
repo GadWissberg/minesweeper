@@ -31,9 +31,9 @@ class BonusSystem : GameEntitySystem() {
     }
 
     private fun addCrates(assetsManager: GameAssetManager) {
-        for (row in GameSessionData.testMapValues.indices) {
-            for (col in GameSessionData.testMapValues[0].indices) {
-                if (GameSessionData.testMapValues[row][col] == 5) {
+        for (row in gameSessionData.testMapValues.indices) {
+            for (col in gameSessionData.testMapValues[0].indices) {
+                if (gameSessionData.testMapValues[row][col] == 5) {
                     val modelInstance = ModelInstance(
                         assetsManager.getAssetByDefinition(ModelsDefinitions.CRATE)
                     )
@@ -66,9 +66,9 @@ class BonusSystem : GameEntitySystem() {
             val row = position.z.toInt()
             val col = position.x.toInt()
             val tileComponent = ComponentsMappers.tile.get(gameSessionData.tiles[row][col])
-            if (GameSessionData.testMapValues[row][col] == 5 && tileComponent.crate != null
+            if (gameSessionData.testMapValues[row][col] == 5 && tileComponent.crate != null
             ) {
-                GameSessionData.testMapValues[row][col] = 0
+                gameSessionData.testMapValues[row][col] = 0
                 engine.removeEntity(tileComponent.crate)
                 EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
                     services.assetsManager.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),

@@ -17,7 +17,8 @@ class PlayerSystemOnCurrentTileValueCalculated : HandlerOnEvent {
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        tiles: Array<Array<Entity?>>
+        tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>
     ) {
         val tileCalculatedResult = msg.extraInfo as TileCalculatedResult
         if (!PlayerUtils.getPlayerTilePosition(playerData, auxCell)

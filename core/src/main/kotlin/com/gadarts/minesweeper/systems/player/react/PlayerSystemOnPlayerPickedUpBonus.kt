@@ -12,7 +12,8 @@ class PlayerSystemOnPlayerPickedUpBonus : HandlerOnEvent {
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        tiles: Array<Array<Entity?>>
+        tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>
     ) {
         val bonus = msg.extraInfo as PowerupType
         playerData.powerups[bonus] = (playerData.powerups[bonus] ?: 0).plus(1)

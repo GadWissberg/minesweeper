@@ -11,7 +11,8 @@ class PlayerSystemOnShieldConsume : HandlerOnEvent {
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        tiles: Array<Array<Entity?>>
+        tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>
     ) {
         if (playerData.invulnerableStepsLeft <= 0) {
             services.engine.removeEntity(playerData.invulnerableDisplay)

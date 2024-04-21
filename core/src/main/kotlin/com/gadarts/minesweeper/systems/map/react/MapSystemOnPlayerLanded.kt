@@ -8,7 +8,6 @@ import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
-import com.gadarts.minesweeper.systems.data.GameSessionData
 import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.map.MapSystem
 import com.gadarts.minesweeper.systems.map.MutableTilePosition
@@ -19,7 +18,8 @@ class MapSystemOnPlayerLanded(private val mapSystem: MapSystem) :
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        tiles: Array<Array<Entity?>>
+        tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>
     ) {
         val position =
             ComponentsMappers.modelInstance.get(playerData.player).modelInstance.transform.getTranslation(
@@ -27,7 +27,7 @@ class MapSystemOnPlayerLanded(private val mapSystem: MapSystem) :
             )
         val currentRow = position.z.toInt()
         val currentCol = position.x.toInt()
-        val currentValue = GameSessionData.testMapValues[currentRow][currentCol]
+        val currentValue = testMapValues[currentRow][currentCol]
         if (currentValue == 1 || currentValue == 3) {
             if (currentValue == 3) {
                 services.soundPlayer.playSoundByDefinition(SoundsDefinitions.WIN)
@@ -36,6 +36,7 @@ class MapSystemOnPlayerLanded(private val mapSystem: MapSystem) :
                 SystemEvents.MINE_TRIGGERED.ordinal,
                 auxCellPosition.set(currentRow, currentCol)
             )
+            testMapValues[currentRow][currentCol] = 0
         } else {
             mapSystem.revealTile(currentRow, currentCol)
         }

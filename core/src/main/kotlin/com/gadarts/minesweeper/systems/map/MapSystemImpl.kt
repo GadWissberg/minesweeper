@@ -36,8 +36,8 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
         val tiles = Array(TEMP_GROUND_SIZE) {
             arrayOfNulls<Entity?>(TEMP_GROUND_SIZE)
         }
-        for (row in GameSessionData.testMapValues.indices) {
-            for (col in GameSessionData.testMapValues[row].indices) {
+        for (row in gameSessionData.testMapValues.indices) {
+            for (col in gameSessionData.testMapValues[row].indices) {
                 val tileModelInstance = ModelInstance(tileModel)
                 val tileEntity = EntityBuilder.beginBuildingEntity(engine)
                     .addModelInstanceComponent(
@@ -47,11 +47,11 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
                     .addTileComponent()
                     .finishAndAddToEngine()
                 tiles[row][col] = tileEntity
-                if (GameSessionData.testMapValues[row][col] == 3) {
+                if (gameSessionData.testMapValues[row][col] == 3) {
                     (tileModelInstance.materials.get(0)
                         .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
                         services.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_DESTINATION)
-                } else if (GameSessionData.testMapValues[row][col] == 4) {
+                } else if (gameSessionData.testMapValues[row][col] == 4) {
                     val modelInstance = ModelInstance(
                         services.assetsManager.getAssetByDefinition(ModelsDefinitions.ROCK)
                     )
@@ -104,7 +104,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
         var sum = 0
         for (row in max(destRow - 1, 0)..min(destRow + 1, gameSessionData.tiles.size - 1)) {
             for (col in max(destCol - 1, 0)..min(destCol + 1, gameSessionData.tiles[0].size - 1)) {
-                if (GameSessionData.testMapValues[row][col] == 1 && (row != destRow || col != destCol)) {
+                if (gameSessionData.testMapValues[row][col] == 1 && (row != destRow || col != destCol)) {
                     sum += 1
                 }
             }

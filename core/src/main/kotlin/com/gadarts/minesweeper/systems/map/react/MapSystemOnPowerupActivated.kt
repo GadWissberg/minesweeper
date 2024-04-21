@@ -8,7 +8,6 @@ import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
-import com.gadarts.minesweeper.systems.data.GameSessionData
 import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.map.MapSystem
 import com.gadarts.minesweeper.systems.map.MutableTilePosition
@@ -21,7 +20,8 @@ class MapSystemOnPowerupActivated(private val mapSystem: MapSystem) : HandlerOnE
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        tiles: Array<Array<Entity?>>
+        tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>
     ) {
         val currentPosition = PlayerUtils.getPlayerTilePosition(playerData, auxCellPosition1)
         val sound = services.assetsManager.getAssetByDefinition(
@@ -39,10 +39,10 @@ class MapSystemOnPowerupActivated(private val mapSystem: MapSystem) : HandlerOnE
                     Timer.schedule(
                         object : Timer.Task() {
                             override fun run() {
-                                if (GameSessionData.testMapValues[row][col] == 0) {
+                                if (testMapValues[row][col] == 0) {
                                     mapSystem.revealTile(row, col)
                                     services.soundPlayer.playSound(sound)
-                                } else if (GameSessionData.testMapValues[row][col] == 1) {
+                                } else if (testMapValues[row][col] == 1) {
                                     services.dispatcher.dispatchMessage(
                                         SystemEvents.MINE_TRIGGERED.ordinal,
                                         auxCellPosition2.set(row, col)

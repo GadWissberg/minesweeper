@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Disposable
 
 class GameSessionData : Disposable {
 
+    lateinit var testMapValues: Array<Array<Int>>
     lateinit var tiles: Array<Array<Entity?>>
     val physicsData = PhysicsData()
     val playerData = PlayerData()
@@ -15,14 +16,12 @@ class GameSessionData : Disposable {
     lateinit var stage: Stage
     lateinit var particleSystem: ParticleSystem
 
-    override fun dispose() {
-        physicsData.dispose()
-        playerData.dispose()
+    init {
+        createTempArray()
     }
 
-    companion object {
-        const val TEMP_GROUND_SIZE = 10
-        val testMapValues = arrayOf(
+    private fun createTempArray() {
+        testMapValues = arrayOf(
             arrayOf(0, 0, 0, 0, 2, 0, 0, 0, 0, 0),
             arrayOf(0, 4, 0, 0, 0, 1, 1, 0, 0, 0),
             arrayOf(0, 0, 5, 1, 0, 0, 0, 0, 0, 0),
@@ -34,6 +33,15 @@ class GameSessionData : Disposable {
             arrayOf(0, 0, 0, 1, 0, 0, 0, 0, 0, 0),
             arrayOf(0, 1, 0, 0, 3, 0, 0, 0, 0, 0),
         )
+    }
+
+    override fun dispose() {
+        physicsData.dispose()
+        playerData.dispose()
+    }
+
+    companion object {
+        const val TEMP_GROUND_SIZE = 10
 
     }
 }

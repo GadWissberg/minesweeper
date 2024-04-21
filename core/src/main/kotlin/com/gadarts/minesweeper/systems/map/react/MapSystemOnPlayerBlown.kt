@@ -19,7 +19,8 @@ class MapSystemOnPlayerBlown :
         msg: Telegram,
         playerData: PlayerData,
         services: Services,
-        tiles: Array<Array<Entity?>>
+        tiles: Array<Array<Entity?>>,
+        testMapValues: Array<Array<Int>>
     ) {
         Timer.schedule(object : Timer.Task() {
             override fun run() {

@@ -50,10 +50,11 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         addPlayer(false)
-        val modelBuilder = ModelBuilder()
-        digitModel = GameUtils.createTileModel(modelBuilder, services.assetsManager, -0.5F)
         addDigit()
-        playerMovementHandler = PlayerMovementHandler(this.gameSessionData.playerData.digit)
+        playerMovementHandler = PlayerMovementHandler(
+            this.gameSessionData.playerData.digit,
+            this.gameSessionData.testMapValues
+        )
         if (Gdx.input.inputProcessor == null) {
             Gdx.input.inputProcessor = InputMultiplexer(this)
         }
@@ -64,7 +65,7 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     }
 
     override fun onSystemReady() {
-        services.dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
+        playerBegin()
         if (GameDebugSettings.SHIELD_ON_START) {
             services.dispatcher.dispatchMessage(
                 SystemEvents.POWERUP_BUTTON_CLICKED.ordinal,
@@ -85,7 +86,8 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
                     msg: Telegram,
                     playerData: PlayerData,
                     services: Services,
-                    tiles: Array<Array<Entity?>>
+                    tiles: Array<Array<Entity?>>,
+                    testMapValues: Array<Array<Int>>
                 ) {
                     services.soundPlayer.playSoundByDefinition(SoundsDefinitions.TAP)
                 }
@@ -212,12 +214,21 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
             .finishAndAddToEngine()
         placePlayer()
         if (resetPlayerMovementHandler) {
+            val digitModelInstanceComponent =
+                ComponentsMappers.modelInstance.get(gameSessionData.playerData.digit)
             playerMovementHandler.reset(gameSessionData.playerData.player!!)
-            ComponentsMappers.modelInstance.get(gameSessionData.playerData.digit).visible = false
+            digitModelInstanceComponent.visible = false
         }
     }
 
+    override fun playerBegin() {
+        services.dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
+        ComponentsMappers.modelInstance.get(gameSessionData.playerData.digit).visible = true
+    }
+
     private fun addDigit() {
+        val modelBuilder = ModelBuilder()
+        digitModel = GameUtils.createTileModel(modelBuilder, services.assetsManager, -0.5F)
         val digitModelInstance = ModelInstance(digitModel)
         (digitModelInstance.materials.get(0)
             .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
@@ -242,9 +253,9 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     }
 
     private fun placePlayer() {
-        for (row in GameSessionData.testMapValues.indices) {
-            for (col in GameSessionData.testMapValues[0].indices) {
-                if (GameSessionData.testMapValues[row][col] == 2) {
+        for (row in gameSessionData.testMapValues.indices) {
+            for (col in gameSessionData.testMapValues[0].indices) {
+                if (gameSessionData.testMapValues[row][col] == 2) {
                     ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.setToTranslation(
                         col + 0.5F, 0F, row + 0.5F
                     ).rotate(Vector3.Y, -90F)
