@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
-import com.gadarts.minesweeper.systems.data.GameSessionData
 import kotlin.math.min
 
 class PlayerMovementHandler(
@@ -62,7 +61,7 @@ class PlayerMovementHandler(
         if (!desiredLocation.isZero && desiredDirection != null) {
             val x = desiredLocation.x.toInt()
             val z = desiredLocation.z.toInt()
-            if (desiredLocation.x >= 0 && x < GameSessionData.TEMP_GROUND_SIZE && desiredLocation.z >= 0 && z < GameSessionData.TEMP_GROUND_SIZE) {
+            if (desiredLocation.x >= 0 && x < testMapValues.size && desiredLocation.z >= 0 && z < testMapValues.size) {
                 val transform =
                     ComponentsMappers.modelInstance.get(playerData.player!!).modelInstance.transform
                 transform.setTranslation(
@@ -186,9 +185,9 @@ class PlayerMovementHandler(
         )
 
         if (desiredLocation.x >= 0
-            && desiredLocation.x < GameSessionData.TEMP_GROUND_SIZE
+            && desiredLocation.x < testMapValues.size
             && desiredLocation.z >= 0
-            && desiredLocation.z < GameSessionData.TEMP_GROUND_SIZE
+            && desiredLocation.z < testMapValues.size
         ) {
             if (testMapValues[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
                 desiredLocation.setZero()

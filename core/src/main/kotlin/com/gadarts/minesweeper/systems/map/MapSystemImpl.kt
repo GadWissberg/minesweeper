@@ -16,7 +16,6 @@ import com.gadarts.minesweeper.systems.GameUtils
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.GameSessionData
-import com.gadarts.minesweeper.systems.data.GameSessionData.Companion.TEMP_GROUND_SIZE
 import com.gadarts.minesweeper.systems.map.react.MapSystemOnPlayerBegin
 import com.gadarts.minesweeper.systems.map.react.MapSystemOnPlayerBlown
 import com.gadarts.minesweeper.systems.map.react.MapSystemOnPlayerLanded
@@ -33,8 +32,8 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         tileModel = GameUtils.createTileModel(ModelBuilder(), services.assetsManager)
-        val tiles = Array(TEMP_GROUND_SIZE) {
-            arrayOfNulls<Entity?>(TEMP_GROUND_SIZE)
+        val tiles = Array(gameSessionData.testMapValues.size) {
+            arrayOfNulls<Entity?>(gameSessionData.testMapValues.size)
         }
         for (row in gameSessionData.testMapValues.indices) {
             for (col in gameSessionData.testMapValues[row].indices) {
@@ -110,6 +109,15 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
             }
         }
         return sum
+    }
+
+    override fun triggerMine(position: MutableTilePosition) {
+        services.dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal, position)
+        gameSessionData.testMapValues[position.row][position.col] = 0
+        (ComponentsMappers.modelInstance.get(gameSessionData.tiles[position.row][position.col]).modelInstance.materials[0].get(
+            TextureAttribute.Diffuse
+        ) as TextureAttribute).textureDescription.texture =
+            services.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_BOMBED)
     }
 
     companion object {

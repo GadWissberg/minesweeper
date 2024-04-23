@@ -7,7 +7,6 @@ import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
-import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.map.MapSystem
 import com.gadarts.minesweeper.systems.map.MutableTilePosition
@@ -43,10 +42,7 @@ class MapSystemOnPowerupActivated(private val mapSystem: MapSystem) : HandlerOnE
                                     mapSystem.revealTile(row, col)
                                     services.soundPlayer.playSound(sound)
                                 } else if (testMapValues[row][col] == 1) {
-                                    services.dispatcher.dispatchMessage(
-                                        SystemEvents.MINE_TRIGGERED.ordinal,
-                                        auxCellPosition2.set(row, col)
-                                    )
+                                    mapSystem.triggerMine(auxCellPosition2.set(row, col))
                                 }
                             }
                         },

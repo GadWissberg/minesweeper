@@ -46,7 +46,6 @@ class BonusSystem : GameEntitySystem() {
                         .addCrateComponent()
                         .finishAndAddToEngine()
                     ComponentsMappers.tile.get(gameSessionData.tiles[row][col]).crate = entity
-                    return
                 }
             }
         }
@@ -76,7 +75,8 @@ class BonusSystem : GameEntitySystem() {
                 ).finishAndAddToEngine()
                 services.dispatcher.dispatchMessage(
                     SystemEvents.PLAYER_PICKED_UP_BONUS.ordinal,
-                    GameDebugSettings.FORCE_CRATES_TO_SPECIFIC_POWER_UP ?: PowerupType.SHIELD
+                    GameDebugSettings.FORCE_CRATES_TO_SPECIFIC_POWER_UP
+                        ?: PowerupType.entries.random()
                 )
                 services.soundPlayer.playSoundByDefinition(SoundsDefinitions.BONUS)
             }

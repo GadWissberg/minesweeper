@@ -11,5 +11,5 @@ object GameDebugSettings {
     const val SHIELD_ON_START: Boolean = false
 
     @Suppress("RedundantNullableReturnType", "RedundantSuppression")
-    val FORCE_CRATES_TO_SPECIFIC_POWER_UP: PowerupType? = PowerupType.XRAY
+    val FORCE_CRATES_TO_SPECIFIC_POWER_UP: PowerupType? = null
 }
