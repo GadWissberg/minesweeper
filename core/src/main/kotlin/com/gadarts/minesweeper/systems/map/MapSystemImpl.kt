@@ -1,8 +1,10 @@
 package com.gadarts.minesweeper.systems.map
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.Vector3
@@ -26,12 +28,22 @@ import kotlin.math.min
 
 class MapSystemImpl : GameEntitySystem(), MapSystem {
 
+    private lateinit var backgroundGroundModel: Model
     private lateinit var tileModel: Model
     private lateinit var lineGrid: Model
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         tileModel = GameUtils.createTileModel(ModelBuilder(), services.assetsManager)
+        backgroundGroundModel = GameUtils.createTileModel(
+            ModelBuilder(),
+            services.assetsManager,
+            offset = 0.5F,
+            size = BACKGROUND_GROUND_SIZE,
+            addTextureAttribute = false
+        )
+        backgroundGroundModel.materials.get(0)
+            .set(ColorAttribute.createDiffuse(Color.valueOf("#0e8e3d")))
         val tiles = Array(gameSessionData.testMapValues.size) {
             arrayOfNulls<Entity?>(gameSessionData.testMapValues.size)
         }
@@ -81,11 +93,22 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
 
 
     override fun onSystemReady() {
+        val offset = gameSessionData.tiles.size.toFloat() / 2F - BACKGROUND_GROUND_SIZE / 2F
+        EntityBuilder.beginBuildingEntity(engine)
+            .addModelInstanceComponent(
+                ModelInstance(backgroundGroundModel),
+                auxVector.set(
+                    offset,
+                    -0.01F,
+                    offset
+                ),
+            ).finishAndAddToEngine()
     }
 
     override fun dispose() {
         lineGrid.dispose()
         tileModel.dispose()
+        backgroundGroundModel.dispose()
     }
 
     override fun getSubscribedEvents(): Map<SystemEvents, HandlerOnEvent> {
@@ -121,6 +144,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
     }
 
     companion object {
+        private val BACKGROUND_GROUND_SIZE: Float = 40F
         private val auxVector = Vector3()
         private val sumToTextureDefinition = listOf(
             TexturesDefinitions.TILE_0,
