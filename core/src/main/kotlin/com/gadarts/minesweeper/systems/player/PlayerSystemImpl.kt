@@ -31,7 +31,6 @@ import com.gadarts.minesweeper.systems.GameUtils
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.GameSessionData
-import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnCurrentTileValueCalculated
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnMapReset
 import com.gadarts.minesweeper.systems.player.react.PlayerSystemOnMineTriggered
@@ -64,6 +63,25 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
         regularJumpSound = services.assetsManager.getAssetByDefinition(SoundsDefinitions.JUMP)
     }
 
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
+        get() = mapOf(
+            SystemEvents.MAP_RESET to PlayerSystemOnMapReset(this),
+            SystemEvents.PLAYER_PHYSICS_HARD_LAND to object : HandlerOnEvent {
+                override fun react(
+                    msg: Telegram,
+                    gameSessionData: GameSessionData,
+                    services: Services
+                ) {
+                    services.soundPlayer.playSoundByDefinition(SoundsDefinitions.TAP)
+                }
+            },
+            SystemEvents.TILE_REVEALED to PlayerSystemOnCurrentTileValueCalculated(),
+            SystemEvents.POWERUP_BUTTON_CLICKED to PlayerSystemOnPowerupButtonClicked(),
+            SystemEvents.MINE_TRIGGERED to PlayerSystemOnMineTriggered(),
+            SystemEvents.PLAYER_PICKED_UP_BONUS to PlayerSystemOnPlayerPickedUpBonus(),
+            SystemEvents.SHIELD_CONSUME to PlayerSystemOnShieldConsume(),
+        )
+
     override fun onSystemReady() {
         playerBegin()
         if (GameDebugSettings.SHIELD_ON_START) {
@@ -76,28 +94,6 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
 
     override fun dispose() {
         digitModel.dispose()
-    }
-
-    override fun getSubscribedEvents(): Map<SystemEvents, HandlerOnEvent> {
-        return mapOf(
-            SystemEvents.MAP_RESET to PlayerSystemOnMapReset(this),
-            SystemEvents.PLAYER_PHYSICS_HARD_LAND to object : HandlerOnEvent {
-                override fun react(
-                    msg: Telegram,
-                    playerData: PlayerData,
-                    services: Services,
-                    tiles: Array<Array<Entity?>>,
-                    testMapValues: Array<Array<Int>>
-                ) {
-                    services.soundPlayer.playSoundByDefinition(SoundsDefinitions.TAP)
-                }
-            },
-            SystemEvents.TILE_REVEALED to PlayerSystemOnCurrentTileValueCalculated(),
-            SystemEvents.POWERUP_BUTTON_CLICKED to PlayerSystemOnPowerupButtonClicked(),
-            SystemEvents.MINE_TRIGGERED to PlayerSystemOnMineTriggered(),
-            SystemEvents.PLAYER_PICKED_UP_BONUS to PlayerSystemOnPlayerPickedUpBonus(),
-            SystemEvents.SHIELD_CONSUME to PlayerSystemOnShieldConsume(),
-        )
     }
 
     override fun keyDown(keycode: Int): Boolean {

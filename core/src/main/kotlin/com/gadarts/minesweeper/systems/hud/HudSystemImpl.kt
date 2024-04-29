@@ -1,9 +1,7 @@
 package com.gadarts.minesweeper.systems.hud
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
-import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -28,19 +26,22 @@ import com.gadarts.minesweeper.components.player.PowerupType
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
-import com.gadarts.minesweeper.systems.data.PlayerData
 import com.gadarts.minesweeper.systems.data.GameSessionData
+import com.gadarts.minesweeper.systems.hud.react.HudSystemOnPlayerBegin
+import com.gadarts.minesweeper.systems.hud.react.HudSystemOnPlayerBlown
 import com.gadarts.minesweeper.systems.hud.react.HudSystemOnPlayerPickedUpBonus
+import com.gadarts.minesweeper.systems.hud.react.HudSystemOnPowerupActivated
+import com.gadarts.minesweeper.systems.hud.react.HudSystemOnShieldConsume
 
 
 class HudSystemImpl : HudSystem, GameEntitySystem() {
 
+    override var shieldIndicatorTable: Table? = null
+    override var shieldStatusLabel: Label? = null
     private lateinit var shieldButton: ImageButton
     private lateinit var xrayButton: ImageButton
     private var shieldIndicatorTableCell: Cell<Table>? = null
-    private var shieldIndicatorTable: Table? = null
     private lateinit var indicatorsTable: Table
-    private var shieldStatusLabel: Label? = null
     private lateinit var leftSideTable: Table
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
@@ -53,72 +54,6 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         this.gameSessionData.stage.addActor(hudTable)
         this.gameSessionData.stage.isDebugAll = GameDebugSettings.DISPLAY_UI_BORDERS
         addComponents(services.assetsManager, hudTable)
-    }
-
-    override fun getSubscribedEvents(): Map<SystemEvents, HandlerOnEvent> {
-        return mapOf(
-            SystemEvents.PLAYER_PICKED_UP_BONUS to HudSystemOnPlayerPickedUpBonus(this),
-            SystemEvents.POWERUP_ACTIVATED to object : HandlerOnEvent {
-                override fun react(
-                    msg: Telegram,
-                    playerData: PlayerData,
-                    services: Services,
-                    tiles: Array<Array<Entity?>>,
-                    testMapValues: Array<Array<Int>>
-                ) {
-                    displayPowerupIndicator(msg)
-                    val type = msg.extraInfo as PowerupType
-                    if ((playerData.powerups[type] ?: 0) <= 0) {
-                        if (type == PowerupType.SHIELD) {
-                            shieldButton.isDisabled = true
-                        } else if (type == PowerupType.XRAY) {
-                            xrayButton.isDisabled = true
-                        }
-                    }
-                }
-            },
-            SystemEvents.SHIELD_CONSUME to object : HandlerOnEvent {
-                override fun react(
-                    msg: Telegram,
-                    playerData: PlayerData,
-                    services: Services,
-                    tiles: Array<Array<Entity?>>,
-                    testMapValues: Array<Array<Int>>
-                ) {
-                    val newValue = msg.extraInfo as Int
-                    if (newValue <= 0) {
-                        shieldIndicatorTable?.remove()
-                        services.soundPlayer.playSoundByDefinition(SoundsDefinitions.SHIELD_DEPLETED)
-                    } else {
-                        shieldStatusLabel?.setText(newValue)
-                    }
-                }
-            },
-            SystemEvents.PLAYER_BLOWN to object : HandlerOnEvent {
-                override fun react(
-                    msg: Telegram,
-                    playerData: PlayerData,
-                    services: Services,
-                    tiles: Array<Array<Entity?>>,
-                    testMapValues: Array<Array<Int>>
-                ) {
-                    shieldButton.touchable = Touchable.disabled
-                    xrayButton.touchable = Touchable.disabled
-                }
-            },
-            SystemEvents.PLAYER_BEGIN to object : HandlerOnEvent {
-                override fun react(
-                    msg: Telegram,
-                    playerData: PlayerData,
-                    services: Services,
-                    tiles: Array<Array<Entity?>>,
-                    testMapValues: Array<Array<Int>>
-                ) {
-                    shieldButton.touchable = Touchable.enabled
-                    xrayButton.touchable = Touchable.enabled
-                }
-            }
-        )
     }
 
     private fun addComponents(
@@ -190,6 +125,15 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         return coinsIndicator
     }
 
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
+        get() = mapOf(
+            SystemEvents.PLAYER_PICKED_UP_BONUS to HudSystemOnPlayerPickedUpBonus(this),
+            SystemEvents.POWERUP_ACTIVATED to HudSystemOnPowerupActivated(this),
+            SystemEvents.SHIELD_CONSUME to HudSystemOnShieldConsume(this),
+            SystemEvents.PLAYER_BLOWN to HudSystemOnPlayerBlown(this),
+            SystemEvents.PLAYER_BEGIN to HudSystemOnPlayerBegin(this)
+        )
+
     override fun onSystemReady() {
 
     }
@@ -198,8 +142,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
     override fun dispose() {
     }
 
-    fun displayPowerupIndicator(msg: Telegram) {
-        val powerup = msg.extraInfo as PowerupType
+    override fun displayPowerupIndicator(powerup: PowerupType) {
         if (powerup == PowerupType.SHIELD) {
             shieldStatusLabel = Label(
                 gameSessionData.playerData.invulnerableStepsLeft.toString(), Label.LabelStyle(
@@ -222,6 +165,21 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
                 shieldIndicatorTableCell!!.setActor(shieldIndicatorTable)
             }
         }
+    }
+
+    override fun displayPowerupButton(type: PowerupType) {
+        if ((gameSessionData.playerData.powerups[type] ?: 0) <= 0) {
+            if (type == PowerupType.SHIELD) {
+                shieldButton.isDisabled = true
+            } else if (type == PowerupType.XRAY) {
+                xrayButton.isDisabled = true
+            }
+        }
+    }
+
+    override fun setPowerupsButtonsTouch(touchable: Touchable) {
+        shieldButton.touchable = touchable
+        xrayButton.touchable = touchable
     }
 
     override fun update(deltaTime: Float) {

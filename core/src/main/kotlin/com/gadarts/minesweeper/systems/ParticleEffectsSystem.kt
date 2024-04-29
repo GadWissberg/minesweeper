@@ -45,9 +45,39 @@ class ParticleEffectsSystem : GameEntitySystem() {
         engine.addEntityListener(createEntityListener())
     }
 
-    override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.MINE_TRIGGERED, SystemEvents.TILE_REVEALED)
-    }
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent> =
+        mapOf(SystemEvents.MINE_TRIGGERED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                services: Services
+            ) {
+                reactToMineTriggered(msg.extraInfo as MutableTilePosition)
+            }
+        }, SystemEvents.TILE_REVEALED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                services: Services
+            ) {
+                val calculatedResult = msg.extraInfo as TileCalculatedResult
+                if (!PlayerUtils.getPlayerTilePosition(
+                        this@ParticleEffectsSystem.gameSessionData.playerData,
+                        auxMutableTilePosition1
+                    ).equalsToCell(
+                        auxMutableTilePosition2.set(
+                            calculatedResult.row,
+                            calculatedResult.col
+                        )
+                    )
+                ) {
+                    addParticleEffect(
+                        ParticleEffectsDefinitions.CRATE_PARTICLES,
+                        auxVector1.set(calculatedResult.col + 0.5F, 0F, calculatedResult.row + 0.5F)
+                    )
+                }
+            }
+        })
 
     override fun onSystemReady() {
         billboardParticleBatch.setCamera(gameSessionData.camera)
@@ -60,34 +90,6 @@ class ParticleEffectsSystem : GameEntitySystem() {
     override fun update(deltaTime: Float) {
         updateSystem(deltaTime)
         handleCompletedParticleEffects()
-    }
-
-    override fun handleMessage(msg: Telegram?): Boolean {
-        if (msg == null) return false
-
-        if (msg.message == SystemEvents.MINE_TRIGGERED.ordinal) {
-            reactToMineTriggered(msg.extraInfo as MutableTilePosition)
-            return true
-        } else if (msg.message == SystemEvents.TILE_REVEALED.ordinal) {
-            val calculatedResult = msg.extraInfo as TileCalculatedResult
-            if (!PlayerUtils.getPlayerTilePosition(
-                    gameSessionData.playerData,
-                    auxMutableTilePosition1
-                ).equalsToCell(
-                    auxMutableTilePosition2.set(
-                        calculatedResult.row,
-                        calculatedResult.col
-                    )
-                )
-            ) {
-                addParticleEffect(
-                    ParticleEffectsDefinitions.CRATE_PARTICLES,
-                    auxVector1.set(calculatedResult.col + 0.5F, 0F, calculatedResult.row + 0.5F)
-                )
-            }
-        }
-
-        return false
     }
 
     private fun handleCompletedParticleEffects() {

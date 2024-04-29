@@ -51,39 +51,38 @@ class BonusSystem : GameEntitySystem() {
         }
     }
 
-    override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(SystemEvents.PLAYER_LANDED)
-    }
-
-    override fun handleMessage(msg: Telegram?): Boolean {
-        if (msg == null) return false
-        if (msg.message == SystemEvents.PLAYER_LANDED.ordinal) {
-            val position =
-                ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
-                    auxVector
-                )
-            val row = position.z.toInt()
-            val col = position.x.toInt()
-            val tileComponent = ComponentsMappers.tile.get(gameSessionData.tiles[row][col])
-            if (gameSessionData.testMapValues[row][col] == 5 && tileComponent.crate != null
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
+        get() = mapOf(SystemEvents.PLAYER_LANDED to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                services: Services
             ) {
-                gameSessionData.testMapValues[row][col] = 0
-                engine.removeEntity(tileComponent.crate)
-                EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
-                    services.assetsManager.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),
-                    position
-                ).finishAndAddToEngine()
-                services.dispatcher.dispatchMessage(
-                    SystemEvents.PLAYER_PICKED_UP_BONUS.ordinal,
-                    GameDebugSettings.FORCE_CRATES_TO_SPECIFIC_POWER_UP
-                        ?: PowerupType.entries.random()
-                )
-                services.soundPlayer.playSoundByDefinition(SoundsDefinitions.BONUS)
+                val position =
+                    ComponentsMappers.modelInstance.get(this@BonusSystem.gameSessionData.playerData.player).modelInstance.transform.getTranslation(
+                        auxVector
+                    )
+                val row = position.z.toInt()
+                val col = position.x.toInt()
+                val tileComponent =
+                    ComponentsMappers.tile.get(this@BonusSystem.gameSessionData.tiles[row][col])
+                if (this@BonusSystem.gameSessionData.testMapValues[row][col] == 5 && tileComponent.crate != null
+                ) {
+                    this@BonusSystem.gameSessionData.testMapValues[row][col] = 0
+                    engine.removeEntity(tileComponent.crate)
+                    EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
+                        services.assetsManager.getAssetByDefinition(ParticleEffectsDefinitions.CRATE_PARTICLES),
+                        position
+                    ).finishAndAddToEngine()
+                    services.dispatcher.dispatchMessage(
+                        SystemEvents.PLAYER_PICKED_UP_BONUS.ordinal,
+                        GameDebugSettings.FORCE_CRATES_TO_SPECIFIC_POWER_UP
+                            ?: PowerupType.entries.random()
+                    )
+                    services.soundPlayer.playSoundByDefinition(SoundsDefinitions.BONUS)
+                }
             }
-            return true
-        }
-        return false
-    }
+        })
 
     override fun onSystemReady() {
     }

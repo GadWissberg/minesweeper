@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g3d.Environment
@@ -20,6 +19,8 @@ import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
 import com.gadarts.minesweeper.systems.GameEntitySystem
+import com.gadarts.minesweeper.systems.HandlerOnEvent
+import com.gadarts.minesweeper.systems.SystemEvents
 import com.gadarts.minesweeper.systems.data.GameSessionData
 
 
@@ -59,6 +60,9 @@ class RenderSystem : GameEntitySystem() {
         environment.shadowMap = shadowLight
         shadowBatch = ModelBatch(DepthShaderProvider())
     }
+
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
+        get() = emptyMap()
 
     override fun onSystemReady() {
     }
@@ -131,10 +135,6 @@ class RenderSystem : GameEntitySystem() {
     override fun dispose() {
         axisModelHandler.dispose()
         modelBatch.dispose()
-    }
-
-    override fun handleMessage(msg: Telegram?): Boolean {
-        return false
     }
 
     companion object {

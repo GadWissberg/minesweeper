@@ -7,12 +7,11 @@ import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.data.GameSessionData
 import com.gadarts.minesweeper.systems.hud.HudSystem
 
-class HudSystemOnPlayerPickedUpBonus(private val hudSystem: HudSystem) : HandlerOnEvent {
-    override fun react(
-        msg: Telegram,
-        gameSessionData: GameSessionData,
-        services: Services
-    ) {
-        hudSystem.setPowerUpButtonState(false, msg.extraInfo as PowerupType)
+class HudSystemOnPowerupActivated(private val hudSystem: HudSystem) : HandlerOnEvent {
+    override fun react(msg: Telegram, gameSessionData: GameSessionData, services: Services) {
+        val type = msg.extraInfo as PowerupType
+        hudSystem.displayPowerupIndicator(type)
+        hudSystem.displayPowerupButton(type)
     }
+
 }

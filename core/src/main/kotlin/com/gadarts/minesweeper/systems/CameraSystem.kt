@@ -26,13 +26,6 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     private var originalCameraPosition: Vector3 = Vector3()
     private var cameraInputController: CameraInputController? = null
 
-    override fun getEventsListenList(): List<SystemEvents> {
-        return listOf(
-            SystemEvents.PLAYER_INITIATED_MOVE,
-            SystemEvents.PLAYER_BEGIN,
-            SystemEvents.PLAYER_BLOWN,
-        )
-    }
 
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
@@ -63,6 +56,33 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
         gameSessionData.camera.update()
     }
 
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
+        get() = mapOf(SystemEvents.PLAYER_INITIATED_MOVE to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                services: Services
+            ) {
+                resetCamera()
+            }
+        }, SystemEvents.PLAYER_BEGIN to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                services: Services
+            ) {
+                resetCamera()
+            }
+        }, SystemEvents.PLAYER_BLOWN to object : HandlerOnEvent {
+            override fun react(
+                msg: Telegram,
+                gameSessionData: GameSessionData,
+                services: Services
+            ) {
+                shakeCamera()
+            }
+        })
+
     override fun onSystemReady() {
         val playerPosition =
             ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform.getTranslation(
@@ -79,23 +99,17 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     override fun dispose() {
     }
 
+    private fun shakeCamera() {
+        shakeCameraOffset.set(
+            MathUtils.random(SHAKE_MAX_OFFSET),
+            MathUtils.random(SHAKE_MAX_OFFSET),
+        )
+        nextShake = TimeUtils.millis() + SHAKE_INTERVALS
+    }
 
-    override fun handleMessage(msg: Telegram?): Boolean {
-        if (msg == null) return false
-
-        if (msg.message == SystemEvents.PLAYER_INITIATED_MOVE.ordinal || msg.message == SystemEvents.PLAYER_BEGIN.ordinal) {
-            originalCameraPosition.set(gameSessionData.camera.position)
-            cameraMovementProgress = 0F
-            return true
-        } else if (msg.message == SystemEvents.PLAYER_BLOWN.ordinal) {
-            shakeCameraOffset.set(
-                MathUtils.random(SHAKE_MAX_OFFSET),
-                MathUtils.random(SHAKE_MAX_OFFSET),
-            )
-            nextShake = TimeUtils.millis() + SHAKE_INTERVALS
-            return true
-        }
-        return false
+    private fun resetCamera() {
+        originalCameraPosition.set(gameSessionData.camera.position)
+        cameraMovementProgress = 0F
     }
 
     override fun keyDown(keycode: Int): Boolean {

@@ -12,35 +12,25 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
     protected lateinit var services: Services
     protected lateinit var gameSessionData: GameSessionData
         private set
+    protected abstract val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
 
     abstract fun onSystemReady()
     override fun handleMessage(msg: Telegram?): Boolean {
         if (msg == null) return false
 
-        val handlerOnEvent = getSubscribedEvents()[SystemEvents.entries[msg.message]]
+        val handlerOnEvent = subscribedEvents[SystemEvents.entries[msg.message]]
         handlerOnEvent?.react(
             msg,
-            gameSessionData.playerData,
+            gameSessionData,
             services,
-            gameSessionData.tiles,
-            gameSessionData.testMapValues
         )
         return false
     }
 
     open fun addListener(listener: GameEntitySystem) {
-        listener.getEventsListenList().forEach { event ->
-            services.dispatcher.addListener(
-                listener,
-                event.ordinal
-            )
-        }
-        getSubscribedEvents().forEach { services.dispatcher.addListener(this, it.key.ordinal) }
+        subscribedEvents.forEach { services.dispatcher.addListener(this, it.key.ordinal) }
     }
 
-    protected open fun getSubscribedEvents(): Map<SystemEvents, HandlerOnEvent> {
-        return emptyMap()
-    }
 
     open fun initialize(
         gameSessionData: GameSessionData,
@@ -49,7 +39,5 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
         this.gameSessionData = gameSessionData
         this.services = services
     }
-
-    protected open fun getEventsListenList(): List<SystemEvents> = emptyList()
 
 }

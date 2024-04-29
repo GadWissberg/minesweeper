@@ -91,6 +91,14 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
         )
     }
 
+    override val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
+        get() = mapOf(
+            SystemEvents.PLAYER_LANDED to MapSystemOnPlayerLanded(this),
+            SystemEvents.PLAYER_BEGIN to MapSystemOnPlayerBegin(this),
+            SystemEvents.PLAYER_BLOWN to MapSystemOnPlayerBlown(),
+            SystemEvents.POWERUP_ACTIVATED to MapSystemOnPowerupActivated(this),
+        )
+
 
     override fun onSystemReady() {
         val offset = gameSessionData.tiles.size.toFloat() / 2F - BACKGROUND_GROUND_SIZE / 2F
@@ -111,14 +119,6 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
         backgroundGroundModel.dispose()
     }
 
-    override fun getSubscribedEvents(): Map<SystemEvents, HandlerOnEvent> {
-        return mapOf(
-            SystemEvents.PLAYER_LANDED to MapSystemOnPlayerLanded(this),
-            SystemEvents.PLAYER_BEGIN to MapSystemOnPlayerBegin(this),
-            SystemEvents.PLAYER_BLOWN to MapSystemOnPlayerBlown(),
-            SystemEvents.POWERUP_ACTIVATED to MapSystemOnPowerupActivated(this),
-        )
-    }
 
     override fun sumMinesAround(destRow: Int, destCol: Int): Int {
         if (destRow < 0 || destRow >= gameSessionData.tiles.size || destCol < 0 || destCol >= gameSessionData.tiles[0].size) return 0
@@ -144,7 +144,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
     }
 
     companion object {
-        private val BACKGROUND_GROUND_SIZE: Float = 40F
+        private const val BACKGROUND_GROUND_SIZE: Float = 40F
         private val auxVector = Vector3()
         private val sumToTextureDefinition = listOf(
             TexturesDefinitions.TILE_0,
