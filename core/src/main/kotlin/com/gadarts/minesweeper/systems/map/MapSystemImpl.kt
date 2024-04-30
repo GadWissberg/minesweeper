@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.Services
@@ -74,6 +75,52 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
             }
         }
         gameSessionData.tiles = tiles
+        createHorizontalLineOfTrees(-TREES_OFFSET)
+        createHorizontalLineOfTrees(-TREES_OFFSET * 2)
+        createHorizontalLineOfTrees(
+            gameSessionData.tiles.size + TREES_OFFSET
+        )
+        createHorizontalLineOfTrees(
+            gameSessionData.tiles.size + TREES_OFFSET * 2
+        )
+        createVerticalLineOfTrees(-TREES_OFFSET)
+        createVerticalLineOfTrees(-TREES_OFFSET * 2F)
+        createVerticalLineOfTrees(gameSessionData.tiles.size + TREES_OFFSET)
+        createVerticalLineOfTrees(gameSessionData.tiles.size + TREES_OFFSET * 2F)
+    }
+
+    private fun createHorizontalLineOfTrees(
+        z: Float
+    ) {
+        for (x in -4..(gameSessionData.tiles.size + 4) step 2) {
+            addBackgroundTrees(services, auxVector.set(x.toFloat(), 0F, z))
+        }
+    }
+
+    private fun createVerticalLineOfTrees(
+        x: Float
+    ) {
+        for (z in -4..(gameSessionData.tiles.size + 4) step 2) {
+            val position = auxVector.set(x, 0F, z.toFloat())
+            addBackgroundTrees(services, position)
+        }
+    }
+
+    private fun addBackgroundTrees(
+        services: Services,
+        position: Vector3
+    ) {
+        val modelInstance =
+            ModelInstance(services.assetsManager.getAssetByDefinition(ModelsDefinitions.TREE_MERGED))
+        modelInstance.transform.rotate(
+            Vector3.Y,
+            (MathUtils.random() * 4F).toInt().toFloat() * 90F
+        )
+            .scale(2F, 2F, 2F)
+        EntityBuilder.beginBuildingEntity(engine).addModelInstanceComponent(
+            modelInstance,
+            position
+        ).finishAndAddToEngine()
     }
 
     override fun revealTile(destRow: Int, destCol: Int) {
@@ -144,6 +191,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
     }
 
     companion object {
+        private const val TREES_OFFSET = 4F
         private const val BACKGROUND_GROUND_SIZE: Float = 40F
         private val auxVector = Vector3()
         private val sumToTextureDefinition = listOf(

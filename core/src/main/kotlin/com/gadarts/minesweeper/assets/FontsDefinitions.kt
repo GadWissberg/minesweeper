@@ -17,6 +17,11 @@ enum class FontsDefinitions : AssetDefinition<BitmapFont> {
         override fun getParameters(): AssetLoaderParameters<BitmapFont> {
             return createParams(100)
         }
+    },
+    SYMTEXT_25 {
+        override fun getParameters(): AssetLoaderParameters<BitmapFont> {
+            return createParams(25)
+        }
     };
 
 

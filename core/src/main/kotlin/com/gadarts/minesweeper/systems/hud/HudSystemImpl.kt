@@ -3,6 +3,7 @@ package com.gadarts.minesweeper.systems.hud
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.profiling.GLProfiler
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Touchable
@@ -11,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle
 import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
@@ -36,24 +38,76 @@ import com.gadarts.minesweeper.systems.hud.react.HudSystemOnShieldConsume
 
 class HudSystemImpl : HudSystem, GameEntitySystem() {
 
+    private lateinit var glProfiler: GLProfiler
     override var shieldIndicatorTable: Table? = null
     override var shieldStatusLabel: Label? = null
     private lateinit var shieldButton: ImageButton
     private lateinit var xrayButton: ImageButton
     private var shieldIndicatorTableCell: Cell<Table>? = null
     private lateinit var indicatorsTable: Table
+    private val stringBuilder: StringBuilder = StringBuilder()
+    private lateinit var label: Label
     private lateinit var leftSideTable: Table
-
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
         this.gameSessionData.stage =
             Stage(StretchViewport(RESOLUTION_WIDTH.toFloat(), RESOLUTION_HEIGHT.toFloat()))
+        label = Label(
+            stringBuilder,
+            LabelStyle(
+                services.assetsManager.getAssetByDefinition(FontsDefinitions.SYMTEXT_25),
+                Color.WHITE
+            )
+        )
+        label.setPosition(0f, Gdx.graphics.height - 10F)
+        label.setZIndex(0)
         (Gdx.input.inputProcessor as InputMultiplexer).addProcessor(0, this.gameSessionData.stage)
         val hudTable = Table()
         hudTable.setSize(this.gameSessionData.stage.width, this.gameSessionData.stage.height)
         this.gameSessionData.stage.addActor(hudTable)
         this.gameSessionData.stage.isDebugAll = GameDebugSettings.DISPLAY_UI_BORDERS
         addComponents(services.assetsManager, hudTable)
+        glProfiler = GLProfiler(Gdx.graphics)
+        if (GameDebugSettings.PROFILING) {
+            gameSessionData.stage.addActor(label)
+            glProfiler.enable()
+        }
+    }
+
+    private fun displayLine(label: String, value: Any) {
+        displayLine(label, value, true)
+    }
+
+    private fun displayProfilingLabels() {
+        stringBuilder.setLength(0)
+        displayLine("FPS: ", Gdx.graphics.framesPerSecond)
+        displayMemoryLabels()
+        displayGlProfiling()
+        label.setText(stringBuilder)
+    }
+
+    private fun displayGlProfiling() {
+        displayLine("Total openGL calls: ", glProfiler.calls)
+        displayLine("Draw calls: ", glProfiler.drawCalls)
+        displayLine("Shader switches: ", glProfiler.shaderSwitches)
+        displayLine("Texture bindings: ", glProfiler.textureBindings - 1)
+        displayLine("Vertex count: ", glProfiler.vertexCount.total)
+        glProfiler.reset()
+    }
+
+    private fun displayMemoryLabels() {
+        displayLine("Java heap usage: ", Gdx.app.javaHeap / (1024L * 1024L), false)
+        stringBuilder.append(' ').append(PROFILING_LABEL_SUFFIX_MB).append('\n')
+        displayLine("Native heap usage: ", Gdx.app.nativeHeap / (1024L * 1024L), false)
+        stringBuilder.append(' ').append(PROFILING_LABEL_SUFFIX_MB).append('\n')
+    }
+
+    private fun displayLine(label: String, value: Any, newLine: Boolean) {
+        stringBuilder.append(label)
+        stringBuilder.append(value)
+        if (newLine) {
+            stringBuilder.append("\n")
+        }
     }
 
     private fun addComponents(
@@ -116,7 +170,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         coinsIndicator.add(Image(assetsManager.getAssetByDefinition(TexturesDefinitions.ICON_STATUS_COINS)))
         coinsIndicator.add(
             Label(
-                "0", Label.LabelStyle(
+                "0", LabelStyle(
                     assetsManager.getAssetByDefinition(FontsDefinitions.SYMTEXT_100),
                     Color.WHITE
                 )
@@ -145,7 +199,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
     override fun displayPowerupIndicator(powerup: PowerupType) {
         if (powerup == PowerupType.SHIELD) {
             shieldStatusLabel = Label(
-                gameSessionData.playerData.invulnerableStepsLeft.toString(), Label.LabelStyle(
+                gameSessionData.playerData.invulnerableStepsLeft.toString(), LabelStyle(
                     services.assetsManager.getAssetByDefinition(FontsDefinitions.SYMTEXT_100),
                     Color.WHITE
                 )
@@ -188,12 +242,16 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         if (shieldStatusLabel != null && gameSessionData.playerData.invulnerableStepsLeft == 1) {
             shieldStatusLabel!!.isVisible = ((TimeUtils.millis() / 1000L) % 10L) % 2L == 0L
         }
+        if (GameDebugSettings.PROFILING) {
+            displayProfilingLabels()
+        }
     }
 
     companion object {
         const val HUD_COMPONENTS_PADDING = 10F
         const val RESOLUTION_WIDTH = 1080
         const val RESOLUTION_HEIGHT = 2400
+        private const val PROFILING_LABEL_SUFFIX_MB = "MB"
     }
 
     override fun setPowerUpButtonState(b: Boolean, powerupType: PowerupType) {
