@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Disposable
 
 class GameSessionData : Disposable {
 
+    var numberOfVisible: Int = 0
     lateinit var testMapValues: Array<Array<Int>>
     lateinit var tiles: Array<Array<Entity?>>
     val physicsData = PhysicsData()

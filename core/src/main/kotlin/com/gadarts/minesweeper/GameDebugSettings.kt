@@ -9,7 +9,8 @@ object GameDebugSettings {
     const val CAMERA_CONTROLLER_ENABLED: Boolean = false
     const val SFX_ENABLED: Boolean = true
     const val SHIELD_ON_START: Boolean = false
-    const val PROFILING: Boolean = false
+    const val PROFILING: Boolean = true
+    const val DISABLE_FRUSTUM_CULLING = false
 
     @Suppress("RedundantNullableReturnType", "RedundantSuppression")
     val FORCE_CRATES_TO_SPECIFIC_POWER_UP: PowerupType? = null

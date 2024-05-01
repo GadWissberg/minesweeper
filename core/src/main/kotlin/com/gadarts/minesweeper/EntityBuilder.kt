@@ -49,13 +49,17 @@ class EntityBuilder {
         currentEntity = null
     }
 
-    fun addModelInstanceComponent(modelInstance: ModelInstance): EntityBuilder {
-        return addModelInstanceComponent(modelInstance, Vector3.Zero)
+    fun addModelInstanceComponent(
+        modelInstance: ModelInstance,
+        boundingBox: BoundingBox
+    ): EntityBuilder {
+        return addModelInstanceComponent(modelInstance, Vector3.Zero, boundingBox)
     }
 
     fun addModelInstanceComponent(
         modelInstance: ModelInstance,
         position: Vector3,
+        boundingBox: BoundingBox,
         manualRendering: Boolean = false
     ): EntityBuilder {
         val component: ModelInstanceComponent =
@@ -63,7 +67,11 @@ class EntityBuilder {
         if (!position.isZero) {
             modelInstance.transform.setTranslation(position)
         }
-        component.init(modelInstance, manualRendering)
+        component.init(
+            modelInstance,
+            boundingBox,
+            manualRendering,
+        )
         currentEntity!!.add(component)
         component.modelInstance.userData = currentEntity
         return instance

@@ -37,11 +37,12 @@ class BonusSystem : GameEntitySystem() {
                     val modelInstance = ModelInstance(
                         assetsManager.getAssetByDefinition(ModelsDefinitions.CRATE)
                     )
-                    modelInstance.calculateBoundingBox(auxBoundingBox)
+                    auxBoundingBox.set(assetsManager.getCachedBoundingBox(ModelsDefinitions.CRATE))
                     val entity = EntityBuilder.beginBuildingEntity(engine)
                         .addModelInstanceComponent(
                             modelInstance,
-                            Vector3(col + 0.5F, auxBoundingBox.height / 2, row + 0.5F)
+                            Vector3(col + 0.5F, auxBoundingBox.height / 2, row + 0.5F),
+                            auxBoundingBox
                         )
                         .addCrateComponent()
                         .finishAndAddToEngine()

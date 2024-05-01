@@ -17,6 +17,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.GameDebugSettings
@@ -205,7 +206,10 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
         val playerModelInstance =
             ModelInstance(services.assetsManager.getAssetByDefinition(ModelsDefinitions.PIG))
         gameSessionData.playerData.player = EntityBuilder.beginBuildingEntity(engine)
-            .addModelInstanceComponent(playerModelInstance)
+            .addModelInstanceComponent(
+                playerModelInstance,
+                services.assetsManager.getCachedBoundingBox(ModelsDefinitions.PIG)
+            )
             .addPlayerComponent()
             .finishAndAddToEngine()
         placePlayer()
@@ -243,6 +247,7 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
                         auxVector
                     ).add(0F, 1.4F, 0F)
                 ),
+                digitModel.calculateBoundingBox(auxBoundingBox),
                 true
             )
             .finishAndAddToEngine()
@@ -263,5 +268,6 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
 
     companion object {
         val auxVector = Vector3()
+        private val auxBoundingBox = BoundingBox()
     }
 }

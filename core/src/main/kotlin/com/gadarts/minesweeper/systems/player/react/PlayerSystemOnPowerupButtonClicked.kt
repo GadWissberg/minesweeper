@@ -2,6 +2,7 @@ package com.gadarts.minesweeper.systems.player.react
 
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.assets.SoundsDefinitions
@@ -30,7 +31,15 @@ class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
                 services.soundPlayer.playSoundByDefinition(SoundsDefinitions.SHIELD_ACTIVATED)
                 gameSessionData.playerData.invulnerableDisplay =
                     EntityBuilder.beginBuildingEntity(services.engine)
-                        .addModelInstanceComponent(ModelInstance(gameSessionData.playerData.invulnerableEffectModel))
+                        .addModelInstanceComponent(
+                            ModelInstance(
+                                gameSessionData.playerData.invulnerableEffectModel,
+
+                                ),
+                            gameSessionData.playerData.invulnerableEffectModel.calculateBoundingBox(
+                                auxBoundingBox
+                            )
+                        )
                         .finishAndAddToEngine()
             }
         } else if (powerupType == PowerupType.XRAY) {
@@ -38,4 +47,7 @@ class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
         }
     }
 
+    companion object {
+        private val auxBoundingBox = BoundingBox()
+    }
 }

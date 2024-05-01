@@ -7,10 +7,13 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader
+import com.badlogic.gdx.graphics.g3d.Model
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Array
+import java.util.Arrays
 
 
 open class GameAssetManager : AssetManager() {
@@ -35,6 +38,20 @@ open class GameAssetManager : AssetManager() {
             }
         }
         finishLoading()
+        generateModelsBoundingBoxes()
+    }
+
+    private fun generateModelsBoundingBoxes() {
+        Arrays.stream(ModelsDefinitions.entries.toTypedArray())
+            .forEach { def ->
+                val definitionName = def.getDefinitionName()
+                val model: Model = getAssetByDefinition(def)
+                addAsset(
+                    BOUNDING_BOX_PREFIX + definitionName,
+                    BoundingBox::class.java,
+                    model.calculateBoundingBox(BoundingBox())
+                )
+            }
     }
 
     private fun initializeCustomLoaders() {
@@ -65,5 +82,17 @@ open class GameAssetManager : AssetManager() {
         finishLoading()
     }
 
+    fun getCachedBoundingBox(definition: ModelsDefinitions): BoundingBox {
+        return auxBoundingBox.set(
+            get(
+                BOUNDING_BOX_PREFIX + definition.getDefinitionName(),
+                BoundingBox::class.java
+            )
+        )
+    }
 
+    companion object {
+        private const val BOUNDING_BOX_PREFIX = "box_"
+        private val auxBoundingBox = BoundingBox()
+    }
 }

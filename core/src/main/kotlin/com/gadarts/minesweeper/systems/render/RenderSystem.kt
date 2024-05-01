@@ -12,8 +12,10 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.ScreenUtils
 import com.gadarts.minesweeper.GameDebugSettings
+import com.gadarts.minesweeper.GameDebugSettings.DISABLE_FRUSTUM_CULLING
 import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ModelInstanceComponent
@@ -75,6 +77,7 @@ class RenderSystem : GameEntitySystem() {
         shadowLight.end()
         clearDisplay()
         modelBatch.begin(gameSessionData.camera)
+        gameSessionData.numberOfVisible = 0
         renderModels(modelBatch, true)
         renderCollisionShapes()
         modelBatch.render(gameSessionData.particleSystem, environment)
@@ -116,11 +119,25 @@ class RenderSystem : GameEntitySystem() {
         }
     }
 
+    private fun isInFrustum(
+        modelInstanceComponent: ModelInstanceComponent
+    ): Boolean {
+        if (DISABLE_FRUSTUM_CULLING) return true
+
+        val position = modelInstanceComponent.modelInstance.transform.getTranslation(auxVector3_1)
+        val boundingBox: BoundingBox = modelInstanceComponent.getBoundingBox(auxBoundingBox)
+        val center = boundingBox.getCenter(auxVector3_3)
+        val dim: Vector3 = auxBoundingBox.getDimensions(auxVector3_2).scl(3.8F)
+        return gameSessionData.camera.frustum.boundsInFrustum(position.add(center), dim)
+    }
+
     private fun renderModel(
         modelInstanceComponent: ModelInstanceComponent,
         applyEnvironment: Boolean,
         modelBatch: ModelBatch
     ) {
+        if (!isInFrustum(modelInstanceComponent)) return
+
         if (modelInstanceComponent.visible) {
             val modelInstance =
                 modelInstanceComponent.modelInstance
@@ -129,6 +146,7 @@ class RenderSystem : GameEntitySystem() {
             } else {
                 modelBatch.render(modelInstance)
             }
+            gameSessionData.numberOfVisible++
         }
     }
 
@@ -139,5 +157,9 @@ class RenderSystem : GameEntitySystem() {
 
     companion object {
         val ambientColor = Color(0.9F, 0.9F, 0.9F, 1F)
+        private val auxVector3_1 = Vector3()
+        private val auxVector3_2 = Vector3()
+        private val auxVector3_3 = Vector3()
+        private val auxBoundingBox = BoundingBox()
     }
 }

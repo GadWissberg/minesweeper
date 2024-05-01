@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.assets.ModelsDefinitions
@@ -48,13 +49,15 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
         val tiles = Array(gameSessionData.testMapValues.size) {
             arrayOfNulls<Entity?>(gameSessionData.testMapValues.size)
         }
+        tileModel.calculateBoundingBox(auxBoundingBox)
         for (row in gameSessionData.testMapValues.indices) {
             for (col in gameSessionData.testMapValues[row].indices) {
                 val tileModelInstance = ModelInstance(tileModel)
                 val tileEntity = EntityBuilder.beginBuildingEntity(engine)
                     .addModelInstanceComponent(
                         tileModelInstance,
-                        auxVector.set(col.toFloat(), 0F, row.toFloat())
+                        auxVector.set(col.toFloat(), 0F, row.toFloat()),
+                        auxBoundingBox
                     )
                     .addTileComponent()
                     .finishAndAddToEngine()
@@ -69,7 +72,8 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
                     )
                     EntityBuilder.beginBuildingEntity(engine)
                         .addModelInstanceComponent(
-                            modelInstance, Vector3(col + 0.5F, 0F, row + 0.5F)
+                            modelInstance, Vector3(col + 0.5F, 0F, row + 0.5F),
+                            services.assetsManager.getCachedBoundingBox(ModelsDefinitions.ROCK)
                         ).finishAndAddToEngine()
                 }
             }
@@ -119,7 +123,8 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
             .scale(2F, 2F, 2F)
         EntityBuilder.beginBuildingEntity(engine).addModelInstanceComponent(
             modelInstance,
-            position
+            position,
+            services.assetsManager.getCachedBoundingBox(ModelsDefinitions.TREE_MERGED)
         ).finishAndAddToEngine()
     }
 
@@ -157,6 +162,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
                     -0.01F,
                     offset
                 ),
+                backgroundGroundModel.calculateBoundingBox(auxBoundingBox)
             ).finishAndAddToEngine()
     }
 
@@ -206,6 +212,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
             TexturesDefinitions.TILE_8,
         )
         private val tileCalculatedResult = TileCalculatedResult()
+        private val auxBoundingBox = BoundingBox()
     }
 
 }

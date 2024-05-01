@@ -1,5 +1,8 @@
 package com.gadarts.minesweeper.systems.hud
 
+import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Color
@@ -24,6 +27,7 @@ import com.gadarts.minesweeper.assets.FontsDefinitions
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
+import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.components.player.PowerupType
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.HandlerOnEvent
@@ -38,6 +42,7 @@ import com.gadarts.minesweeper.systems.hud.react.HudSystemOnShieldConsume
 
 class HudSystemImpl : HudSystem, GameEntitySystem() {
 
+    private lateinit var modelInstancesEntities: ImmutableArray<Entity>
     private lateinit var glProfiler: GLProfiler
     override var shieldIndicatorTable: Table? = null
     override var shieldStatusLabel: Label? = null
@@ -50,6 +55,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
     private lateinit var leftSideTable: Table
     override fun initialize(gameSessionData: GameSessionData, services: Services) {
         super.initialize(gameSessionData, services)
+        modelInstancesEntities =
+            engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
         this.gameSessionData.stage =
             Stage(StretchViewport(RESOLUTION_WIDTH.toFloat(), RESOLUTION_HEIGHT.toFloat()))
         label = Label(
@@ -92,7 +99,16 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         displayLine("Shader switches: ", glProfiler.shaderSwitches)
         displayLine("Texture bindings: ", glProfiler.textureBindings - 1)
         displayLine("Vertex count: ", glProfiler.vertexCount.total)
+        displayNumberOfVisibleObjects()
         glProfiler.reset()
+    }
+
+    private fun displayNumberOfVisibleObjects() {
+        stringBuilder.append("Visible objects: ")
+        stringBuilder.append(gameSessionData.numberOfVisible)
+        stringBuilder.append('/')
+        stringBuilder.append(modelInstancesEntities.size())
+        stringBuilder.append('\n')
     }
 
     private fun displayMemoryLabels() {

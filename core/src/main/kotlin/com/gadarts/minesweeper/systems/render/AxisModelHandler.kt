@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.Disposable
 import com.gadarts.minesweeper.EntityBuilder
 
@@ -38,7 +39,10 @@ class AxisModelHandler : Disposable {
             createAxisModel(modelBuilder, vector, Color(vector.x, vector.y, vector.z, 1f))
         val axisModelInstanceX = ModelInstance(axisModel)
         EntityBuilder.beginBuildingEntity(engine)
-            .addModelInstanceComponent(axisModelInstanceX)
+            .addModelInstanceComponent(
+                axisModelInstanceX,
+                axisModelInstanceX.calculateBoundingBox(auxBoundingBox)
+            )
             .finishAndAddToEngine()
         return axisModel
     }
@@ -61,5 +65,6 @@ class AxisModelHandler : Disposable {
     companion object {
         private val auxVector3_1 = Vector3()
         private val auxVector3_2 = Vector3()
+        private val auxBoundingBox = BoundingBox()
     }
 }
