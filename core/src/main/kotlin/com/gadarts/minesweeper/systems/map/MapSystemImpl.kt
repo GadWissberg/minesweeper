@@ -67,6 +67,9 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
                         .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
                         services.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_DESTINATION)
                 } else if (gameSessionData.testMapValues[row][col] == 4) {
+                    (tileModelInstance.materials.get(0)
+                        .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                        services.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_UNOCCUPIED)
                     val modelInstance = ModelInstance(
                         services.assetsManager.getAssetByDefinition(ModelsDefinitions.ROCK)
                     )

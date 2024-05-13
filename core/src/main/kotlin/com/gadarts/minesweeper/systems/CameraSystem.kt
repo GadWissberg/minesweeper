@@ -175,12 +175,20 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
                 )
             gameSessionData.camera.position.x = Interpolation.exp5.apply(
                 originalCameraPosition.x,
-                playerPosition.x,
+                MathUtils.clamp(
+                    playerPosition.x,
+                    -CAMERA_OFFSET_FROM_PLAYER,
+                    gameSessionData.testMapValues[0].size.toFloat()
+                ),
                 cameraMovementProgress
             )
             gameSessionData.camera.position.z = Interpolation.exp5.apply(
                 originalCameraPosition.z,
-                playerPosition.z + CAMERA_OFFSET_FROM_PLAYER,
+                MathUtils.clamp(
+                    playerPosition.z + CAMERA_OFFSET_FROM_PLAYER,
+                    CAMERA_OFFSET_FROM_PLAYER + 2F,
+                    gameSessionData.testMapValues.size.toFloat()
+                ),
                 cameraMovementProgress
             )
             if (cameraMovementProgress >= 1F) {
