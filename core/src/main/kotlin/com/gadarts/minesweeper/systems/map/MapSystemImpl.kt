@@ -82,6 +82,10 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
             }
         }
         gameSessionData.tiles = tiles
+        addLineOfHorizontalFlowers(gameSessionData, services, -1F)
+        addLineOfHorizontalFlowers(gameSessionData, services, gameSessionData.tiles.size + 1F)
+        addLineOfVerticalFlowers(gameSessionData, services, -1F)
+        addLineOfVerticalFlowers(gameSessionData, services, gameSessionData.tiles.size + 1F)
         createHorizontalLineOfTrees(-TREES_OFFSET)
         createHorizontalLineOfTrees(-TREES_OFFSET * 2)
         createHorizontalLineOfTrees(
@@ -94,6 +98,59 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
         createVerticalLineOfTrees(-TREES_OFFSET * 2F)
         createVerticalLineOfTrees(gameSessionData.tiles.size + TREES_OFFSET)
         createVerticalLineOfTrees(gameSessionData.tiles.size + TREES_OFFSET * 2F)
+    }
+
+    private fun addLineOfHorizontalFlowers(
+        gameSessionData: GameSessionData,
+        services: Services,
+        z: Float
+    ) {
+        val randomNumberOfFlowers =
+            MathUtils.random(gameSessionData.tiles.size / 3 * 2, gameSessionData.tiles.size)
+        for (i in 0 until randomNumberOfFlowers) {
+            val position =
+                auxVector.set(
+                    MathUtils.random(-1F, gameSessionData.tiles.size.toFloat() + 1F),
+                    0F,
+                    z
+                )
+            addFlowers(services, position)
+        }
+    }
+
+    private fun addLineOfVerticalFlowers(
+        gameSessionData: GameSessionData,
+        services: Services,
+        x: Float
+    ) {
+        val randomNumberOfFlowers =
+            MathUtils.random(gameSessionData.tiles.size / 3 * 2, gameSessionData.tiles.size)
+        for (i in 0 until randomNumberOfFlowers) {
+            val position =
+                auxVector.set(
+                    x,
+                    0F,
+                    MathUtils.random(-1F, gameSessionData.tiles.size.toFloat() + 1F)
+                )
+            addFlowers(services, position)
+        }
+    }
+
+    private fun addFlowers(
+        services: Services,
+        position: Vector3
+    ) {
+        val modelInstance =
+            ModelInstance(services.assetsManager.getAssetByDefinition(ModelsDefinitions.FLOWERS))
+        modelInstance.transform.rotate(
+            Vector3.Y,
+            (MathUtils.random() * 4F).toInt().toFloat() * 90F
+        )
+        EntityBuilder.beginBuildingEntity(engine).addModelInstanceComponent(
+            modelInstance,
+            position,
+            services.assetsManager.getCachedBoundingBox(ModelsDefinitions.FLOWERS)
+        ).finishAndAddToEngine()
     }
 
     private fun createHorizontalLineOfTrees(

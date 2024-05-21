@@ -127,7 +127,7 @@ class RenderSystem : GameEntitySystem() {
         val position = modelInstanceComponent.modelInstance.transform.getTranslation(auxVector3_1)
         val boundingBox: BoundingBox = modelInstanceComponent.getBoundingBox(auxBoundingBox)
         val center = boundingBox.getCenter(auxVector3_3)
-        val dim: Vector3 = auxBoundingBox.getDimensions(auxVector3_2).scl(4F)
+        val dim: Vector3 = auxBoundingBox.getDimensions(auxVector3_2).scl(4.7F)
         return gameSessionData.camera.frustum.boundsInFrustum(position.add(center), dim)
     }
 

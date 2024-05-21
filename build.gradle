@@ -8,7 +8,7 @@ buildscript {
     maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:8.4.0'
+      classpath 'com.android.tools.build:gradle:8.4.1'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
   }
