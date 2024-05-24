@@ -153,6 +153,7 @@ class RenderSystem : GameEntitySystem() {
     override fun dispose() {
         axisModelHandler.dispose()
         modelBatch.dispose()
+        shadowLight.dispose()
     }
 
     companion object {
