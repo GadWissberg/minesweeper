@@ -22,7 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.TimeUtils
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.gadarts.minesweeper.GameDebugSettings
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.assets.FontsDefinitions
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.assets.SoundsDefinitions
@@ -53,8 +53,8 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
     private val stringBuilder: StringBuilder = StringBuilder()
     private lateinit var label: Label
     private lateinit var leftSideTable: Table
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         modelInstancesEntities =
             engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())
         this.gameSessionData.stage =
@@ -62,7 +62,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         label = Label(
             stringBuilder,
             LabelStyle(
-                services.assetsManager.getAssetByDefinition(FontsDefinitions.SYMTEXT_25),
+                managers.assetsManager.getAssetByDefinition(FontsDefinitions.SYMTEXT_25),
                 Color.WHITE
             )
         )
@@ -73,7 +73,7 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         hudTable.setSize(this.gameSessionData.stage.width, this.gameSessionData.stage.height)
         this.gameSessionData.stage.addActor(hudTable)
         this.gameSessionData.stage.isDebugAll = GameDebugSettings.DISPLAY_UI_BORDERS
-        addComponents(services.assetsManager, hudTable)
+        addComponents(managers.assetsManager, hudTable)
         glProfiler = GLProfiler(Gdx.graphics)
         if (GameDebugSettings.PROFILING) {
             gameSessionData.stage.addActor(label)
@@ -156,21 +156,21 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         textureDefinition: TexturesDefinitions
     ): ImageButton {
         val style = ImageButtonStyle(
-            TextureRegionDrawable(services.assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_UP)),
-            TextureRegionDrawable(services.assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DOWN)),
+            TextureRegionDrawable(managers.assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_UP)),
+            TextureRegionDrawable(managers.assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DOWN)),
             null,
-            TextureRegionDrawable(services.assetsManager.getAssetByDefinition(textureDefinition)),
+            TextureRegionDrawable(managers.assetsManager.getAssetByDefinition(textureDefinition)),
             null,
             null
         )
         style.disabled =
-            TextureRegionDrawable(services.assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DISABLED))
+            TextureRegionDrawable(managers.assetsManager.getAssetByDefinition(TexturesDefinitions.BUTTON_POWERUP_DISABLED))
         val button = ImageButton(style)
         button.addListener(object : ClickListener() {
             override fun clicked(event: InputEvent?, x: Float, y: Float) {
                 if (button.isDisabled) return
-                services.soundPlayer.playSoundByDefinition(SoundsDefinitions.BIP)
-                services.dispatcher.dispatchMessage(
+                managers.soundPlayer.playSoundByDefinition(SoundsDefinitions.BIP)
+                managers.dispatcher.dispatchMessage(
                     SystemEvents.POWERUP_BUTTON_CLICKED.ordinal,
                     type
                 )
@@ -216,14 +216,14 @@ class HudSystemImpl : HudSystem, GameEntitySystem() {
         if (powerup == PowerupType.SHIELD) {
             shieldStatusLabel = Label(
                 gameSessionData.playerData.invulnerableStepsLeft.toString(), LabelStyle(
-                    services.assetsManager.getAssetByDefinition(FontsDefinitions.SYMTEXT_100),
+                    managers.assetsManager.getAssetByDefinition(FontsDefinitions.SYMTEXT_100),
                     Color.WHITE
                 )
             )
             shieldIndicatorTable = Table()
             shieldIndicatorTable!!.add(
                 Image(
-                    services.assetsManager.getAssetByDefinition(
+                    managers.assetsManager.getAssetByDefinition(
                         TexturesDefinitions.ICON_STATUS_SHIELD
                     )
                 )

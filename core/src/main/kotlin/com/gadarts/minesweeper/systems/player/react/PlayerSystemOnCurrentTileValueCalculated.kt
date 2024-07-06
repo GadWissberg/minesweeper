@@ -2,7 +2,7 @@ package com.gadarts.minesweeper.systems.player.react
 
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
@@ -15,7 +15,7 @@ class PlayerSystemOnCurrentTileValueCalculated : HandlerOnEvent {
     override fun react(
         msg: Telegram,
         gameSessionData: GameSessionData,
-        services: Services
+        managers: Managers
     ) {
         val tileCalculatedResult = msg.extraInfo as TileCalculatedResult
         if (!PlayerUtils.getPlayerTilePosition(gameSessionData.playerData, auxCell)
@@ -28,7 +28,7 @@ class PlayerSystemOnCurrentTileValueCalculated : HandlerOnEvent {
             (ComponentsMappers.modelInstance.get(gameSessionData.playerData.digit).modelInstance.materials.get(
                 0
             ).get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                services.assetsManager.getAssetByDefinition(definition)
+                managers.assetsManager.getAssetByDefinition(definition)
         } else {
             ComponentsMappers.modelInstance.get(gameSessionData.playerData.digit).visible = false
         }

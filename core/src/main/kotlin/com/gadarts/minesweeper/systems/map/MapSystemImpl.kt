@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.minesweeper.EntityBuilder
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.assets.ModelsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
@@ -34,12 +34,12 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
     private lateinit var tileModel: Model
     private lateinit var lineGrid: Model
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
-        tileModel = GameUtils.createTileModel(ModelBuilder(), services.assetsManager)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
+        tileModel = GameUtils.createTileModel(ModelBuilder(), managers.assetsManager)
         backgroundGroundModel = GameUtils.createTileModel(
             ModelBuilder(),
-            services.assetsManager,
+            managers.assetsManager,
             offset = 0.5F,
             size = BACKGROUND_GROUND_SIZE,
             addTextureAttribute = false
@@ -65,27 +65,41 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
                 if (gameSessionData.testMapValues[row][col] == 3) {
                     (tileModelInstance.materials.get(0)
                         .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                        services.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_DESTINATION)
+                        managers.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_DESTINATION)
                 } else if (gameSessionData.testMapValues[row][col] == 4) {
                     (tileModelInstance.materials.get(0)
                         .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                        services.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_UNOCCUPIED)
+                        managers.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_UNOCCUPIED)
                     val modelInstance = ModelInstance(
-                        services.assetsManager.getAssetByDefinition(ModelsDefinitions.ROCK)
+                        managers.assetsManager.getAssetByDefinition(ModelsDefinitions.ROCK)
                     )
                     EntityBuilder.beginBuildingEntity(engine)
                         .addModelInstanceComponent(
                             modelInstance, Vector3(col + 0.5F, 0F, row + 0.5F),
-                            services.assetsManager.getCachedBoundingBox(ModelsDefinitions.ROCK)
+                            managers.assetsManager.getCachedBoundingBox(ModelsDefinitions.ROCK)
+                        ).finishAndAddToEngine()
+                } else if (gameSessionData.testMapValues[row][col] == 6) {
+                    (tileModelInstance.materials.get(0)
+                        .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                        managers.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_UNOCCUPIED)
+                    val modelInstance = ModelInstance(
+                        managers.assetsManager.getAssetByDefinition(ModelsDefinitions.COW)
+                    )
+                    modelInstance.transform.setTranslation(Vector3(col + 0.5F, 0F, row + 0.5F))
+                        .rotate(Vector3.Y, MathUtils.random(3) * 90F)
+                    EntityBuilder.beginBuildingEntity(engine)
+                        .addModelInstanceComponent(
+                            modelInstance,
+                            managers.assetsManager.getCachedBoundingBox(ModelsDefinitions.COW)
                         ).finishAndAddToEngine()
                 }
             }
         }
         gameSessionData.tiles = tiles
-        addLineOfHorizontalFlowers(gameSessionData, services, -1F)
-        addLineOfHorizontalFlowers(gameSessionData, services, gameSessionData.tiles.size + 1F)
-        addLineOfVerticalFlowers(gameSessionData, services, -1F)
-        addLineOfVerticalFlowers(gameSessionData, services, gameSessionData.tiles.size + 1F)
+        addLineOfHorizontalFlowers(gameSessionData, managers, -1F)
+        addLineOfHorizontalFlowers(gameSessionData, managers, gameSessionData.tiles.size + 1F)
+        addLineOfVerticalFlowers(gameSessionData, managers, -1F)
+        addLineOfVerticalFlowers(gameSessionData, managers, gameSessionData.tiles.size + 1F)
         createHorizontalLineOfTrees(-TREES_OFFSET)
         createHorizontalLineOfTrees(-TREES_OFFSET * 2)
         createHorizontalLineOfTrees(
@@ -102,7 +116,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
 
     private fun addLineOfHorizontalFlowers(
         gameSessionData: GameSessionData,
-        services: Services,
+        managers: Managers,
         z: Float
     ) {
         val randomNumberOfFlowers =
@@ -114,13 +128,13 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
                     0F,
                     z
                 )
-            addFlowers(services, position)
+            addFlowers(managers, position)
         }
     }
 
     private fun addLineOfVerticalFlowers(
         gameSessionData: GameSessionData,
-        services: Services,
+        managers: Managers,
         x: Float
     ) {
         val randomNumberOfFlowers =
@@ -132,16 +146,16 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
                     0F,
                     MathUtils.random(-1F, gameSessionData.tiles.size.toFloat() + 1F)
                 )
-            addFlowers(services, position)
+            addFlowers(managers, position)
         }
     }
 
     private fun addFlowers(
-        services: Services,
+        managers: Managers,
         position: Vector3
     ) {
         val modelInstance =
-            ModelInstance(services.assetsManager.getAssetByDefinition(ModelsDefinitions.FLOWERS))
+            ModelInstance(managers.assetsManager.getAssetByDefinition(ModelsDefinitions.FLOWERS))
         modelInstance.transform.rotate(
             Vector3.Y,
             (MathUtils.random() * 4F).toInt().toFloat() * 90F
@@ -149,7 +163,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
         EntityBuilder.beginBuildingEntity(engine).addModelInstanceComponent(
             modelInstance,
             position,
-            services.assetsManager.getCachedBoundingBox(ModelsDefinitions.FLOWERS)
+            managers.assetsManager.getCachedBoundingBox(ModelsDefinitions.FLOWERS)
         ).finishAndAddToEngine()
     }
 
@@ -157,7 +171,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
         z: Float
     ) {
         for (x in -4..(gameSessionData.tiles.size + 4) step 2) {
-            addBackgroundTrees(services, auxVector.set(x.toFloat(), 0F, z))
+            addBackgroundTrees(managers, auxVector.set(x.toFloat(), 0F, z))
         }
     }
 
@@ -166,16 +180,16 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
     ) {
         for (z in -4..(gameSessionData.tiles.size + 4) step 2) {
             val position = auxVector.set(x, 0F, z.toFloat())
-            addBackgroundTrees(services, position)
+            addBackgroundTrees(managers, position)
         }
     }
 
     private fun addBackgroundTrees(
-        services: Services,
+        managers: Managers,
         position: Vector3
     ) {
         val modelInstance =
-            ModelInstance(services.assetsManager.getAssetByDefinition(ModelsDefinitions.TREE_MERGED))
+            ModelInstance(managers.assetsManager.getAssetByDefinition(ModelsDefinitions.TREE_MERGED))
         modelInstance.transform.rotate(
             Vector3.Y,
             (MathUtils.random() * 4F).toInt().toFloat() * 90F
@@ -184,7 +198,7 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
         EntityBuilder.beginBuildingEntity(engine).addModelInstanceComponent(
             modelInstance,
             position,
-            services.assetsManager.getCachedBoundingBox(ModelsDefinitions.TREE_MERGED)
+            managers.assetsManager.getCachedBoundingBox(ModelsDefinitions.TREE_MERGED)
         ).finishAndAddToEngine()
     }
 
@@ -195,9 +209,9 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
         (ComponentsMappers.modelInstance.get(gameSessionData.tiles[destRow][destCol]).modelInstance.materials[0].get(
             TextureAttribute.Diffuse
         ) as TextureAttribute).textureDescription.texture =
-            services.assetsManager.getAssetByDefinition(sumToTextureDefinition[sum])
+            managers.assetsManager.getAssetByDefinition(sumToTextureDefinition[sum])
         ComponentsMappers.tile.get(gameSessionData.tiles[destRow][destCol]).revealed = true
-        services.dispatcher.dispatchMessage(
+        managers.dispatcher.dispatchMessage(
             SystemEvents.TILE_REVEALED.ordinal,
             tileCalculatedResult.set(destRow, destCol, sum)
         )
@@ -248,12 +262,12 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
     }
 
     override fun triggerMine(position: MutableTilePosition) {
-        services.dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal, position)
+        managers.dispatcher.dispatchMessage(SystemEvents.MINE_TRIGGERED.ordinal, position)
         gameSessionData.testMapValues[position.row][position.col] = 0
         (ComponentsMappers.modelInstance.get(gameSessionData.tiles[position.row][position.col]).modelInstance.materials[0].get(
             TextureAttribute.Diffuse
         ) as TextureAttribute).textureDescription.texture =
-            services.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_BOMBED)
+            managers.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_BOMBED)
     }
 
     companion object {

@@ -3,7 +3,7 @@ package com.gadarts.minesweeper.screens
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.ai.msg.MessageDispatcher
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.SoundPlayer
 import com.gadarts.minesweeper.assets.GameAssetManager
 import com.gadarts.minesweeper.systems.Systems
@@ -20,12 +20,12 @@ class GamePlayScreen(private val assetsManager: GameAssetManager) : Screen {
         val systems = Systems.entries.toTypedArray()
         val soundPlayer = SoundPlayer(assetsManager)
         val dispatcher = MessageDispatcher()
-        val services = Services(engine, soundPlayer, assetsManager, dispatcher)
+        val managers = Managers(engine, soundPlayer, assetsManager, dispatcher)
         systems.forEach { system ->
             engine.addSystem(system.systemInstance)
             system.systemInstance.initialize(
                 gameSessionData,
-                services
+                managers
             )
 
         }

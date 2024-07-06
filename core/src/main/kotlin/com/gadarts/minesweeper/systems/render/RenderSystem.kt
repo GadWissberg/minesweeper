@@ -16,7 +16,7 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.ScreenUtils
 import com.gadarts.minesweeper.GameDebugSettings
 import com.gadarts.minesweeper.GameDebugSettings.DISABLE_FRUSTUM_CULLING
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
@@ -35,8 +35,8 @@ class RenderSystem : GameEntitySystem() {
     private lateinit var modelBatch: ModelBatch
     private lateinit var modelEntities: ImmutableArray<Entity>
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         axisModelHandler = AxisModelHandler()
         axisModelHandler.addAxis(engine)
         modelEntities = engine.getEntitiesFor(Family.all(ModelInstanceComponent::class.java).get())

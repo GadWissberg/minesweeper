@@ -2,7 +2,7 @@ package com.gadarts.minesweeper.systems.map.react
 
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.utils.Timer
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
@@ -17,11 +17,11 @@ class MapSystemOnPowerupActivated(private val mapSystem: MapSystem) : HandlerOnE
     override fun react(
         msg: Telegram,
         gameSessionData: GameSessionData,
-        services: Services
+        managers: Managers
     ) {
         val currentPosition =
             PlayerUtils.getPlayerTilePosition(gameSessionData.playerData, auxCellPosition1)
-        val sound = services.assetsManager.getAssetByDefinition(
+        val sound = managers.assetsManager.getAssetByDefinition(
             SoundsDefinitions.TILE_REVEALED
         )
         for (row in max(currentPosition.row - 1, 0)..min(
@@ -41,7 +41,7 @@ class MapSystemOnPowerupActivated(private val mapSystem: MapSystem) : HandlerOnE
                             override fun run() {
                                 if (gameSessionData.testMapValues[row][col] == 0) {
                                     mapSystem.revealTile(row, col)
-                                    services.soundPlayer.playSound(sound)
+                                    managers.soundPlayer.playSound(sound)
                                 } else if (gameSessionData.testMapValues[row][col] == 1) {
                                     mapSystem.triggerMine(auxCellPosition2.set(row, col))
                                 }

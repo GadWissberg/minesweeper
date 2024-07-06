@@ -1,7 +1,7 @@
 package com.gadarts.minesweeper.systems.physics.react
 
 import com.badlogic.gdx.ai.msg.Telegram
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.PhysicsComponent
 import com.gadarts.minesweeper.systems.HandlerOnEvent
@@ -11,7 +11,7 @@ class PhysicsSystemOnPlayerIsAboutToBeRemoved : HandlerOnEvent {
     override fun react(
         msg: Telegram,
         gameSessionData: GameSessionData,
-        services: Services
+        managers: Managers
     ) {
         val player = gameSessionData.playerData.player
         if (ComponentsMappers.physics.has(player)) {

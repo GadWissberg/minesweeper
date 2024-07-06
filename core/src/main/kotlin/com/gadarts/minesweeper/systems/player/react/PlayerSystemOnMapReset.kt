@@ -2,7 +2,7 @@ package com.gadarts.minesweeper.systems.player.react
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.ai.msg.Telegram
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
@@ -13,11 +13,11 @@ class PlayerSystemOnMapReset(private val playerSystem: PlayerSystem) : HandlerOn
     override fun react(
         msg: Telegram,
         gameSessionData: GameSessionData,
-        services: Services
+        managers: Managers
     ) {
         ComponentsMappers.modelInstance.get(gameSessionData.playerData.digit).visible = false
-        services.dispatcher.dispatchMessage(SystemEvents.PLAYER_IS_ABOUT_TO_BE_REMOVED.ordinal)
-        services.engine.removeEntity(gameSessionData.playerData.player)
+        managers.dispatcher.dispatchMessage(SystemEvents.PLAYER_IS_ABOUT_TO_BE_REMOVED.ordinal)
+        managers.engine.removeEntity(gameSessionData.playerData.player)
         gameSessionData.playerData.player = null
         Gdx.app.postRunnable {
             playerSystem.addPlayer(true)

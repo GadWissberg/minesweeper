@@ -4,7 +4,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.data.GameSessionData
@@ -14,14 +14,14 @@ class PhysicsSystemOnPlayerBlown : HandlerOnEvent {
     override fun react(
         msg: Telegram,
         gameSessionData: GameSessionData,
-        services: Services
+        managers: Managers
     ) {
         val physicsComponent = EntityBuilder.createPhysicsComponent(
             ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.calculateBoundingBox(
                 PhysicsSystem.auxBoundingBox
             ),
             ComponentsMappers.modelInstance.get(gameSessionData.playerData.player).modelInstance.transform,
-            services.engine
+            managers.engine
         )
         gameSessionData.playerData.player?.add(physicsComponent)
         gameSessionData.physicsData.collisionWorld.addRigidBody(physicsComponent.rigidBody)

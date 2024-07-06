@@ -1,7 +1,7 @@
 package com.gadarts.minesweeper.systems.physics
 
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.HandlerOnEvent
 import com.gadarts.minesweeper.systems.SystemEvents
@@ -13,11 +13,11 @@ class PhysicsSystem : GameEntitySystem() {
     private lateinit var contactListener: GameContactListener
     private lateinit var bulletEngineHandler: BulletEngineHandler
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         bulletEngineHandler = BulletEngineHandler(this.gameSessionData)
         bulletEngineHandler.initialize(engine)
-        contactListener = GameContactListener(services.dispatcher)
+        contactListener = GameContactListener(managers.dispatcher)
     }
 
     override fun dispose() {

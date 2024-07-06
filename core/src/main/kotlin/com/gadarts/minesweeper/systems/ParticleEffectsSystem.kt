@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.gadarts.minesweeper.EntityBuilder
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.assets.ParticleEffectsDefinitions
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.BaseParticleEffectComponent
@@ -31,11 +31,11 @@ class ParticleEffectsSystem : GameEntitySystem() {
     private lateinit var billboardParticleBatch: BillboardParticleBatch
     private val particleEntitiesToRemove = ArrayList<Entity>()
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         this.gameSessionData.particleSystem = ParticleSystem()
         billboardParticleBatch = BillboardParticleBatch()
-        services.assetsManager.loadParticleEffects(billboardParticleBatch)
+        managers.assetsManager.loadParticleEffects(billboardParticleBatch)
         particleEffectsEntities = engine.getEntitiesFor(
             Family.one(
                 IndependentParticleEffectComponent::class.java,
@@ -50,7 +50,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                services: Services
+                managers: Managers
             ) {
                 reactToMineTriggered(msg.extraInfo as MutableTilePosition)
             }
@@ -58,7 +58,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                services: Services
+                managers: Managers
             ) {
                 val calculatedResult = msg.extraInfo as TileCalculatedResult
                 if (!PlayerUtils.getPlayerTilePosition(
@@ -164,7 +164,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
     }
 
     private fun reactToMineTriggered(mutableTilePosition: MutableTilePosition) {
-        services.soundPlayer.playSoundByDefinition(SoundsDefinitions.EXPLOSION)
+        managers.soundPlayer.playSoundByDefinition(SoundsDefinitions.EXPLOSION)
         addParticleEffect(
             ParticleEffectsDefinitions.EXPLOSION,
             auxVector1.set(mutableTilePosition.col + 0.5F, 0.1F, mutableTilePosition.row + 0.5F)
@@ -177,7 +177,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
         position: Vector3
     ) {
         EntityBuilder.beginBuildingEntity(engine).addParticleEffectComponent(
-            services.assetsManager.getAssetByDefinition(
+            managers.assetsManager.getAssetByDefinition(
                 particleEffectDefinition
             ),
             position
@@ -189,7 +189,7 @@ class ParticleEffectsSystem : GameEntitySystem() {
                 gameSessionData.playerData.player
             )
         ) {
-            val smokeParticleEffect = services.assetsManager.getAssetByDefinition(
+            val smokeParticleEffect = managers.assetsManager.getAssetByDefinition(
                 ParticleEffectsDefinitions.SMOKE
             )
             val followerParticleEffectComponent =

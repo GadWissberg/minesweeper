@@ -4,7 +4,7 @@ import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.minesweeper.EntityBuilder
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.components.player.PowerupType
 import com.gadarts.minesweeper.systems.HandlerOnEvent
@@ -15,7 +15,7 @@ class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
     override fun react(
         msg: Telegram,
         gameSessionData: GameSessionData,
-        services: Services
+        managers: Managers
     ) {
         val powerupType = msg.extraInfo as PowerupType
         if (powerupType == PowerupType.SHIELD) {
@@ -24,13 +24,13 @@ class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
                     gameSessionData.playerData.powerups[powerupType]!! - 1
                 gameSessionData.playerData.invulnerableStepsLeft = 4
                 gameSessionData.playerData.invulnerableEffect = 0F
-                services.dispatcher.dispatchMessage(
+                managers.dispatcher.dispatchMessage(
                     SystemEvents.POWERUP_ACTIVATED.ordinal,
                     powerupType
                 )
-                services.soundPlayer.playSoundByDefinition(SoundsDefinitions.SHIELD_ACTIVATED)
+                managers.soundPlayer.playSoundByDefinition(SoundsDefinitions.SHIELD_ACTIVATED)
                 gameSessionData.playerData.invulnerableDisplay =
-                    EntityBuilder.beginBuildingEntity(services.engine)
+                    EntityBuilder.beginBuildingEntity(managers.engine)
                         .addModelInstanceComponent(
                             ModelInstance(
                                 gameSessionData.playerData.invulnerableEffectModel,
@@ -43,7 +43,7 @@ class PlayerSystemOnPowerupButtonClicked : HandlerOnEvent {
                         .finishAndAddToEngine()
             }
         } else if (powerupType == PowerupType.XRAY) {
-            services.dispatcher.dispatchMessage(SystemEvents.POWERUP_ACTIVATED.ordinal, powerupType)
+            managers.dispatcher.dispatchMessage(SystemEvents.POWERUP_ACTIVATED.ordinal, powerupType)
         }
     }
 

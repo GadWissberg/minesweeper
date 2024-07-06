@@ -21,7 +21,7 @@ import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.minesweeper.EntityBuilder
 import com.gadarts.minesweeper.GameDebugSettings
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.assets.ModelsDefinitions
 import com.gadarts.minesweeper.assets.SoundsDefinitions
 import com.gadarts.minesweeper.assets.TexturesDefinitions
@@ -47,8 +47,8 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     private lateinit var characterJumpSounds: List<Sound>
     private val previousTouchPoint: Vector2 = Vector2()
     private lateinit var playerMovementHandler: PlayerMovementHandler
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         addPlayer(false)
         addDigit()
         playerMovementHandler = PlayerMovementHandler(
@@ -59,9 +59,9 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
             Gdx.input.inputProcessor = InputMultiplexer(this)
         }
         characterJumpSounds = SoundsDefinitions.PIG_JUMP.getPaths()
-            .map { path -> services.assetsManager.get<Sound>(path) }
+            .map { path -> managers.assetsManager.get<Sound>(path) }
             .toList()
-        regularJumpSound = services.assetsManager.getAssetByDefinition(SoundsDefinitions.JUMP)
+        regularJumpSound = managers.assetsManager.getAssetByDefinition(SoundsDefinitions.JUMP)
     }
 
     override val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
@@ -71,9 +71,9 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
                 override fun react(
                     msg: Telegram,
                     gameSessionData: GameSessionData,
-                    services: Services
+                    managers: Managers
                 ) {
-                    services.soundPlayer.playSoundByDefinition(SoundsDefinitions.TAP)
+                    managers.soundPlayer.playSoundByDefinition(SoundsDefinitions.TAP)
                 }
             },
             SystemEvents.TILE_REVEALED to PlayerSystemOnCurrentTileValueCalculated(),
@@ -86,7 +86,7 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     override fun onSystemReady() {
         playerBegin()
         if (GameDebugSettings.SHIELD_ON_START) {
-            services.dispatcher.dispatchMessage(
+            managers.dispatcher.dispatchMessage(
                 SystemEvents.POWERUP_BUTTON_CLICKED.ordinal,
                 PowerupType.SHIELD
             )
@@ -125,7 +125,7 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
             screenY,
             previousTouchPoint,
             gameSessionData.playerData.player!!,
-            services.dispatcher,
+            managers.dispatcher,
         )
         if (moved) {
             val sound = if (MathUtils.random(5) == 0) {
@@ -133,7 +133,7 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
             } else {
                 regularJumpSound
             }
-            services.soundPlayer.playSound(sound, 0.5F)
+            managers.soundPlayer.playSound(sound, 0.5F)
         }
         return true
     }
@@ -160,7 +160,7 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
         playerMovementHandler.update(
             deltaTime,
             gameSessionData.playerData,
-            services.dispatcher
+            managers.dispatcher
         )
         updateInvulnerableEffect(deltaTime, player)
     }
@@ -204,11 +204,11 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
 
     override fun addPlayer(resetPlayerMovementHandler: Boolean) {
         val playerModelInstance =
-            ModelInstance(services.assetsManager.getAssetByDefinition(ModelsDefinitions.PIG))
+            ModelInstance(managers.assetsManager.getAssetByDefinition(ModelsDefinitions.PIG))
         gameSessionData.playerData.player = EntityBuilder.beginBuildingEntity(engine)
             .addModelInstanceComponent(
                 playerModelInstance,
-                services.assetsManager.getCachedBoundingBox(ModelsDefinitions.PIG)
+                managers.assetsManager.getCachedBoundingBox(ModelsDefinitions.PIG)
             )
             .addPlayerComponent()
             .finishAndAddToEngine()
@@ -222,17 +222,17 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
     }
 
     override fun playerBegin() {
-        services.dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
+        managers.dispatcher.dispatchMessage(SystemEvents.PLAYER_BEGIN.ordinal)
         ComponentsMappers.modelInstance.get(gameSessionData.playerData.digit).visible = true
     }
 
     private fun addDigit() {
         val modelBuilder = ModelBuilder()
-        digitModel = GameUtils.createTileModel(modelBuilder, services.assetsManager, -0.5F)
+        digitModel = GameUtils.createTileModel(modelBuilder, managers.assetsManager, -0.5F)
         val digitModelInstance = ModelInstance(digitModel)
         (digitModelInstance.materials.get(0)
             .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-            services.assetsManager.getAssetByDefinition(TexturesDefinitions.DIGIT_1)
+            managers.assetsManager.getAssetByDefinition(TexturesDefinitions.DIGIT_1)
         (digitModelInstance.materials.get(0)).set(
             BlendingAttribute(
                 GL20.GL_SRC_ALPHA,

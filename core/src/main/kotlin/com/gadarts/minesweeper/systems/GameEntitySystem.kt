@@ -4,12 +4,12 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.ai.msg.Telegraph
 import com.badlogic.gdx.utils.Disposable
-import com.gadarts.minesweeper.Services
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.systems.data.GameSessionData
 
 
 abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
-    protected lateinit var services: Services
+    protected lateinit var managers: Managers
     protected lateinit var gameSessionData: GameSessionData
         private set
     protected abstract val subscribedEvents: Map<SystemEvents, HandlerOnEvent>
@@ -22,22 +22,22 @@ abstract class GameEntitySystem : EntitySystem(), Disposable, Telegraph {
         handlerOnEvent?.react(
             msg,
             gameSessionData,
-            services,
+            managers,
         )
         return false
     }
 
     open fun addListener(listener: GameEntitySystem) {
-        subscribedEvents.forEach { services.dispatcher.addListener(this, it.key.ordinal) }
+        subscribedEvents.forEach { managers.dispatcher.addListener(this, it.key.ordinal) }
     }
 
 
     open fun initialize(
         gameSessionData: GameSessionData,
-        services: Services
+        managers: Managers
     ) {
         this.gameSessionData = gameSessionData
-        this.services = services
+        this.managers = managers
     }
 
 }

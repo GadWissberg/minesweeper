@@ -11,8 +11,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.gadarts.minesweeper.GameDebugSettings
+import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.MineSweeper
-import com.gadarts.minesweeper.Services
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.systems.data.GameSessionData
 import kotlin.math.absoluteValue
@@ -27,8 +27,8 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
     private var cameraInputController: CameraInputController? = null
 
 
-    override fun initialize(gameSessionData: GameSessionData, services: Services) {
-        super.initialize(gameSessionData, services)
+    override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
+        super.initialize(gameSessionData, managers)
         val cam = PerspectiveCamera(
             67F,
             MineSweeper.PORTRAIT_RESOLUTION_WIDTH.toFloat(),
@@ -61,7 +61,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                services: Services
+                managers: Managers
             ) {
                 resetCamera()
             }
@@ -69,7 +69,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                services: Services
+                managers: Managers
             ) {
                 resetCamera()
             }
@@ -77,7 +77,7 @@ class CameraSystem : GameEntitySystem(), InputProcessor {
             override fun react(
                 msg: Telegram,
                 gameSessionData: GameSessionData,
-                services: Services
+                managers: Managers
             ) {
                 shakeCamera()
             }
