@@ -6,7 +6,6 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.ai.msg.Telegram
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.math.Interpolation
-import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.gadarts.minesweeper.EntityBuilder
@@ -45,6 +44,14 @@ class BonusSystem : GameEntitySystem() {
                             auxBoundingBox
                         )
                         .addCrateComponent()
+                        .addShrinkAnimationComponent(
+                            1.1F,
+                            0.8F,
+                            1.1F,
+                            modelInstance.transform,
+                            Interpolation.bounce,
+                            0.01F
+                        )
                         .finishAndAddToEngine()
                     ComponentsMappers.tile.get(gameSessionData.tiles[row][col]).crate = entity
                 }
@@ -91,30 +98,6 @@ class BonusSystem : GameEntitySystem() {
     override fun dispose() {
     }
 
-    override fun update(deltaTime: Float) {
-        for (crate in crates) {
-            updateCrateAnimation(crate)
-        }
-    }
-
-    private fun updateCrateAnimation(crate: Entity?) {
-        val crateComponent = ComponentsMappers.crate.get(crate)
-        val modelInstanceComponent = ComponentsMappers.modelInstance.get(crate)
-        val interpolation = Interpolation.bounce
-        val animationProgress = crateComponent.animationProgress
-        modelInstanceComponent.modelInstance.transform.values[Matrix4.M00] =
-            interpolation.apply(1F, 1.1F, animationProgress)
-        modelInstanceComponent.modelInstance.transform.values[Matrix4.M11] =
-            interpolation.apply(1F, 0.8F, animationProgress)
-        modelInstanceComponent.modelInstance.transform.values[Matrix4.M22] =
-            interpolation.apply(1F, 1.1F, animationProgress)
-        crateComponent.animationProgress += 0.01F * if (crateComponent.shrink) -1F else 1F
-        if (animationProgress >= 1F) {
-            crateComponent.shrink = true
-        } else if (animationProgress <= 0F) {
-            crateComponent.shrink = false
-        }
-    }
 
     companion object {
         val auxVector = Vector3()

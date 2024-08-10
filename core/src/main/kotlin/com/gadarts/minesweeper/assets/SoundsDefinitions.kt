@@ -7,7 +7,6 @@ enum class SoundsDefinitions(fileNames: Int = 1, val randomPitch: Boolean = true
     AssetDefinition<Sound> {
 
     JUMP,
-    PIG_JUMP(2, true),
     TAP,
     EXPLOSION(3, true),
     COW(2, true),

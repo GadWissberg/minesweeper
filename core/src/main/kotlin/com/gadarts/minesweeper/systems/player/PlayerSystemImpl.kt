@@ -44,7 +44,6 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
 
     private lateinit var digitModel: Model
     private lateinit var regularJumpSound: Sound
-    private lateinit var characterJumpSounds: List<Sound>
     private val previousTouchPoint: Vector2 = Vector2()
     private lateinit var playerMovementHandler: PlayerMovementHandler
     override fun initialize(gameSessionData: GameSessionData, managers: Managers) {
@@ -58,9 +57,6 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
         if (Gdx.input.inputProcessor == null) {
             Gdx.input.inputProcessor = InputMultiplexer(this)
         }
-        characterJumpSounds = SoundsDefinitions.PIG_JUMP.getPaths()
-            .map { path -> managers.assetsManager.get<Sound>(path) }
-            .toList()
         regularJumpSound = managers.assetsManager.getAssetByDefinition(SoundsDefinitions.JUMP)
     }
 
@@ -128,12 +124,7 @@ class PlayerSystemImpl : GameEntitySystem(), InputProcessor, PlayerSystem {
             managers.dispatcher,
         )
         if (moved) {
-            val sound = if (MathUtils.random(5) == 0) {
-                characterJumpSounds.random()
-            } else {
-                regularJumpSound
-            }
-            managers.soundPlayer.playSound(sound, 0.5F)
+            managers.soundPlayer.playSound(regularJumpSound, 0.5F)
         }
         return true
     }

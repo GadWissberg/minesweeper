@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalShadowLight
 import com.badlogic.gdx.graphics.g3d.utils.DepthShaderProvider
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.utils.ScreenUtils
@@ -19,6 +21,7 @@ import com.gadarts.minesweeper.GameDebugSettings.DISABLE_FRUSTUM_CULLING
 import com.gadarts.minesweeper.Managers
 import com.gadarts.minesweeper.components.ComponentsMappers
 import com.gadarts.minesweeper.components.ModelInstanceComponent
+import com.gadarts.minesweeper.components.ShrinkAnimationComponent
 import com.gadarts.minesweeper.systems.CollisionShapesDebugDrawing
 import com.gadarts.minesweeper.systems.GameEntitySystem
 import com.gadarts.minesweeper.systems.HandlerOnEvent
@@ -28,6 +31,9 @@ import com.gadarts.minesweeper.systems.data.GameSessionData
 
 class RenderSystem : GameEntitySystem() {
 
+    private val shrinkAnimationEntities: ImmutableArray<Entity> by lazy {
+        engine.getEntitiesFor(Family.all(ShrinkAnimationComponent::class.java).get())
+    }
     private lateinit var shadowBatch: ModelBatch
     private lateinit var shadowLight: DirectionalShadowLight
     private lateinit var environment: Environment
@@ -90,6 +96,39 @@ class RenderSystem : GameEntitySystem() {
             modelBatch
         )
         modelBatch.end()
+        for (entity in shrinkAnimationEntities) {
+            updateShrinkAnimation(entity)
+        }
+    }
+
+    private fun updateShrinkAnimation(entity: Entity) {
+        val shrinkComponent = ComponentsMappers.shrinkAnimation.get(entity)
+        val modelInstanceComponent = ComponentsMappers.modelInstance.get(entity)
+        val animationProgress = shrinkComponent.animationProgress
+        val transform = modelInstanceComponent.modelInstance.transform
+        val initialTransform = shrinkComponent.getInitialTransform(auxMatrix)
+        val originalPosition = initialTransform.getTranslation(auxVector3_1)
+        val originalRotation = initialTransform.getRotation(
+            auxQuat
+        )
+        val interpolation = shrinkComponent.interpolation
+        transform.setToScaling(
+            interpolation.apply(1F, shrinkComponent.scaleTarget.x, animationProgress),
+            interpolation.apply(1F, shrinkComponent.scaleTarget.y, animationProgress),
+            interpolation.apply(1F, shrinkComponent.scaleTarget.z, animationProgress)
+        )
+        transform.trn(
+            originalPosition
+        )
+        transform.rotate(Vector3.X, originalRotation.pitch)
+        transform.rotate(Vector3.Y, originalRotation.yaw)
+        transform.rotate(Vector3.Z, originalRotation.roll)
+        shrinkComponent.animationProgress += shrinkComponent.stepSize * if (shrinkComponent.shrink) -1F else 1F
+        if (animationProgress >= 1F) {
+            shrinkComponent.shrink = true
+        } else if (animationProgress <= 0F) {
+            shrinkComponent.shrink = false
+        }
     }
 
     private fun clearDisplay() {
@@ -162,5 +201,7 @@ class RenderSystem : GameEntitySystem() {
         private val auxVector3_2 = Vector3()
         private val auxVector3_3 = Vector3()
         private val auxBoundingBox = BoundingBox()
+        private val auxMatrix = Matrix4()
+        private val auxQuat = Quaternion()
     }
 }

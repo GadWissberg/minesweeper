@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.graphics.g3d.ModelInstance
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect
+import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
@@ -19,6 +20,7 @@ import com.gadarts.minesweeper.components.IndependentParticleEffectComponent
 import com.gadarts.minesweeper.components.ModelInstanceComponent
 import com.gadarts.minesweeper.components.PhysicsComponent
 import com.gadarts.minesweeper.components.PlayerComponent
+import com.gadarts.minesweeper.components.ShrinkAnimationComponent
 import com.gadarts.minesweeper.components.TileComponent
 
 
@@ -115,6 +117,27 @@ class EntityBuilder {
         return instance
     }
 
+    fun addShrinkAnimationComponent(
+        scaleTargetX: Float,
+        scaleTargetY: Float,
+        scaleTargetZ: Float,
+        initialTransform: Matrix4,
+        interpolation: Interpolation,
+        stepSize: Float
+    ): EntityBuilder {
+        val component: ShrinkAnimationComponent =
+            engine!!.createComponent(ShrinkAnimationComponent::class.java)
+        component.init(
+            scaleTargetX,
+            scaleTargetY,
+            scaleTargetZ,
+            initialTransform,
+            interpolation,
+            stepSize
+        )
+        currentEntity!!.add(component)
+        return instance
+    }
 
     companion object {
         private val instance = EntityBuilder()
