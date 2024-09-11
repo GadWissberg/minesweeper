@@ -6,7 +6,9 @@ import com.badlogic.gdx.graphics.g3d.Model
 enum class ModelsDefinitions(fileNames: Int = 1) : AssetDefinition<Model> {
 
     PIG,
-    ROCK,
+    ROCK_0,
+    ROCK_1,
+    ROCK_2,
     CRATE,
     TREE_MERGED,
     FLOWERS,

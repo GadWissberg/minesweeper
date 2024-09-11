@@ -189,7 +189,8 @@ class PlayerMovementHandler(
             && desiredLocation.z >= 0
             && desiredLocation.z < testMapValues.size
         ) {
-            if (testMapValues[desiredLocation.z.toInt()][desiredLocation.x.toInt()] == 4) {
+            val tileValue = testMapValues[desiredLocation.z.toInt()][desiredLocation.x.toInt()]
+            if (tileValue == 4 || tileValue == 6) {
                 desiredLocation.setZero()
             } else {
                 dispatcher.dispatchMessage(SystemEvents.PLAYER_INITIATED_MOVE.ordinal)

@@ -63,46 +63,54 @@ class MapSystemImpl : GameEntitySystem(), MapSystem {
                     .addTileComponent()
                     .finishAndAddToEngine()
                 tiles[row][col] = tileEntity
+                val tileTextureDescription = (tileModelInstance.materials.get(0)
+                    .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription
                 if (gameSessionData.testMapValues[row][col] == 3) {
-                    (tileModelInstance.materials.get(0)
-                        .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                    tileTextureDescription.texture =
                         managers.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_DESTINATION)
-                } else if (gameSessionData.testMapValues[row][col] == 4) {
-                    (tileModelInstance.materials.get(0)
-                        .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
+                } else {
+                    val unoccupiedTile =
                         managers.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_UNOCCUPIED)
-                    val modelInstance = ModelInstance(
-                        managers.assetsManager.getAssetByDefinition(ModelsDefinitions.ROCK)
-                    )
-                    EntityBuilder.beginBuildingEntity(engine)
-                        .addModelInstanceComponent(
-                            modelInstance, Vector3(col + 0.5F, 0F, row + 0.5F),
-                            managers.assetsManager.getCachedBoundingBox(ModelsDefinitions.ROCK)
-                        ).finishAndAddToEngine()
-                } else if (gameSessionData.testMapValues[row][col] == 6) {
-                    (tileModelInstance.materials.get(0)
-                        .get(TextureAttribute.Diffuse) as TextureAttribute).textureDescription.texture =
-                        managers.assetsManager.getAssetByDefinition(TexturesDefinitions.TILE_UNOCCUPIED)
-                    val modelInstance = ModelInstance(
-                        managers.assetsManager.getAssetByDefinition(ModelsDefinitions.COW)
-                    )
-                    val rotation = MathUtils.random(3) * 90F
-                    val transform = modelInstance.transform
-                    transform.setTranslation(Vector3(col + 0.5F, 0F, row + 0.5F))
-                        .rotate(Vector3.Y, rotation)
-                    EntityBuilder.beginBuildingEntity(engine)
-                        .addModelInstanceComponent(
-                            modelInstance,
-                            managers.assetsManager.getCachedBoundingBox(ModelsDefinitions.COW)
-                        ).addShrinkAnimationComponent(
-                            MathUtils.random(1.1F, 1.2F),
-                            MathUtils.random(0.7F, 0.8F),
-                            MathUtils.random(1.2F, 1.3F),
-                            transform,
-                            if (MathUtils.randomBoolean()) Interpolation.exp5 else Interpolation.exp10,
-                            MathUtils.random(0.005F, 0.01F)
+                    if (gameSessionData.testMapValues[row][col] == 4) {
+                        tileTextureDescription.texture =
+                            unoccupiedTile
+                        val rockDefinition = listOf(
+                            ModelsDefinitions.ROCK_0,
+                            ModelsDefinitions.ROCK_1,
+                            ModelsDefinitions.ROCK_2
+                        ).random()
+                        val modelInstance = ModelInstance(
+                            managers.assetsManager.getAssetByDefinition(rockDefinition)
                         )
-                        .finishAndAddToEngine()
+                        EntityBuilder.beginBuildingEntity(engine)
+                            .addModelInstanceComponent(
+                                modelInstance, Vector3(col + 0.5F, 0F, row + 0.5F),
+                                managers.assetsManager.getCachedBoundingBox(rockDefinition)
+                            ).finishAndAddToEngine()
+                    } else if (gameSessionData.testMapValues[row][col] == 6) {
+                        tileTextureDescription.texture =
+                            unoccupiedTile
+                        val modelInstance = ModelInstance(
+                            managers.assetsManager.getAssetByDefinition(ModelsDefinitions.COW)
+                        )
+                        val rotation = MathUtils.random(3) * 90F
+                        val transform = modelInstance.transform
+                        transform.setTranslation(Vector3(col + 0.5F, 0F, row + 0.5F))
+                            .rotate(Vector3.Y, rotation)
+                        EntityBuilder.beginBuildingEntity(engine)
+                            .addModelInstanceComponent(
+                                modelInstance,
+                                managers.assetsManager.getCachedBoundingBox(ModelsDefinitions.COW)
+                            ).addShrinkAnimationComponent(
+                                MathUtils.random(1.1F, 1.2F),
+                                MathUtils.random(0.7F, 0.8F),
+                                MathUtils.random(1.2F, 1.3F),
+                                transform,
+                                if (MathUtils.randomBoolean()) Interpolation.exp5 else Interpolation.exp10,
+                                MathUtils.random(0.005F, 0.01F)
+                            )
+                            .finishAndAddToEngine()
+                    }
                 }
             }
         }
